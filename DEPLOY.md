@@ -52,21 +52,71 @@ game to fit would mean moving all state to Redis and driving round transitions
 from an external scheduler — a real project, not a config change.
 
 So host the server on something that keeps a process alive: Railway, Render,
-Fly.io, or any small VM. Then set two variables:
+Fly.io, or any small VM.
 
-| Where             | Variable           | Value                                  |
-| ----------------- | ------------------ | -------------------------------------- |
-| Vercel            | `VITE_SERVER_URL`  | `https://your-server-host`             |
-| The server host   | `CORS_ORIGIN`      | `https://your-app.vercel.app`          |
+### Wiring the two halves together
 
-`VITE_SERVER_URL` is read at **build time**, so changing it needs a redeploy of
-the client, not just a restart.
+On the **server host**:
 
-This is the two-origin setup, with the CORS surface and the build-time coupling
-that the section above warns about. If you would rather avoid both, skip Vercel
-and run `npm start` on the same host that serves the server: one origin, no
-`VITE_SERVER_URL`, no `CORS_ORIGIN`, and the room code URL a teacher writes on
-the board has one host in it.
+| Setting | Value                     |
+| ------- | ------------------------- |
+| Build   | `npm ci && npm run build:server` |
+| Start   | `npm run start:server`    |
+| Health  | `GET /health`             |
+
+`build:server` stops after the server, so the host does not spend time building
+a client it will never serve. Leave `CLIENT_DIST` unset there — that is what
+distinguishes this from the single-origin setup.
+
+Environment on the server host:
+
+```
+NODE_ENV=production
+CORS_ORIGIN=https://your-app.vercel.app
+LOG_LEVEL=info
+```
+
+`PORT` is normally injected by the platform; the server reads it. Do not set
+`CLIENT_DIST`.
+
+On **Vercel**, one environment variable:
+
+```
+VITE_SERVER_URL=https://your-server-host
+```
+
+It is read at **build time**, not runtime, so changing it needs a redeploy of
+the client rather than a restart. Get it wrong and the client tries to open a
+socket against the Vercel domain, where nothing is listening — the page renders
+fine and simply never connects.
+
+### Preview deployments
+
+Vercel gives every preview a fresh domain, so an exact `CORS_ORIGIN` blocks all
+of them. `CORS_ORIGIN` accepts a wildcard on the host for this:
+
+```
+CORS_ORIGIN=https://your-app.vercel.app,https://*.vercel.app
+```
+
+Be deliberate about that second entry. `https://*.vercel.app` trusts anything
+anyone hosts on Vercel, not only your previews. It is a reasonable trade for a
+staging server and a poor one for the server a school actually uses — so prefer
+listing only the production domain there, and keep the wildcard on a separate
+staging deployment.
+
+### Checking it works
+
+Confirm the two halves can actually see each other, from a browser rather than
+from curl, because CORS only exists in a browser:
+
+1. Open the Vercel URL and check the network panel for a `socket.io` request
+   that upgrades to a websocket rather than failing.
+2. A CORS rejection appears as a blocked request mentioning
+   `Access-Control-Allow-Origin`; that means `CORS_ORIGIN` does not list the
+   domain you are on.
+3. A request that never appears at all means `VITE_SERVER_URL` was missing when
+   the client was built.
 
 ## Environment
 

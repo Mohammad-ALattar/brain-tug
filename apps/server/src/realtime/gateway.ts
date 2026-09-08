@@ -44,7 +44,7 @@ import {
   switchTeamSchema,
   watchArenaSchema,
 } from '@mtow/shared';
-import type { ServerConfig } from '../config.js';
+import { corsOriginCheck, type ServerConfig } from '../config.js';
 import type { Logger } from '../logger.js';
 import { allocateRoomCode } from '../store/roomCodes.js';
 import { createInMemorySessionStore, type SessionStore } from '../store/sessionStore.js';
@@ -69,7 +69,7 @@ export function attachGateway(
   logger: Logger,
 ): Gateway {
   const io: GameServer = new Server<ClientToServerEvents, ServerToClientEvents>(httpServer, {
-    cors: { origin: config.corsOrigins === true ? true : config.corsOrigins },
+    cors: { origin: corsOriginCheck(config.corsOrigins) },
     // Classroom wifi drops constantly; be patient before declaring a socket gone.
     pingTimeout: 25_000,
     pingInterval: 10_000,

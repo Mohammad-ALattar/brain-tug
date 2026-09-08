@@ -2,7 +2,7 @@ import { createServer, type Server as HttpServer } from 'node:http';
 import { join, resolve } from 'node:path';
 import express from 'express';
 import cors from 'cors';
-import type { ServerConfig } from './config.js';
+import { corsOriginCheck, type ServerConfig } from './config.js';
 import type { Logger } from './logger.js';
 import { attachGateway, type Gateway } from './realtime/gateway.js';
 
@@ -16,7 +16,7 @@ export type RunningServer = {
 export function startServer(config: ServerConfig, logger: Logger): RunningServer {
   const app = express();
 
-  app.use(cors({ origin: config.corsOrigins === true ? true : config.corsOrigins }));
+  app.use(cors({ origin: corsOriginCheck(config.corsOrigins) }));
   app.use(express.json({ limit: '16kb' }));
 
   const httpServer = createServer(app);

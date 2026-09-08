@@ -25,6 +25,51 @@ export type ServerConfig = {
   clientDist: string | null;
 };
 
+/**
+ * Whether an origin is permitted, supporting a leading `*.` wildcard on the
+ * host.
+ *
+ * Exact matching alone is impractical when the client is on a platform that
+ * mints a fresh domain per preview deployment: every preview would be blocked,
+ * and nobody can list domains that do not exist yet. A wildcard entry such as
+ * `https://*.vercel.app` covers them.
+ *
+ * The wildcard deliberately spans dots, so it also matches the multi-label
+ * names those platforms generate. That makes it a broad grant, which is why it
+ * belongs in a preview configuration and not in the production one: an entry
+ * like `https://*.vercel.app` trusts anything anyone hosts on that platform.
+ */
+export function isOriginAllowed(allowed: string[] | true, origin: string): boolean {
+  if (allowed === true) return true;
+
+  return allowed.some((entry) => {
+    if (entry === origin) return true;
+    if (!entry.includes('*')) return false;
+
+    const [scheme, host] = entry.split('://');
+    if (!scheme || !host?.startsWith('*.')) return false;
+
+    const suffix = host.slice(1); // ".vercel.app"
+    const [originScheme, originHost] = origin.split('://');
+    return originScheme === scheme && !!originHost?.endsWith(suffix);
+  });
+}
+
+/**
+ * Builds the origin check in the shape the `cors` package wants, which is also
+ * what Socket.IO passes straight through to it.
+ */
+export function corsOriginCheck(
+  allowed: string[] | true,
+): (origin: string | undefined, done: (err: Error | null, allow?: boolean) => void) => void {
+  return (origin, done) => {
+    // No `Origin` header means a same-origin or non-browser request, such as a
+    // health probe. There is nothing to deny.
+    if (!origin) return done(null, true);
+    done(null, isOriginAllowed(allowed, origin));
+  };
+}
+
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): ServerConfig {
   const parsed = envSchema.safeParse(env);
   if (!parsed.success) {

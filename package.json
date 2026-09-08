@@ -27,6 +27,7 @@
     "e2e": "npm run build && playwright test",
     "e2e:ui": "playwright test --ui",
     "start": "node scripts/serve-built.mjs",
+    "start:server": "node apps/server/dist/index.js",
     "typecheck": "tsc --build --force",
     "lint": "eslint .",
     "format": "prettier --write \"**/*.{ts,tsx,css,json,md}\""
