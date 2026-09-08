@@ -1,0 +1,14 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    // Playwright transpiles these specs itself and resolves extensionless
+    // relative imports, so the base NodeNext resolution does not apply here.
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "noEmit": true,
+    "composite": true,
+    "outDir": "../node_modules/.cache/tsc-e2e",
+    "types": ["node"]
+  },
+  "include": ["**/*.ts"]
+}

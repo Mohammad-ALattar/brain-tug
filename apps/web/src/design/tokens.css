@@ -1,0 +1,196 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/**
+ * Design tokens shared by all three clients. Only tokens and a handful of
+ * primitives live here; everything else is composed with Tailwind utilities.
+ */
+@layer base {
+  :root {
+    /* The Classroom Arena is authored against a fixed design canvas and scaled
+       to fit the display, so every arena dimension can be expressed in px. */
+    --arena-design-width: 1920px;
+    --arena-design-height: 1080px;
+
+    /* The arena motion contract, written imperatively by `useArenaMotion` so
+       rope, character and glow motion never pass through a React render.
+       Everything below is read only by CSS. */
+
+    /* Rope position, normalised to [-1, 1]. */
+    --rope-pos: 0;
+    /* Distance from centre to a full win, in px on the design canvas. */
+    --rope-travel: 300px;
+    /* How close the leader is to winning, 0..1, and the same split by side. */
+    --tension: 0;
+    --tension-blue: 0;
+    --tension-red: 0;
+    /* Streak tier reached per team, 0 being the base tier. */
+    --streak-blue: 0;
+    --streak-red: 0;
+    /* 1 while a team is braced from a just-landed pull, otherwise 0. */
+    --lean-blue: 0;
+    --lean-red: 0;
+
+    /* Seconds the rope takes to settle after a pull. */
+    --rope-settle: 0.65s;
+    /* Easing shared by the rope and the figures so they move as one assembly. */
+    --rope-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-paper text-ink font-sans antialiased;
+    /* The arena is a kiosk display and the student pad is a touch surface;
+       neither should ever rubber-band or text-select. */
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Digits in scores, timers and answers must not reflow as values change. */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum';
+  }
+}
+
+@layer components {
+  .mtow-card {
+    @apply rounded-card bg-paper-card shadow-card border border-paper-line;
+  }
+
+  .mtow-panel {
+    @apply rounded-panel bg-paper-card shadow-panel border border-paper-line;
+  }
+
+  .mtow-chip {
+    @apply rounded-chip inline-flex items-center gap-1.5 font-bold uppercase tracking-wide;
+  }
+
+  /* Focus ring used across every interactive surface, including the student pad. */
+  .mtow-focus {
+    @apply outline-none focus-visible:ring-4 focus-visible:ring-blueteam-300 focus-visible:ring-offset-1;
+  }
+}
+
+@layer components {
+  /*
+   * The rope assembly. One transform, driven entirely by `--rope-pos`, so the
+   * browser interpolates it on the compositor while React does nothing.
+   */
+  .mtow-rope-track {
+    transform: translateX(calc(var(--rope-pos) * var(--rope-travel)));
+    transition: transform var(--rope-settle) var(--rope-ease);
+    will-change: transform;
+  }
+
+  /* The thin marker showing exactly where the rope sits on the field. */
+  .mtow-rope-marker {
+    left: calc((var(--rope-pos) + 1) / 2 * 100%);
+    transition: left var(--rope-settle) var(--rope-ease);
+  }
+
+  /* Per-side tension glow. Opacity is the only animated property. */
+  .mtow-tension-blue {
+    background: linear-gradient(90deg, rgba(47, 107, 243, 0.5), rgba(47, 107, 243, 0) 55%);
+    opacity: calc(var(--tension-blue) * 0.55);
+    transition: opacity var(--rope-settle) ease-out;
+  }
+
+  .mtow-tension-red {
+    background: linear-gradient(270deg, rgba(239, 51, 68, 0.5), rgba(239, 51, 68, 0) 55%);
+    opacity: calc(var(--tension-red) * 0.55);
+    transition: opacity var(--rope-settle) ease-out;
+  }
+
+  /*
+   * Streak tiers, as an escalating ring on a team panel. The tier index comes
+   * from the same `GameRules` the server scores with, so adding a tier to the
+   * rules deepens the glow without touching this file.
+   */
+  .mtow-streak-blue {
+    box-shadow: 0 0 calc(var(--streak-blue) * 10px) calc(var(--streak-blue) * 2px)
+      rgba(47, 107, 243, calc(var(--streak-blue) * 0.18));
+    transition: box-shadow 0.4s ease-out;
+  }
+
+  .mtow-streak-red {
+    box-shadow: 0 0 calc(var(--streak-red) * 10px) calc(var(--streak-red) * 2px)
+      rgba(239, 51, 68, calc(var(--streak-red) * 0.18));
+    transition: box-shadow 0.4s ease-out;
+  }
+}
+
+@layer utilities {
+  /* The floating pull badge rises and fades, then unmounts itself. */
+  @keyframes pullFloat {
+    0% {
+      opacity: 0;
+      transform: translate(-50%, 10px) scale(0.9);
+    }
+    18% {
+      opacity: 1;
+      transform: translate(-50%, -4px) scale(1.04);
+    }
+    30% {
+      transform: translate(-50%, -8px) scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: translate(-50%, -54px) scale(0.98);
+    }
+  }
+
+  /* The result card lands rather than appearing, so the room notices it. */
+  @keyframes victoryRise {
+    from {
+      opacity: 0;
+      transform: translateY(28px) scale(0.96);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  /* Each countdown digit pops as it is written. */
+  @keyframes countdownPop {
+    from {
+      transform: scale(1.35);
+      opacity: 0.35;
+    }
+    to {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  /* Applied to the whole arena while a team is close to winning. */
+  @keyframes tensionPulse {
+    0%,
+    100% {
+      opacity: 0.25;
+    }
+    50% {
+      opacity: 0.6;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --rope-settle: 0.01s;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
