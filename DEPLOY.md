@@ -25,14 +25,21 @@ classroom running yesterday's build until someone hard-refreshes.
 
 ## Vercel, and why the server does not belong there
 
-Vercel builds the **client only**. `vercel.json` sets the build to
-`npm run build:web`, which skips the server entirely, with
-`apps/web/dist` as the output and a rewrite so `/play/ABC123` gets the SPA shell
-instead of a 404.
+Vercel builds the **client only**. Point the project's **Root Directory** at
+`apps/web`; from there Vercel runs that workspace's own `build` script and never
+looks at `apps/server`. `apps/web/vercel.json` pins the Vite preset and adds a
+rewrite so `/play/ABC123` gets the SPA shell instead of a 404.
 
-Building the server on Vercel is what produced `sh: line 1: tsc: command not
-found` — but fixing that error would have been the wrong move, because the
-server cannot usefully run there even once it compiles.
+Both workspaces build with `tsc --build` rather than `tsc -p`, so each one
+compiles the `packages/shared` project reference it depends on. That is what
+lets `apps/web` build in isolation, with no root orchestration step and no
+dependency on the server ever being compiled.
+
+Getting the Root Directory wrong is what produced
+`Missing script: "build:web"` with `location /vercel/path0/apps/server`: the
+build command was resolving against the server workspace. Adding that script to
+`apps/server` would have silenced the error and then built the wrong thing,
+because the server cannot usefully run on Vercel at all.
 
 Vercel added WebSocket support on Fluid Compute, so the connection itself would
 work. Three properties of that model break this particular server:
@@ -63,6 +70,11 @@ On the **server host**:
 | Build   | `npm ci && npm run build:server` |
 | Start   | `npm run start:server`    |
 | Health  | `GET /health`             |
+
+Note the asymmetry with Vercel: Railway's root directory stays at the
+**repository root**, not `apps/server`, because `npm ci` needs the lockfile and
+the workspace definitions that only exist there. The root `build:server` and
+`start:server` scripts then target the one workspace.
 
 `build:server` stops after the server, so the host does not spend time building
 a client it will never serve. Leave `CLIENT_DIST` unset there — that is what
