@@ -13,14 +13,11 @@
       "@/*": ["src/*"]
     }
   },
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    "vite.config.ts",
-    "vitest.config.ts",
-    // The contrast test reads the palette straight out of the Tailwind config,
-    // so the config is part of the typed program rather than just a build input.
-    "tailwind.config.ts"
-  ],
+  // The production program: application source and the Vite config that builds
+  // it, and nothing that only exists to test it. Tests, their fixtures and the
+  // Tailwind config the contrast test reads live in tsconfig.test.json, so a
+  // deployment build never needs Vitest's types to be installed.
+  "include": ["src/**/*.ts", "src/**/*.tsx", "vite.config.ts"],
+  "exclude": ["src/**/*.test.ts", "src/**/*.test.tsx", "src/test", "dist"],
   "references": [{ "path": "../../packages/shared" }]
 }

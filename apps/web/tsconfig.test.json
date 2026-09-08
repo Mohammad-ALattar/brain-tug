@@ -1,0 +1,19 @@
+{
+  // The test program. It deliberately re-includes the application source rather
+  // than referencing tsconfig.json, because tests import that source directly
+  // and the production project emits nothing to reference.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "node_modules/.cache/tsconfig.web-test.tsbuildinfo"
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "vitest.config.ts",
+    // The contrast test reads the palette straight out of the Tailwind config,
+    // so the config is part of the typed program rather than just a build input.
+    "tailwind.config.ts"
+  ],
+  "exclude": ["dist"],
+  "references": [{ "path": "../../packages/shared" }]
+}
