@@ -23,6 +23,51 @@ Asset caching is already handled: hashed filenames are served `immutable` for a
 year, and `index.html` is served `no-cache` so a deploy does not leave a
 classroom running yesterday's build until someone hard-refreshes.
 
+## Vercel, and why the server does not belong there
+
+Vercel builds the **client only**. `vercel.json` sets the build to
+`npm run build:web`, which skips the server entirely, with
+`apps/web/dist` as the output and a rewrite so `/play/ABC123` gets the SPA shell
+instead of a 404.
+
+Building the server on Vercel is what produced `sh: line 1: tsc: command not
+found` — but fixing that error would have been the wrong move, because the
+server cannot usefully run there even once it compiles.
+
+Vercel added WebSocket support on Fluid Compute, so the connection itself would
+work. Three properties of that model break this particular server:
+
+- **Instances are paused between work and any instance may take a connection.**
+  Game state lives in memory in `SessionStore`, keyed by room code. Half a
+  classroom would land on an instance that has never heard of their match.
+- **Round timing is server-side.** `TimerService` holds a real timer per round to
+  close the question and start the next one. A paused instance does not fire it,
+  so the game stops advancing while the clock on screen keeps running.
+- **A connection lives at most as long as the function's duration limit.** A
+  match runs for a whole lesson.
+
+None of that is a Vercel flaw; a request-scoped, horizontally-scaled runtime is
+simply the opposite of what an authoritative game server needs. Reworking the
+game to fit would mean moving all state to Redis and driving round transitions
+from an external scheduler — a real project, not a config change.
+
+So host the server on something that keeps a process alive: Railway, Render,
+Fly.io, or any small VM. Then set two variables:
+
+| Where             | Variable           | Value                                  |
+| ----------------- | ------------------ | -------------------------------------- |
+| Vercel            | `VITE_SERVER_URL`  | `https://your-server-host`             |
+| The server host   | `CORS_ORIGIN`      | `https://your-app.vercel.app`          |
+
+`VITE_SERVER_URL` is read at **build time**, so changing it needs a redeploy of
+the client, not just a restart.
+
+This is the two-origin setup, with the CORS surface and the build-time coupling
+that the section above warns about. If you would rather avoid both, skip Vercel
+and run `npm start` on the same host that serves the server: one origin, no
+`VITE_SERVER_URL`, no `CORS_ORIGIN`, and the room code URL a teacher writes on
+the board has one host in it.
+
 ## Environment
 
 Copy `.env.example` and set at minimum:

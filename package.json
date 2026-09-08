@@ -18,6 +18,8 @@
     "dev:web": "npm run dev --workspace=@mtow/web",
     "build:shared": "npm run build --workspace=@mtow/shared",
     "build": "npm run build:shared && npm run build --workspace=@mtow/server && npm run build --workspace=@mtow/web",
+    "build:web": "npm run build:shared && npm run build --workspace=@mtow/web",
+    "build:server": "npm run build:shared && npm run build --workspace=@mtow/server",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",

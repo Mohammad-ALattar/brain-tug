@@ -64,4 +64,7 @@ dropping off mid-round.
 
 ## Deploying
 
-See [DEPLOY.md](./DEPLOY.md).
+See [DEPLOY.md](./DEPLOY.md). The short version: the server holds game state in
+memory and drives round timers itself, so it needs a host that keeps a process
+alive. Serverless platforms cannot run it, though they are fine for the client —
+`npm run build:web` builds the client alone for exactly that.
