@@ -10,13 +10,16 @@ import {
 import {
   correctAnswerFor,
   questionIdFor,
-  scriptedProvider,
+  scriptedDealer,
   setupGame,
+  withRope,
   T0,
 } from '@braintug/shared/testing';
 import { useGameStore } from '../store/gameStore';
 
 export type FixtureOptions = {
+  mode?: GameSession['config']['mode'];
+  subject?: GameSession['config']['content']['subject'];
   playersPerTeam?: number;
   totalQuestions?: number;
   /** Teams that should have already locked in a correct answer. */
@@ -35,11 +38,12 @@ export type FixtureOptions = {
  */
 export function makeSession(options: FixtureOptions = {}): GameSession {
   const { session } = setupGame({
+    mode: options.mode ?? 'tug_of_war',
+    subject: options.subject ?? 'math',
     playersPerTeam: options.playersPerTeam ?? 2,
     totalQuestions: options.totalQuestions ?? 20,
     stayInLobby: options.stayInLobby ?? false,
-    // Distinct problems per team, mirroring the reference's `2 x 10` vs `9 x 10`.
-    provider: scriptedProvider([
+    dealer: scriptedDealer([
       { left: 2, right: 10, answer: 20 },
       { left: 9, right: 10, answer: 90 },
       { left: 3, right: 7, answer: 21 },
@@ -53,8 +57,7 @@ export function makeSession(options: FixtureOptions = {}): GameSession {
     current = submitAnswer(current, {
       playerId: current.teams[teamId].playerIds[index]!,
       questionId: questionIdFor(current, teamId),
-      // Guaranteed wrong: the scripted answers are all products of the operands.
-      value: correctAnswerFor(current, teamId) + 1,
+      value: '999',
       now: T0 + 1000,
     }).session;
   }
@@ -69,7 +72,7 @@ export function makeSession(options: FixtureOptions = {}): GameSession {
   }
 
   if (options.ropePosition !== undefined) {
-    current = { ...current, ropePosition: options.ropePosition };
+    current = withRope(current, options.ropePosition);
   }
 
   return current;
@@ -95,7 +98,7 @@ export function seedStore(
     connection: 'connected',
     error: null,
     drafts: { blue: '', red: '' },
-    lastPull: null,
+    lastProgress: null,
     lastResolution: null,
     me,
     myOutcome: null,

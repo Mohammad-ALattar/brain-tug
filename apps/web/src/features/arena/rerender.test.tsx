@@ -4,11 +4,11 @@ import { act, cleanup, render, screen } from '@testing-library/react';
 import type { PlayerId, PublicPlayer, TeamId } from '@braintug/shared';
 import { makeState, resetStore, seedStore } from '../../test/fixtures';
 import { useGameStore } from '../../store/gameStore';
-import { MirroredKeypad } from './MirroredKeypad';
-import { QuestionCard } from './QuestionCard';
-import { TeamRoster } from './TeamRoster';
-import { TeamStreak } from './TeamStreak';
-import { TopGameHeader } from './TopGameHeader';
+import { MirroredKeypad } from './modes/tugOfWar/MirroredKeypad';
+import { QuestionCard } from './modes/tugOfWar/QuestionCard';
+import { TeamRoster } from './shell/TeamRoster';
+import { TeamStreak } from './shell/TeamStreak';
+import { TopGameHeader } from './shell/TopGameHeader';
 
 /**
  * Rerender budgets for the classroom display.
@@ -141,13 +141,17 @@ describe('arena rerender budget', () => {
     resetCounts();
 
     act(() =>
-      useGameStore.getState().applyPull({
+      useGameStore.getState().applyProgress({
         teamId: 'blue',
         playerId: 'p1' as PlayerId,
-        pull: 0.055,
+        gain: 0.055,
         streak: 1,
-        ropePosition: 0.055,
         score: 1,
+        modeState: {
+          kind: 'tug_of_war',
+          ropePosition: 0.055,
+          arenaHalfMetres: 4,
+        },
       }),
     );
 
@@ -175,7 +179,8 @@ describe('arena rerender budget', () => {
       connected: true,
       correctCount: 0,
       incorrectCount: 0,
-      contributedPull: 0,
+      contribution: 0,
+      streak: 0,
     };
     act(() => useGameStore.getState().applyPlayerJoined(arrival));
 

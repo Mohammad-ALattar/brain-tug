@@ -1,12 +1,13 @@
+import { checkAnswer } from '../content/answer.js';
 import type { AnswerOutcome, AnswerRecord, RejectionReason } from '../domain/answer.js';
+import type { RoundTeamState } from '../domain/game.js';
 import type { QuestionId } from '../domain/ids.js';
 import type { PlayerId } from '../domain/ids.js';
-import type { GameSession } from '../domain/session.js';
-import type { RoundTeamState } from '../domain/game.js';
-import { parseAnswerInput, validateAnswer } from '../questions/validate.js';
-import { applyPull } from '../rules/rope.js';
-import { computePull } from '../rules/scoring.js';
-import { roundDurationMs, settleAfterPull } from './rounds.js';
+import { modeOf, type GameSession } from '../domain/session.js';
+import { finalizeBrainRaceGain } from '../modes/brainRace.js';
+import { expectModeState } from '../modes/types.js';
+import { computeGain } from '../rules/scoring.js';
+import { roundDurationMs, settleAfterAnswer } from './rounds.js';
 import type { EngineEvent, EngineResult } from './types.js';
 
 export type SubmitAnswerCommand = {
@@ -40,10 +41,10 @@ function rejected(session: GameSession, reason: RejectionReason): SubmitAnswerRe
  *  5. the round clock has not expired, measured against the server clock
  *  6. the team has not already been locked by a correct answer
  *  7. the player has not already spent their attempt this round
- *  8. the submitted value parses as an integer
+ *  8. the submitted value is well-formed for the question type
  *
- * Score, streak, rope position and pull are all computed here from the server's
- * own rules; nothing the client sends contributes to them.
+ * Score, streak and progress are all computed here from the server's own rules;
+ * nothing the client sends contributes to them.
  */
 export function submitAnswer(
   session: GameSession,
@@ -72,10 +73,9 @@ export function submitAnswer(
     return rejected(session, 'player_already_answered');
   }
 
-  const parsed = parseAnswerInput(command.value);
-  if (parsed === null) return rejected(session, 'malformed_answer');
+  const checked = checkAnswer(teamRound.question, command.value);
+  if (checked.status === 'malformed') return rejected(session, 'malformed_answer');
 
-  const correct = validateAnswer(teamRound.question, parsed);
   const elapsedMs = Math.max(0, command.now - round.startedAt);
 
   const record: AnswerRecord = {
@@ -83,13 +83,13 @@ export function submitAnswer(
     teamId,
     questionId: teamRound.question.id,
     questionIndex: round.index,
-    value: parsed,
-    correct,
+    value: checked.value,
+    correct: checked.correct,
     elapsedMs,
     submittedAt: command.now,
   };
 
-  return correct
+  return checked.correct
     ? applyCorrect(session, command, record, elapsedMs)
     : applyIncorrect(session, command, record, elapsedMs);
 }
@@ -105,45 +105,79 @@ function applyCorrect(
   const team = session.teams[teamId];
   const player = session.players[command.playerId]!;
   const teamRound = round.teams[teamId];
+  const mode = modeOf(session);
+  const isRace = session.config.mode === 'brain_race';
 
-  // The streak *before* this answer feeds the multiplier, so the first correct
-  // answer of a run is unmultiplied.
-  const breakdown = computePull(session.rules, {
+  // Tug of War scores with the team streak; Brain Race streaks are per-player
+  // and presentation-only in this phase, so distance gain ignores streak.
+  const streakBefore = isRace ? player.streak : team.streak;
+  const breakdown = computeGain(session.rules, {
     difficulty: teamRound.question.difficulty,
     elapsedMs,
     roundDurationMs: roundDurationMs(session),
-    streak: team.streak,
+    streak: isRace ? 0 : streakBefore,
   });
 
-  const streak = team.streak + 1;
-  const ropePosition = applyPull(session.ropePosition, teamId, breakdown.pull);
+  const streak = streakBefore + 1;
+  let modeState = mode.applyGain(session.modeState, { teamId, playerId: command.playerId }, breakdown.gain);
+  if (isRace) {
+    modeState = finalizeBrainRaceGain(
+      session,
+      expectModeState(modeState, 'brain_race'),
+      command.playerId,
+      teamId,
+    );
+  }
 
-  const next: GameSession = {
-    ...session,
-    ropePosition,
-    answers: [...session.answers, record],
-    teams: {
-      ...session.teams,
-      [teamId]: {
+  const nextTeam = isRace
+    ? {
+        ...team,
+        score: team.score + session.rules.pointsPerCorrect,
+        correctCount: team.correctCount + 1,
+        totalGain: team.totalGain + breakdown.gain,
+      }
+    : {
         ...team,
         score: team.score + session.rules.pointsPerCorrect,
         streak,
         bestStreak: Math.max(team.bestStreak, streak),
         correctCount: team.correctCount + 1,
-        totalPull: team.totalPull + breakdown.pull,
-      },
-    },
-    players: {
-      ...session.players,
-      [command.playerId]: {
+        totalGain: team.totalGain + breakdown.gain,
+      };
+
+  const nextPlayer = isRace
+    ? {
         ...player,
         correctCount: player.correctCount + 1,
-        contributedPull: player.contributedPull + breakdown.pull,
+        contribution: player.contribution + breakdown.gain,
+        streak,
+        bestStreak: Math.max(player.bestStreak, streak),
         fastestCorrectMs:
           player.fastestCorrectMs === null
             ? elapsedMs
             : Math.min(player.fastestCorrectMs, elapsedMs),
-      },
+      }
+    : {
+        ...player,
+        correctCount: player.correctCount + 1,
+        contribution: player.contribution + breakdown.gain,
+        fastestCorrectMs:
+          player.fastestCorrectMs === null
+            ? elapsedMs
+            : Math.min(player.fastestCorrectMs, elapsedMs),
+      };
+
+  const next: GameSession = {
+    ...session,
+    modeState,
+    answers: [...session.answers, record],
+    teams: {
+      ...session.teams,
+      [teamId]: nextTeam,
+    },
+    players: {
+      ...session.players,
+      [command.playerId]: nextPlayer,
     },
     round: {
       ...round,
@@ -151,11 +185,10 @@ function applyCorrect(
         ...round.teams,
         [teamId]: {
           ...teamRound,
-          locked: true,
-          lockedByPlayerId: command.playerId,
-          lockedAt: command.now,
+          locked: mode.locksTeamOnCorrect,
+          lockedByPlayerId: mode.locksTeamOnCorrect ? command.playerId : null,
+          lockedAt: mode.locksTeamOnCorrect ? command.now : null,
           attemptedPlayerIds: [...teamRound.attemptedPlayerIds, command.playerId],
-          // Clear the mirror so the TV stops showing a half-typed answer.
           draft: null,
         },
       },
@@ -165,7 +198,7 @@ function applyCorrect(
   const outcome: AnswerOutcome = {
     status: 'correct',
     questionId: record.questionId,
-    pull: breakdown.pull,
+    gain: breakdown.gain,
     points: session.rules.pointsPerCorrect,
     streak,
     elapsedMs,
@@ -174,20 +207,17 @@ function applyCorrect(
   const events: EngineEvent[] = [
     { type: 'answer_result', playerId: command.playerId, teamId, outcome },
     {
-      type: 'pull_applied',
+      type: 'progress_applied',
       teamId,
       playerId: command.playerId,
-      pull: breakdown.pull,
-      ropePosition,
+      gain: breakdown.gain,
       streak,
       score: next.teams[teamId].score,
+      modeState,
     },
   ];
 
-  // Both teams answering correctly ends the round early, and a pull that reaches
-  // the threshold ends the game. Both are rules, so they are applied here rather
-  // than being left for the caller to remember.
-  const settled = settleAfterPull(next, command.now);
+  const settled = settleAfterAnswer(next, command.now);
   return { session: settled.session, events: [...events, ...settled.events], outcome };
 }
 
@@ -202,18 +232,26 @@ function applyIncorrect(
   const team = session.teams[teamId];
   const player = session.players[command.playerId]!;
   const teamRound = round.teams[teamId];
+  const isRace = session.config.mode === 'brain_race';
+
+  const nextTeam = isRace
+    ? { ...team, incorrectCount: team.incorrectCount + 1 }
+    : { ...team, streak: 0, incorrectCount: team.incorrectCount + 1 };
+
+  const nextPlayer = isRace
+    ? { ...player, incorrectCount: player.incorrectCount + 1, streak: 0 }
+    : { ...player, incorrectCount: player.incorrectCount + 1 };
 
   const next: GameSession = {
     ...session,
     answers: [...session.answers, record],
     teams: {
       ...session.teams,
-      // A wrong answer breaks the team's streak but costs no rope.
-      [teamId]: { ...team, streak: 0, incorrectCount: team.incorrectCount + 1 },
+      [teamId]: nextTeam,
     },
     players: {
       ...session.players,
-      [command.playerId]: { ...player, incorrectCount: player.incorrectCount + 1 },
+      [command.playerId]: nextPlayer,
     },
     round: {
       ...round,
@@ -221,7 +259,6 @@ function applyIncorrect(
         ...round.teams,
         [teamId]: {
           ...teamRound,
-          // The attempt is spent, which is what prevents brute-forcing.
           attemptedPlayerIds: [...teamRound.attemptedPlayerIds, command.playerId],
           draft: null,
         },
@@ -232,7 +269,6 @@ function applyIncorrect(
   const outcome: AnswerOutcome = {
     status: 'incorrect',
     questionId: record.questionId,
-    correctAnswer: teamRound.question.answer,
     elapsedMs,
   };
 
@@ -240,15 +276,15 @@ function applyIncorrect(
     { type: 'answer_result', playerId: command.playerId, teamId, outcome },
   ];
 
-  // A wrong answer can still be the last available attempt, which closes the round.
-  const settled = settleAfterPull(next, command.now);
+  const settled = settleAfterAnswer(next, command.now);
   return { session: settled.session, events: [...events, ...settled.events], outcome };
 }
 
 /**
  * Records in-progress typing for the classroom display's mirrored keypad. Held
  * to the same membership and round guards as a real submission, but it never
- * touches score, rope or attempt state.
+ * touches score, progress or attempt state, and it is ignored for any question
+ * that is not a typed answer.
  */
 export function setAnswerDraft(
   session: GameSession,
@@ -263,12 +299,15 @@ export function setAnswerDraft(
 
   const teamId = player.teamId;
   const teamRound = round.teams[teamId];
+  if (teamRound.question.type !== 'type_answer') return { session, events: [] };
   if (teamRound.locked || teamRound.attemptedPlayerIds.includes(command.playerId)) {
     return { session, events: [] };
   }
 
-  // Only digits, and only as many as an answer could plausibly need.
-  const value = command.value.replace(/[^\d-]/g, '').slice(0, 12);
+  const value =
+    teamRound.question.inputMode === 'number'
+      ? command.value.replace(/[^\d-]/g, '').slice(0, 12)
+      : command.value.slice(0, 32);
   const draft = { playerId: command.playerId, value, updatedAt: command.now };
 
   const next: GameSession = {

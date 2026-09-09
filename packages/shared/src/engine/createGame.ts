@@ -1,8 +1,13 @@
+import type { ContentConfig } from '../content/source.js';
+import { SUBJECT_LABEL, type Subject } from '../content/subject.js';
+import { OPERATION_LABEL, type OperationChoice } from '../content/math/operations.js';
+import type { Difficulty } from '../content/question.js';
 import type { GameConfig } from '../domain/game.js';
 import { defaultIdFactory, type IdFactory } from '../domain/ids.js';
 import type { GameSession } from '../domain/session.js';
 import { DEFAULT_TEAM_NAMES, createTeam, type TeamId } from '../domain/team.js';
-import { OPERATION_LABEL, type Difficulty, type OperationChoice } from '../domain/question.js';
+import { GAME_MODE } from '../modes/registry.js';
+import { GAME_MODES, type GameModeId } from '../modes/types.js';
 import {
   COUNTDOWN_MS,
   DEFAULT_RULES,
@@ -18,6 +23,8 @@ import {
 } from '../rules/rules.js';
 
 export type CreateGameOptions = {
+  mode?: GameModeId;
+  subject?: Subject;
   operation?: OperationChoice;
   difficulty?: Difficulty;
   totalQuestions?: number;
@@ -25,6 +32,12 @@ export type CreateGameOptions = {
   countdownMs?: number;
   teamNames?: Partial<Record<TeamId, string>>;
   rules?: Partial<GameRules>;
+  /** Brain Race track length in metres. Ignored by other modes. */
+  trackMetres?: number;
+  /** Tug of War arena half-width in metres. Ignored by other modes. */
+  arenaHalfMetres?: number;
+  /** Brain Race: finishers needed to win. Host override; defaults at start. */
+  finishersRequiredPerTeam?: number;
   ids?: IdFactory;
   now: number;
 };
@@ -34,17 +47,38 @@ function clampInt(value: number, min: number, max: number, fallback: number): nu
   return Math.min(max, Math.max(min, Math.round(value)));
 }
 
-export function buildConfig(options: CreateGameOptions): GameConfig {
-  const operation = options.operation ?? 'mixed';
+function buildContent(options: CreateGameOptions): ContentConfig {
+  const subject = options.subject ?? 'math';
   const difficulty = options.difficulty ?? 'easy';
+  if (subject === 'math') {
+    return { subject, difficulty, operation: options.operation ?? 'mixed' };
+  }
+  return { subject, difficulty };
+}
+
+function buildRoundLabel(mode: GameModeId, content: ContentConfig): string {
+  const modeLabel = GAME_MODE[mode].label;
+  if (content.subject === 'math') {
+    return `${OPERATION_LABEL[content.operation ?? 'mixed']} · ${modeLabel}`;
+  }
+  return `${SUBJECT_LABEL[content.subject]} · ${modeLabel}`;
+}
+
+export function buildConfig(options: CreateGameOptions): GameConfig {
+  const mode = options.mode ?? 'tug_of_war';
+  if (!GAME_MODES.includes(mode)) {
+    throw new Error(`Unknown game mode "${String(mode)}"`);
+  }
+
+  const content = buildContent(options);
   const teamNames: Record<TeamId, string> = {
     blue: options.teamNames?.blue?.trim() || DEFAULT_TEAM_NAMES.blue,
     red: options.teamNames?.red?.trim() || DEFAULT_TEAM_NAMES.red,
   };
 
   return {
-    operation,
-    difficulty,
+    mode,
+    content,
     totalQuestions: clampInt(
       options.totalQuestions ?? DEFAULT_TOTAL_QUESTIONS,
       MIN_TOTAL_QUESTIONS,
@@ -64,8 +98,11 @@ export function buildConfig(options: CreateGameOptions): GameConfig {
       COUNTDOWN_MS,
     ),
     teamNames,
-    // Matches the reference subtitle `ROUND 1 - MULTIPLICATION DRILL`.
-    roundLabel: `${OPERATION_LABEL[operation]} drill`,
+    roundLabel: buildRoundLabel(mode, content),
+    finishersRequiredPerTeam:
+      mode === 'brain_race' && options.finishersRequiredPerTeam !== undefined
+        ? Math.max(1, Math.round(options.finishersRequiredPerTeam))
+        : undefined,
   };
 }
 
@@ -74,6 +111,7 @@ export function createGame(options: CreateGameOptions): GameSession {
   const ids = options.ids ?? defaultIdFactory;
   const config = buildConfig(options);
   const rules: GameRules = { ...DEFAULT_RULES, ...options.rules };
+  const mode = GAME_MODE[config.mode];
 
   return {
     gameId: ids.gameId(),
@@ -82,6 +120,11 @@ export function createGame(options: CreateGameOptions): GameSession {
     status: 'lobby',
     config,
     rules,
+    modeState: mode.createState({
+      rules,
+      trackMetres: options.trackMetres,
+      arenaHalfMetres: options.arenaHalfMetres,
+    }),
     teams: {
       blue: createTeam('blue', config.teamNames.blue),
       red: createTeam('red', config.teamNames.red),
@@ -91,7 +134,6 @@ export function createGame(options: CreateGameOptions): GameSession {
     round: null,
     currentQuestionIndex: -1,
     totalQuestions: config.totalQuestions,
-    ropePosition: 0,
     winner: null,
     answers: [],
     createdAt: options.now,

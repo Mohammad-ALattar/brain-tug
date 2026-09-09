@@ -10,7 +10,7 @@ const ROLES = [
   {
     to: '/arena',
     title: 'Classroom display',
-    blurb: 'The 16:9 tug-of-war arena for the projector or TV.',
+    blurb: 'The 16:9 arena for the projector or TV.',
     accent: 'bg-rope',
   },
   {
@@ -27,8 +27,7 @@ export function LandingRoute() {
       <main className="w-full max-w-3xl">
         <header className="text-center">
           <h1 className="font-display text-4xl font-extrabold tracking-tight sm:text-5xl">
-            Math <span className="text-blueteam-600">Tug</span> of{' '}
-            <span className="text-redteam-600">War</span>
+            Brain <span className="text-blueteam-600">Tug</span>
           </h1>
           <p className="mt-3 text-ink-muted">Pick how you are joining this match.</p>
         </header>

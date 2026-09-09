@@ -1,12 +1,14 @@
-import type { Difficulty } from '../domain/question.js';
+import type { Difficulty } from '../content/question.js';
 
 /**
- * Every tunable number in the game lives here so the rules can be reasoned about
- * and tested in one place rather than being scattered through the engine.
+ * Every tunable number shared by all game modes lives here so the rules can be
+ * reasoned about and tested in one place rather than being scattered through
+ * the engine. Mode-specific dimensions (how long a rope is, how long a race
+ * track is) live on the mode's own state instead.
  */
 export type GameRules = {
-  /** Rope distance a baseline correct answer wins, in normalised units. */
-  basePull: number;
+  /** Progress a baseline correct answer earns, as a fraction of the full span. */
+  baseGain: number;
   /** Multiplier applied per difficulty. */
   difficultyWeight: Record<Difficulty, number>;
   /**
@@ -19,19 +21,20 @@ export type GameRules = {
   streakTiers: { atStreak: number; multiplier: number; label: string }[];
   /** Points added to the team score per correct answer. */
   pointsPerCorrect: number;
-  /** `|ropePosition|` at which a team wins outright. */
-  winThreshold: number;
-  /** Half-width of the arena in metres, purely for display labels. */
-  arenaHalfMetres: number;
   /**
-   * A single pull is capped at this fraction of the full rope so one lucky
+   * How much progress wins the match outright, as a fraction of the span. Read
+   * by tug of war as `|ropePosition|` and by brain race as distance travelled.
+   */
+  winThreshold: number;
+  /**
+   * A single answer is capped at this fraction of the full span so one lucky
    * answer can never end the match outright.
    */
-  maxSinglePull: number;
+  maxSingleGain: number;
 };
 
 export const DEFAULT_RULES: GameRules = {
-  basePull: 0.055,
+  baseGain: 0.055,
   difficultyWeight: { easy: 1, medium: 1.25, hard: 1.6 },
   maxSpeedBonus: 1.5,
   speedBonusWindowFraction: 0.5,
@@ -43,8 +46,7 @@ export const DEFAULT_RULES: GameRules = {
   ],
   pointsPerCorrect: 1,
   winThreshold: 1,
-  arenaHalfMetres: 4,
-  maxSinglePull: 0.25,
+  maxSingleGain: 0.25,
 };
 
 export const DEFAULT_SECONDS_PER_QUESTION = 20;

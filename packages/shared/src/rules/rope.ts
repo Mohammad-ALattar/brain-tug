@@ -1,3 +1,4 @@
+import type { TugOfWarState } from '../modes/types.js';
 import { TEAM_PULL_SIGN, type TeamId } from '../domain/team.js';
 import type { GameRules } from './rules.js';
 
@@ -5,17 +6,20 @@ import type { GameRules } from './rules.js';
 export const ROPE_MIN = -1;
 export const ROPE_MAX = 1;
 
+/** Default half-width of the arena in metres, as labelled `-4m ... +4m`. */
+export const DEFAULT_ARENA_HALF_METRES = 4;
+
 export function clampRope(position: number): number {
   if (Number.isNaN(position)) return 0;
   return Math.min(ROPE_MAX, Math.max(ROPE_MIN, position));
 }
 
 /**
- * Applies a pull to the rope. `pull` is always a non-negative distance; the
+ * Applies a pull to the rope. `gain` is always a non-negative distance; the
  * direction comes from which team earned it.
  */
-export function applyPull(position: number, teamId: TeamId, pull: number): number {
-  const magnitude = Math.max(0, pull);
+export function applyPull(position: number, teamId: TeamId, gain: number): number {
+  const magnitude = Math.max(0, gain);
   return clampRope(position + TEAM_PULL_SIGN[teamId] * magnitude);
 }
 
@@ -33,11 +37,6 @@ export function leadingTeam(position: number): TeamId | null {
   return null;
 }
 
-/** Rope offset in metres, as labelled `-4m / CENTER 0m / +4m` in the reference. */
-export function ropeToMetres(rules: GameRules, position: number): number {
-  return position * rules.arenaHalfMetres;
-}
-
 /**
  * Rope position as a 0..1 fraction across the arena, which is what the
  * presentation layer needs to place the rope marker.
@@ -53,4 +52,13 @@ export function ropeToFraction(position: number): number {
 export function ropeTension(rules: GameRules, position: number): number {
   if (rules.winThreshold <= 0) return 1;
   return Math.min(1, Math.abs(position) / rules.winThreshold);
+}
+
+/**
+ * A rope distance in metres, as labelled `-4m / CENTER 0m / +4m`. Takes the
+ * arena scale rather than the whole state so it can also convert a delta, which
+ * is what the floating pull badge shows.
+ */
+export function ropeToMetres(state: TugOfWarState, position: number): number {
+  return position * state.arenaHalfMetres;
 }

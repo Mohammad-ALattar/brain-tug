@@ -100,7 +100,7 @@ describe('submission', () => {
   const correct: AnswerOutcome = {
     status: 'correct',
     questionId: 'q' as QuestionId,
-    pull: 0.055,
+    gain: 0.055,
     points: 1,
     streak: 1,
     elapsedMs: 1200,
@@ -143,7 +143,7 @@ describe('submission', () => {
     await userEvent.click(screen.getByRole('button', { name: /lock it in/i }));
 
     // The seeded state still shows the round open, yet the pad must be gone.
-    await waitFor(() => expect(screen.getByText(/answer sent/i)).toBeDefined());
+    await waitFor(() => expect(screen.getByText(/you're done for this question/i)).toBeDefined());
     expect(screen.queryByRole('button', { name: /lock it in/i })).toBeNull();
   });
 
@@ -201,10 +201,12 @@ describe('lockout and wait states', () => {
     expect(screen.queryByRole('group', { name: /answer keypad/i })).toBeNull();
   });
 
-  it('locks out a player who has already spent their attempt', () => {
+  it('locks out a player who has already spent their attempt while the round stays open', () => {
     renderAsBluePlayer(makeState({ wrongAttempts: [['blue', 0]] }));
 
-    expect(screen.getByText(/one attempt per question/i)).toBeDefined();
+    expect(screen.getByText(/you're done for this question/i)).toBeDefined();
+    expect(screen.getByText(/teammates can still answer/i)).toBeDefined();
+    expect(screen.queryByText(/waiting for the next/i)).toBeNull();
     expect(screen.queryByRole('group', { name: /answer keypad/i })).toBeNull();
   });
 
@@ -263,21 +265,23 @@ describe('end of match', () => {
 });
 
 describe('AnswerFeedback', () => {
-  it('reveals the correct answer only after the attempt is spent', () => {
+  it('does not reveal the correct answer after a miss, and does not close the round', () => {
     seedStore(makeState());
     render(
       <AnswerFeedback
         outcome={{
           status: 'incorrect',
           questionId: 'q' as QuestionId,
-          correctAnswer: 20,
           elapsedMs: 900,
         }}
       />,
     );
 
-    expect(screen.getByText(/not quite/i)).toBeDefined();
-    expect(screen.getByText(/the answer was 20/i)).toBeDefined();
+    expect(screen.getByText(/your answer was incorrect/i)).toBeDefined();
+    expect(screen.queryByText(/you're done for this question/i)).toBeNull();
+    expect(screen.queryByText(/wait for the next question/i)).toBeNull();
+    expect(screen.queryByText(/the answer was/i)).toBeNull();
+    expect(screen.queryByText('20')).toBeNull();
   });
 
   it('explains a rejection in words rather than an error code', () => {
@@ -295,7 +299,7 @@ describe('AnswerFeedback', () => {
           status: 'correct',
           questionId: 'q' as QuestionId,
           // 0.25 of a 4m half-arena is 1.0m.
-          pull: 0.25,
+          gain: 0.25,
           points: 1,
           streak: 1,
           elapsedMs: 500,
@@ -351,5 +355,17 @@ describe('StudentJoinForm', () => {
     );
 
     expect(screen.getByRole('alert').textContent).toContain('does not exist');
+  });
+
+  it('surfaces a game-in-progress rejection', () => {
+    render(
+      <StudentJoinForm
+        error="This race has already started. Wait for the next match."
+        busy={false}
+        onJoin={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByRole('alert').textContent).toContain('already started');
   });
 });

@@ -5,7 +5,7 @@ import { makeState, playerOn, resetStore, seedStore } from '../test/fixtures';
 import { StudentJoinForm } from './student/StudentJoinForm';
 import { StudentController } from './student/StudentController';
 import { CreateGameForm } from './host/CreateGameForm';
-import { TopGameHeader } from './arena/TopGameHeader';
+import { TopGameHeader } from './arena/shell/TopGameHeader';
 import { NumericKeypad } from './student/NumericKeypad';
 
 /**

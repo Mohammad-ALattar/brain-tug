@@ -55,7 +55,7 @@ test('a teacher runs a match while students answer and the class watches', async
   await expect(arena.getByText(/pulling!/i)).toBeVisible();
 
   // Their single attempt is spent.
-  await expect(bluePhone.getByText(/one attempt per question/i)).toBeVisible();
+  await expect(bluePhone.getByText(/you're done for this question/i)).toBeVisible();
   await expect(bluePhone.getByRole('button', { name: /lock it in/i })).toHaveCount(0);
 });
 
@@ -107,7 +107,9 @@ test('a student who reloads mid-match keeps their seat and their score', async (
   await expect(bluePhone.getByText(/^Bea/)).toBeVisible();
   await expect(bluePhone.getByRole('button', { name: /join the game/i })).toHaveCount(0);
   // Their spent attempt survived the reload, so they cannot answer twice.
-  await expect(bluePhone.getByText(/one attempt per question|teammate got it/i)).toBeVisible();
+  await expect(
+    bluePhone.getByText(/you're done for this question|answer sent|teammate got it/i),
+  ).toBeVisible();
 });
 
 test('a student who reloads after the match still sees the final scores', async ({ browser }) => {

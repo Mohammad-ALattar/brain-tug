@@ -7,9 +7,9 @@ import { T0 } from '@braintug/shared/testing';
 import { makeSession, makeState, resetStore, seedStore } from '../../test/fixtures';
 import { useGameStore } from '../../store/gameStore';
 import { useArenaAudio } from '../../audio/useArenaAudio';
-import { Countdown } from './Countdown';
-import { PullDeltaBadge } from './PullDeltaBadge';
-import { useArenaMotion, ARENA_TRAVEL_PX } from './useArenaMotion';
+import { Countdown } from './shell/Countdown';
+import { PullDeltaBadge } from './modes/tugOfWar/PullDeltaBadge';
+import { useTugOfWarMotion, ARENA_TRAVEL_PX } from './modes/tugOfWar/useTugOfWarMotion';
 
 const FINISHED_RESULT = buildGameResult(
   { ...makeSession(), winner: 'blue' },
@@ -23,6 +23,7 @@ vi.mock('../../audio/sfx', () => ({
   setSfxEnabled: vi.fn(),
   isSfxEnabled: vi.fn(() => false),
   __resetAudio: vi.fn(),
+  scoreSfx: (teamId: 'blue' | 'red') => (teamId === 'blue' ? 'scoreBlue' : 'scoreRed'),
 }));
 
 const { playSfx } = await import('../../audio/sfx');
@@ -44,7 +45,7 @@ afterEach(() => {
  */
 function MotionHost({ onRender }: { onRender?: () => void }) {
   const ref = useRef<HTMLDivElement>(null);
-  useArenaMotion(ref);
+  useTugOfWarMotion(ref);
   return (
     <Profiler id="motion" onRender={() => onRender?.()}>
       <div ref={ref} data-testid="root" />
@@ -58,13 +59,17 @@ const cssVar = (name: string): string =>
 /** Applies a pull the way the socket layer does. */
 function pull(teamId: TeamId, ropePosition: number, streak = 1): void {
   act(() =>
-    useGameStore.getState().applyPull({
+    useGameStore.getState().applyProgress({
       teamId,
       playerId: 'p1' as PlayerId,
-      pull: 0.055,
+      gain: 0.055,
       streak,
-      ropePosition,
       score: 1,
+      modeState: {
+        kind: 'tug_of_war',
+        ropePosition,
+        arenaHalfMetres: 4,
+      },
     }),
   );
 }
@@ -196,10 +201,10 @@ describe('arena audio', () => {
     render(<AudioHost />);
 
     pull('blue', -0.055);
-    expect(playSfxMock).toHaveBeenLastCalledWith('pullBlue');
+    expect(playSfxMock).toHaveBeenLastCalledWith('scoreBlue');
 
     pull('red', 0);
-    expect(playSfxMock).toHaveBeenLastCalledWith('pullRed');
+    expect(playSfxMock).toHaveBeenLastCalledWith('scoreRed');
   });
 
   it('does not replay the last pull when the display attaches mid-match', () => {
@@ -216,11 +221,11 @@ describe('arena audio', () => {
     seedStore(makeState());
     render(<AudioHost />);
 
-    act(() => useGameStore.getState().applyResolution(0, 'timeout'));
+    act(() => useGameStore.getState().applyResolution(0, 'timeout', { blue: '20', red: '90' }));
     expect(playSfxMock).toHaveBeenLastCalledWith('roundEnd');
 
     playSfxMock.mockReset();
-    act(() => useGameStore.getState().applyResolution(1, 'both_locked'));
+    act(() => useGameStore.getState().applyResolution(1, 'both_locked', { blue: '20', red: '90' }));
     expect(playSfxMock).not.toHaveBeenCalled();
   });
 

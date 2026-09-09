@@ -12,10 +12,14 @@ export type Player = {
   joinedAt: number;
   correctCount: number;
   incorrectCount: number;
-  /** Sum of rope distance this player personally won for their team. */
-  contributedPull: number;
+  /** Sum of the progress this player personally won for their team. */
+  contribution: number;
   /** Fastest correct answer in milliseconds, or null if never correct. */
   fastestCorrectMs: number | null;
+  /** Consecutive correct answers by this player; Brain Race only. */
+  streak: number;
+  /** Highest personal streak reached, kept for results. */
+  bestStreak: number;
 };
 
 export function createPlayer(
@@ -33,8 +37,10 @@ export function createPlayer(
     joinedAt: now,
     correctCount: 0,
     incorrectCount: 0,
-    contributedPull: 0,
+    contribution: 0,
     fastestCorrectMs: null,
+    streak: 0,
+    bestStreak: 0,
   };
 }
 

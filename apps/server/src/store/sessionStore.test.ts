@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { createGame, createSequentialIdFactory, type GameId, type RoomCode } from '@braintug/shared';
-import { constantProvider } from '@braintug/shared/testing';
+import { constantDealer } from '@braintug/shared/testing';
 import { createInMemorySessionStore } from './sessionStore.js';
 import { allocateRoomCode } from './roomCodes.js';
 import { createTimerService } from '../services/timerService.js';
@@ -15,7 +15,7 @@ function entry(now = T0, prefix = 'a-') {
     ids: createSequentialIdFactory(prefix),
     now,
   });
-  return { session, provider: constantProvider(), touchedAt: now };
+  return { session, dealer: constantDealer(), touchedAt: now };
 }
 
 describe('in-memory session store', () => {
@@ -40,12 +40,19 @@ describe('in-memory session store', () => {
     const created = entry();
     store.create(created);
 
-    store.save({ ...created.session, ropePosition: 0.5 }, T0 + 5000);
+    store.save(
+      {
+        ...created.session,
+        modeState: { ...created.session.modeState, kind: 'tug_of_war', ropePosition: 0.5, arenaHalfMetres: 4 },
+      },
+      T0 + 5000,
+    );
 
-    expect(store.byId(created.session.gameId)?.session.ropePosition).toBe(0.5);
+    const saved = store.byId(created.session.gameId)?.session;
+    expect(saved?.modeState).toMatchObject({ kind: 'tug_of_war', ropePosition: 0.5 });
     expect(store.byId(created.session.gameId)?.touchedAt).toBe(T0 + 5000);
-    // The stateful question provider survives the save.
-    expect(store.byId(created.session.gameId)?.provider).toBe(created.provider);
+    // The stateful question dealer survives the save.
+    expect(store.byId(created.session.gameId)?.dealer).toBe(created.dealer);
   });
 
   it('ignores a save for a game it does not hold', () => {

@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useGameStore, type GameStore } from '../store/gameStore';
-import { playSfx, setSfxEnabled } from './sfx';
+import { playSfx, scoreSfx, setSfxEnabled } from './sfx';
 
 /**
  * Plays the arena's sounds by watching the store directly.
@@ -15,22 +15,22 @@ export function useArenaAudio(enabled: boolean): void {
   }, [enabled]);
 
   useEffect(() => {
-    let lastPullKey: number | null = null;
+    let lastProgressKey: number | null = null;
     let lastResolvedIndex: number | null = null;
     let announcedFinish = false;
 
     const react = (store: GameStore): void => {
-      const pull = store.lastPull;
-      if (pull && pull.key !== lastPullKey) {
-        lastPullKey = pull.key;
-        playSfx(pull.teamId === 'blue' ? 'pullBlue' : 'pullRed');
+      const flash = store.lastProgress;
+      if (flash && flash.key !== lastProgressKey) {
+        lastProgressKey = flash.key;
+        playSfx(scoreSfx(flash.teamId));
       }
 
       const resolution = store.lastResolution;
       if (resolution && resolution.index !== lastResolvedIndex) {
         lastResolvedIndex = resolution.index;
         // A round that nobody won gets the flat tone; a round decided by an
-        // answer already announced itself with that team's pull.
+        // answer already announced itself with that team's score tone.
         if (resolution.reason === 'timeout' || resolution.reason === 'skipped') {
           playSfx('roundEnd');
         }
@@ -45,9 +45,9 @@ export function useArenaAudio(enabled: boolean): void {
     };
 
     // Seed the watermarks from the current state so attaching mid-match does
-    // not replay the last pull.
+    // not replay the last score.
     const current = useGameStore.getState();
-    lastPullKey = current.lastPull?.key ?? null;
+    lastProgressKey = current.lastProgress?.key ?? null;
     lastResolvedIndex = current.lastResolution?.index ?? null;
     announcedFinish = current.result !== null;
 

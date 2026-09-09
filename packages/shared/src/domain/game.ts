@@ -1,5 +1,8 @@
+import type { QuestionAssignment } from '../content/dealer.js';
+import type { ContentConfig } from '../content/source.js';
+import type { PublicQuestion, Question } from '../content/question.js';
+import type { GameModeId } from '../modes/types.js';
 import type { PlayerId, QuestionId } from './ids.js';
-import type { Question, PublicQuestion, OperationChoice, Difficulty } from './question.js';
 import type { TeamId } from './team.js';
 
 /**
@@ -11,26 +14,37 @@ export type GameStatus = (typeof GAME_STATUSES)[number];
 
 /** Host-chosen match settings, fixed once the game starts. */
 export type GameConfig = {
-  operation: OperationChoice;
-  difficulty: Difficulty;
+  /** Which game is being played. The mode owns the rules that differ. */
+  mode: GameModeId;
+  /** What the questions are about, independent of the mode. */
+  content: ContentConfig;
   totalQuestions: number;
   /** Seconds allowed per round. */
   secondsPerQuestion: number;
   /** Length of the "get ready" beat before the first question, in milliseconds. */
   countdownMs: number;
   teamNames: Record<TeamId, string>;
-  /** Label under the question counter, e.g. `Round 1 - Multiplication drill`. */
+  /** Label under the question counter, e.g. `Science - Brain Race`. */
   roundLabel: string;
+  /** Brain Race: finishers needed to win. Defaults from roster at start. */
+  finishersRequiredPerTeam?: number;
 };
 
 /**
- * Per-team state within a round. Each team gets its own question (confirmed from
- * the reference, where the two panels show different problems), but both teams
- * share the round index and clock.
+ * Per-team state within a round.
+ *
+ * Both teams always have an entry, even when the mode deals one shared question
+ * to the whole class: in that case both entries hold the same `Question`, and
+ * `Round.assignment` records which it was. Keeping the shape uniform is what
+ * lets attempt tracking, draft mirroring and round closing stay mode-agnostic.
  */
 export type RoundTeamState = {
   question: Question;
-  /** True once this team has answered correctly; they are done for the round. */
+  /**
+   * True once this team is closed out of the round. Only modes that lock on a
+   * correct answer ever set it; a race leaves it false so every student's
+   * answer still counts.
+   */
   locked: boolean;
   lockedByPlayerId: PlayerId | null;
   lockedAt: number | null;
@@ -38,14 +52,15 @@ export type RoundTeamState = {
   attemptedPlayerIds: PlayerId[];
   /**
    * Live in-progress input from the most recent player to type, relayed to the
-   * classroom display only so the TV keypad can mirror it.
+   * classroom display only so the TV keypad can mirror it. Only ever set for
+   * typed-answer questions.
    */
   draft: AnswerDraft | null;
 };
 
 export type AnswerDraft = {
   playerId: PlayerId;
-  /** Digits typed so far, as a string to preserve leading zeroes while typing. */
+  /** Characters typed so far, as a string to preserve leading zeroes. */
   value: string;
   updatedAt: number;
 };
@@ -56,8 +71,10 @@ export type Round = {
   startedAt: number;
   /** Absolute server timestamp the round expires. Clients count down to this. */
   endsAt: number;
+  /** How this round's questions were dealt, which decides what is safe to publish. */
+  assignment: QuestionAssignment;
   teams: Record<TeamId, RoundTeamState>;
-  /** Set when both teams locked or the clock expired. */
+  /** Set when the round closed, for any reason. */
   resolvedAt: number | null;
 };
 
@@ -66,6 +83,7 @@ export type PublicRound = {
   index: number;
   startedAt: number;
   endsAt: number;
+  assignment: QuestionAssignment;
   teams: Record<TeamId, PublicRoundTeamState>;
 };
 
@@ -75,14 +93,14 @@ export type PublicRoundTeamState = {
   lockedByPlayerId: PlayerId | null;
   attemptedPlayerIds: PlayerId[];
   /**
-   * The value this team locked in, or null while they are still answering.
+   * The answer this team locked in, or null while the round is still open.
    *
-   * Safe to publish because the two teams always hold different questions, so
-   * one team's locked value tells the other nothing. This is what lets the
-   * classroom display show `[20]` once a team is confirmed, while in-progress
-   * typing stays masked.
+   * Published only for `per_team` rounds, where the two teams hold different
+   * questions and one team's answer tells the other nothing. Under a shared
+   * question this stays null however the round is going, because publishing it
+   * would hand the answer to everyone still typing.
    */
-  lockedValue: number | null;
+  revealedAnswer: string | null;
 };
 
 export function isRoundResolved(round: Round): boolean {

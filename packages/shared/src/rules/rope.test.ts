@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { DEFAULT_RULES } from './rules.js';
 import {
+  DEFAULT_ARENA_HALF_METRES,
   ROPE_MAX,
   ROPE_MIN,
   applyPull,
@@ -11,6 +12,12 @@ import {
   ropeToMetres,
   ropeWinner,
 } from './rope.js';
+
+const tug = {
+  kind: 'tug_of_war' as const,
+  ropePosition: 0,
+  arenaHalfMetres: DEFAULT_ARENA_HALF_METRES,
+};
 
 describe('clampRope', () => {
   it('passes through in-range positions', () => {
@@ -83,10 +90,10 @@ describe('ropeWinner', () => {
 
 describe('display helpers', () => {
   it('maps rope position to the metre labels in the reference', () => {
-    expect(ropeToMetres(DEFAULT_RULES, 0)).toBe(0);
-    expect(ropeToMetres(DEFAULT_RULES, 1)).toBe(4);
-    expect(ropeToMetres(DEFAULT_RULES, -1)).toBe(-4);
-    expect(ropeToMetres(DEFAULT_RULES, 0.3)).toBeCloseTo(1.2, 6);
+    expect(ropeToMetres(tug, 0)).toBe(0);
+    expect(ropeToMetres(tug, 1)).toBe(4);
+    expect(ropeToMetres(tug, -1)).toBe(-4);
+    expect(ropeToMetres(tug, 0.3)).toBeCloseTo(1.2, 6);
   });
 
   it('maps rope position to a 0..1 arena fraction', () => {

@@ -4,9 +4,10 @@ import type { PlayerId } from '../domain/ids.js';
 import type { PublicPlayer, GameSession } from '../domain/session.js';
 import type { GameResult } from '../domain/result.js';
 import type { TeamId } from '../domain/team.js';
+import type { ModeState } from '../modes/types.js';
 
 /**
- * Why a round ended. `victory` means a pull reached the win threshold;
+ * Why a round ended. `victory` means a team reached the mode's win target;
  * `all_attempted` means nobody left on either team can still answer.
  */
 export type RoundResolution =
@@ -30,17 +31,17 @@ export type EngineEvent =
   | { type: 'question_started'; round: PublicRound }
   | { type: 'answer_result'; playerId: PlayerId; teamId: TeamId; outcome: AnswerOutcome }
   | {
-      type: 'pull_applied';
+      type: 'progress_applied';
       teamId: TeamId;
       playerId: PlayerId;
-      pull: number;
-      ropePosition: number;
+      gain: number;
       streak: number;
       /**
-       * The team's score after this pull. Included so the arena can update the
+       * The team's score after this answer. Included so the arena can update the
        * header from this event alone, without a full state broadcast per answer.
        */
       score: number;
+      modeState: ModeState;
     }
   | { type: 'draft_updated'; teamId: TeamId; draft: AnswerDraft }
   | {
@@ -48,6 +49,8 @@ export type EngineEvent =
       index: number;
       reason: RoundResolution;
       nextRoundAt: number | null;
+      /** Human-readable correct answers, released only once the round is closed. */
+      revealed: Record<TeamId, string>;
     }
   | { type: 'game_paused'; remainingMs: number }
   | { type: 'game_resumed'; endsAt: number }
@@ -67,7 +70,7 @@ export type EngineResult = {
  */
 export type EngineRejection = {
   ok: false;
-  reason: RejectionReason | 'not_host' | 'game_full' | 'already_started' | 'invalid_config';
+  reason: RejectionReason | 'not_host' | 'game_full' | 'already_started' | 'invalid_config' | 'game_in_progress';
   message: string;
 };
 

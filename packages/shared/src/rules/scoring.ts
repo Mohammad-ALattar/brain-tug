@@ -1,4 +1,4 @@
-import type { Difficulty } from '../domain/question.js';
+import type { Difficulty } from '../content/question.js';
 import type { GameRules } from './rules.js';
 
 /**
@@ -53,37 +53,42 @@ export function speedBonus(rules: GameRules, elapsedMs: number, roundDurationMs:
   return 1 + (rules.maxSpeedBonus - 1) * remainingFraction;
 }
 
-export type PullBreakdown = {
-  basePull: number;
+export type GainBreakdown = {
+  baseGain: number;
   difficultyWeight: number;
   speedBonus: number;
   streakMultiplier: number;
-  /** Final rope distance, after the single-pull cap. */
-  pull: number;
-  /** True when `maxSinglePull` clipped the result. */
+  /** Final progress won, as a fraction of the span, after the single-answer cap. */
+  gain: number;
+  /** True when `maxSingleGain` clipped the result. */
   capped: boolean;
 };
 
 /**
- * Rope distance won by one correct answer. `streak` is the streak *before* this
- * answer is counted, so the first correct answer of a run is unmultiplied.
+ * Progress won by one correct answer, as a fraction of whatever span the game
+ * mode is measuring: rope travel in a tug of war, track distance in a race.
+ * Both modes share this so a streak or a fast answer is worth the same
+ * proportion of the game whichever one the class is playing.
+ *
+ * `streak` is the streak *before* this answer is counted, so the first correct
+ * answer of a run is unmultiplied.
  */
-export function computePull(
+export function computeGain(
   rules: GameRules,
   args: { difficulty: Difficulty; elapsedMs: number; roundDurationMs: number; streak: number },
-): PullBreakdown {
+): GainBreakdown {
   const difficultyWeight = rules.difficultyWeight[args.difficulty];
   const speed = speedBonus(rules, args.elapsedMs, args.roundDurationMs);
   const streakMult = streakMultiplier(rules, args.streak);
-  const raw = rules.basePull * difficultyWeight * speed * streakMult;
-  const pull = Math.min(raw, rules.maxSinglePull);
+  const raw = rules.baseGain * difficultyWeight * speed * streakMult;
+  const gain = Math.min(raw, rules.maxSingleGain);
 
   return {
-    basePull: rules.basePull,
+    baseGain: rules.baseGain,
     difficultyWeight,
     speedBonus: speed,
     streakMultiplier: streakMult,
-    pull,
-    capped: pull < raw,
+    gain,
+    capped: gain < raw,
   };
 }

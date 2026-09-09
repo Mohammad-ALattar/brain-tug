@@ -7,7 +7,13 @@
  * bundle a student's phone fetches.
  */
 
-export type SfxName = 'pullBlue' | 'pullRed' | 'roundEnd' | 'tick' | 'go' | 'victory';
+import type { TeamId } from '@braintug/shared';
+
+export type SfxName = 'scoreBlue' | 'scoreRed' | 'roundEnd' | 'tick' | 'go' | 'victory';
+
+export function scoreSfx(teamId: TeamId): 'scoreBlue' | 'scoreRed' {
+  return teamId === 'blue' ? 'scoreBlue' : 'scoreRed';
+}
 
 type Tone = {
   /** Frequencies played in sequence, in Hz. */
@@ -23,8 +29,8 @@ type Tone = {
  * team scored without looking at the board.
  */
 const TONES: Record<SfxName, Tone> = {
-  pullBlue: { notes: [392, 587.33], step: 0.075, type: 'triangle', gain: 0.16 },
-  pullRed: { notes: [293.66, 440], step: 0.075, type: 'triangle', gain: 0.16 },
+  scoreBlue: { notes: [392, 587.33], step: 0.075, type: 'triangle', gain: 0.16 },
+  scoreRed: { notes: [293.66, 440], step: 0.075, type: 'triangle', gain: 0.16 },
   roundEnd: { notes: [220], step: 0.16, type: 'sine', gain: 0.1 },
   tick: { notes: [660], step: 0.06, type: 'square', gain: 0.07 },
   go: { notes: [523.25, 783.99], step: 0.1, type: 'square', gain: 0.14 },

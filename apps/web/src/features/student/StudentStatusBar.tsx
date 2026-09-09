@@ -5,6 +5,7 @@ import { TEAM_THEME } from '../../design/teamTheme';
 import { Chip } from '../../components/Chip';
 import {
   useConnection,
+  useGameMode,
   useRoomCode,
   useRules,
   useTeamName,
@@ -24,6 +25,7 @@ export const StudentStatusBar = memo(function StudentStatusBar({
 }: StudentStatusBarProps) {
   const theme = TEAM_THEME[teamId];
   const opponent: TeamId = teamId === 'blue' ? 'red' : 'blue';
+  const mode = useGameMode();
 
   const teamName = useTeamName(teamId);
   const myScore = useTeamScore(teamId);
@@ -34,6 +36,7 @@ export const StudentStatusBar = memo(function StudentStatusBar({
   const connection = useConnection();
 
   const tier = rules ? streakTier(rules, streak) : null;
+  const isRace = mode === 'brain_race';
 
   return (
     <header className={`${theme.solid} px-4 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))]`}>
@@ -48,15 +51,22 @@ export const StudentStatusBar = memo(function StudentStatusBar({
           </p>
         </div>
 
-        <div className="tabular shrink-0 text-right font-display text-2xl font-extrabold text-white">
-          {myScore}
-          <span className="px-1 text-base font-bold text-white/60">-</span>
-          {theirScore}
+        <div className="shrink-0 text-right">
+          <div className="tabular font-display text-2xl font-extrabold text-white">
+            {myScore}
+            <span className="px-1 text-base font-bold text-white/60">-</span>
+            {theirScore}
+          </div>
+          {isRace ? (
+            <p className="text-[9px] font-extrabold uppercase tracking-[0.16em] text-white/70">
+              team correct
+            </p>
+          ) : null}
         </div>
       </div>
 
       <div className="mt-2 flex items-center gap-2">
-        {tier && tier.multiplier > 1 ? (
+        {!isRace && tier && tier.multiplier > 1 ? (
           <Chip tone="timer">
             {tier.label} &times;{tier.multiplier}
           </Chip>

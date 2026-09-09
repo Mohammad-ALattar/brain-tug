@@ -1,14 +1,13 @@
-import type { GameId, GameSession, RoomCode } from '@braintug/shared';
-import type { QuestionProvider } from '@braintug/shared';
+import type { GameId, GameSession, RoomCode, QuestionDealer } from '@braintug/shared';
 
 /**
  * A live game plus the per-game collaborators the engine needs but does not own.
- * The question provider is stateful (it remembers recent prompts) so it lives
+ * The question dealer is stateful (it remembers recent prompts) so it lives
  * alongside the session rather than being rebuilt per round.
  */
 export type SessionEntry = {
   session: GameSession;
-  provider: QuestionProvider;
+  dealer: QuestionDealer;
   /** Last time anything happened, used to reap abandoned rooms. */
   touchedAt: number;
 };

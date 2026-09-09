@@ -114,13 +114,20 @@ describe('joinGame', () => {
   });
 
   it('lets a late arrival join mid-game without an attempt at the live round', () => {
-    const { session } = setupGame({ totalQuestions: 5 });
+    const { session } = setupGame({ mode: 'tug_of_war', totalQuestions: 5 });
     const result = joinGame(session, { name: 'Late', teamId: 'blue', now: T0 + 5000 });
     if (!result.ok || !result.joined) throw new Error('join failed');
 
-    // They are seated, and the current round grants them no special standing.
     expect(result.session.teams.blue.playerIds).toContain(result.joined.playerId);
     expect(result.session.round!.teams.blue.attemptedPlayerIds).toHaveLength(0);
+  });
+
+  it('refuses a late join once a brain race has started', () => {
+    const { session } = setupGame({ mode: 'brain_race', totalQuestions: 5 });
+    const result = joinGame(session, { name: 'Late', teamId: 'blue', now: T0 + 5000 });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.reason).toBe('game_in_progress');
   });
 });
 

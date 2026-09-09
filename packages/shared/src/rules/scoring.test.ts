@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { DEFAULT_RULES, type GameRules } from './rules.js';
 import {
-  computePull,
+  computeGain,
   speedBonus,
   streakMultiplier,
   streakTier,
@@ -105,53 +105,53 @@ describe('speedBonus', () => {
   });
 });
 
-describe('computePull', () => {
+describe('computeGain', () => {
   const args = { difficulty: 'easy' as const, elapsedMs: ROUND_MS, roundDurationMs: ROUND_MS, streak: 0 };
 
-  it('returns the base pull for a slow, easy, streakless answer', () => {
-    expect(computePull(DEFAULT_RULES, args).pull).toBeCloseTo(DEFAULT_RULES.basePull, 6);
+  it('returns the base gain for a slow, easy, streakless answer', () => {
+    expect(computeGain(DEFAULT_RULES, args).gain).toBeCloseTo(DEFAULT_RULES.baseGain, 6);
   });
 
   it('scales with difficulty', () => {
-    const easy = computePull(DEFAULT_RULES, args).pull;
-    const medium = computePull(DEFAULT_RULES, { ...args, difficulty: 'medium' }).pull;
-    const hard = computePull(DEFAULT_RULES, { ...args, difficulty: 'hard' }).pull;
+    const easy = computeGain(DEFAULT_RULES, args).gain;
+    const medium = computeGain(DEFAULT_RULES, { ...args, difficulty: 'medium' }).gain;
+    const hard = computeGain(DEFAULT_RULES, { ...args, difficulty: 'hard' }).gain;
     expect(medium).toBeGreaterThan(easy);
     expect(hard).toBeGreaterThan(medium);
   });
 
   it('compounds speed and streak', () => {
-    const slow = computePull(DEFAULT_RULES, args).pull;
-    const fast = computePull(DEFAULT_RULES, { ...args, elapsedMs: 0 }).pull;
-    const fastStreak = computePull(DEFAULT_RULES, { ...args, elapsedMs: 0, streak: 5 }).pull;
+    const slow = computeGain(DEFAULT_RULES, args).gain;
+    const fast = computeGain(DEFAULT_RULES, { ...args, elapsedMs: 0 }).gain;
+    const fastStreak = computeGain(DEFAULT_RULES, { ...args, elapsedMs: 0, streak: 5 }).gain;
     expect(fast).toBeGreaterThan(slow);
     expect(fastStreak).toBeGreaterThan(fast);
-    expect(fastStreak).toBeCloseTo(DEFAULT_RULES.basePull * 1 * 1.5 * 1.5, 6);
+    expect(fastStreak).toBeCloseTo(DEFAULT_RULES.baseGain * 1 * 1.5 * 1.5, 6);
   });
 
-  it('reports the full breakdown so the arena can explain a pull', () => {
-    const breakdown = computePull(DEFAULT_RULES, { ...args, difficulty: 'hard', elapsedMs: 0, streak: 3 });
+  it('reports the full breakdown so the arena can explain a gain', () => {
+    const breakdown = computeGain(DEFAULT_RULES, { ...args, difficulty: 'hard', elapsedMs: 0, streak: 3 });
     expect(breakdown.difficultyWeight).toBe(1.6);
     expect(breakdown.streakMultiplier).toBe(1.25);
     expect(breakdown.speedBonus).toBeCloseTo(1.5, 6);
   });
 
-  it('caps a single pull so one answer cannot end the match', () => {
-    const generous: GameRules = { ...DEFAULT_RULES, basePull: 5 };
-    const breakdown = computePull(generous, args);
-    expect(breakdown.pull).toBe(generous.maxSinglePull);
+  it('caps a single gain so one answer cannot end the match', () => {
+    const generous: GameRules = { ...DEFAULT_RULES, baseGain: 5 };
+    const breakdown = computeGain(generous, args);
+    expect(breakdown.gain).toBe(generous.maxSingleGain);
     expect(breakdown.capped).toBe(true);
   });
 
-  it('does not flag an uncapped pull as capped', () => {
-    expect(computePull(DEFAULT_RULES, args).capped).toBe(false);
+  it('does not flag an uncapped gain as capped', () => {
+    expect(computeGain(DEFAULT_RULES, args).capped).toBe(false);
   });
 
-  it('never returns a negative pull', () => {
+  it('never returns a negative gain', () => {
     for (const difficulty of ['easy', 'medium', 'hard'] as const) {
       for (const elapsed of [0, 1000, ROUND_MS, ROUND_MS * 3]) {
         expect(
-          computePull(DEFAULT_RULES, { ...args, difficulty, elapsedMs: elapsed }).pull,
+          computeGain(DEFAULT_RULES, { ...args, difficulty, elapsedMs: elapsed }).gain,
         ).toBeGreaterThan(0);
       }
     }

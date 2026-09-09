@@ -1,5 +1,5 @@
+import type { QuestionDealer } from '../content/dealer.js';
 import type { GameSession } from '../domain/session.js';
-import type { QuestionProvider } from '../questions/queue.js';
 import { expireRoundIfDue, startRound } from './rounds.js';
 import type { EngineResult } from './types.js';
 
@@ -29,7 +29,7 @@ export function nextDeadline(session: GameSession): number | null {
  */
 export function advance(
   session: GameSession,
-  provider: QuestionProvider,
+  dealer: QuestionDealer,
   now: number,
 ): EngineResult {
   let current = session;
@@ -40,14 +40,14 @@ export function advance(
     const before = current;
 
     if (current.status === 'countdown' && current.countdownEndsAt !== null && now >= current.countdownEndsAt) {
-      const result = startRound(current, provider, now);
+      const result = startRound(current, dealer, now);
       current = result.session;
       events.push(...result.events);
       continue;
     }
 
     if (current.status === 'active' && current.nextRoundAt !== null && now >= current.nextRoundAt) {
-      const result = startRound(current, provider, now);
+      const result = startRound(current, dealer, now);
       current = result.session;
       events.push(...result.events);
       continue;

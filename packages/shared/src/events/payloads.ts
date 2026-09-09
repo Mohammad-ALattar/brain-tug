@@ -4,6 +4,7 @@ import type { GameId, HostToken, PlayerId, PlayerToken, RoomCode } from '../doma
 import type { GameResult } from '../domain/result.js';
 import type { GameStateView, PublicPlayer } from '../domain/session.js';
 import type { TeamId } from '../domain/team.js';
+import type { ModeState } from '../modes/types.js';
 import type { RoundResolution } from '../engine/types.js';
 import type {
   AnswerDraftPayload,
@@ -77,9 +78,9 @@ export type ClockSyncAck = {
 
 /**
  * Payload map for events the server pushes. Kept deliberately small: state
- * updates carry the compact `GameStateView`, and richer per-event data (a pull
- * delta, an answer outcome) travels separately so the arena can animate without
- * re-reading the whole state.
+ * updates carry the compact `GameStateView`, and richer per-event data (a
+ * progress delta, an answer outcome) travels separately so the arena can
+ * animate without re-reading the whole state.
  */
 export type ServerToClientEvents = {
   player_joined: (payload: { player: PublicPlayer }) => void;
@@ -90,13 +91,13 @@ export type ServerToClientEvents = {
   question_started: (payload: { round: PublicRound }) => void;
   /** Sent only to the submitting player. */
   answer_result: (payload: { playerId: PlayerId; teamId: TeamId; outcome: AnswerOutcome }) => void;
-  pull_applied: (payload: {
+  progress_applied: (payload: {
     teamId: TeamId;
     playerId: PlayerId;
-    pull: number;
-    ropePosition: number;
+    gain: number;
     streak: number;
     score: number;
+    modeState: ModeState;
   }) => void;
   /** Sent only to the classroom display, for the mirrored keypad. */
   draft_updated: (payload: { teamId: TeamId; draft: AnswerDraft }) => void;
@@ -104,6 +105,7 @@ export type ServerToClientEvents = {
     index: number;
     reason: RoundResolution;
     nextRoundAt: number | null;
+    revealed: Record<TeamId, string>;
   }) => void;
   game_state_updated: (payload: { state: GameStateView }) => void;
   game_paused: (payload: { remainingMs: number }) => void;

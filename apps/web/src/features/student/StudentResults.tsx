@@ -1,6 +1,7 @@
 import type { TeamId } from '@braintug/shared';
 import { TEAM_THEME } from '../../design/teamTheme';
 import { Chip } from '../../components/Chip';
+import { MODE_COPY } from '../arena/modeCopy';
 import { useMe, useResult, useTeamName, useWinner } from '../../store/selectors';
 
 export type StudentResultsProps = {
@@ -46,9 +47,9 @@ export function StudentResults({ teamId, playerName, onLeave }: StudentResultsPr
             <section className="bt-panel px-5 py-4">
               <div className="flex items-center justify-between">
                 <p className="font-display text-lg font-extrabold text-ink">{playerName}</p>
-                {result.topPlayerId && result.topPlayerId === me?.playerId ? (
-                  <Chip tone="good">Top puller</Chip>
-                ) : null}
+                    {result.topPlayerId && result.topPlayerId === me?.playerId ? (
+                      <Chip tone="good">{MODE_COPY[result.mode].topContributor}</Chip>
+                    ) : null}
               </div>
 
               <dl className="mt-3 grid grid-cols-3 gap-2 text-center">

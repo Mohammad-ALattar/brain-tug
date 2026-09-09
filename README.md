@@ -1,7 +1,16 @@
 # Brain Tug
 
-A real-time classroom game. Two teams answer arithmetic problems on their phones;
-each correct answer pulls a rope on a shared display at the front of the room.
+A real-time classroom game. Two teams answer on their phones; a shared display at
+the front of the room shows either a tug of war or a race to the finish line.
+
+Teachers pick a **mode** and a **subject** when they create a match:
+
+| Mode | What a correct answer does |
+| ---- | -------------------------- |
+| **Tug of War** | Pulls a shared rope toward that student's team. First correct answer locks the team for the round. |
+| **Brain Race** | Adds distance on that team's own lane. The whole class shares one question; every correct answer counts. |
+
+Subjects include generated math plus starter banks for science, English, history, geography, coding and general knowledge.
 
 Three screens, one match:
 
@@ -25,9 +34,8 @@ board, open `/arena/<code>` on the projector, and send students to `/play/<code>
 ## How it is put together
 
 ```
-packages/shared    Domain core: rules, question generation, scoring, rope maths,
-                   and the pure reducers that decide every outcome. No React,
-                   no sockets, no Express.
+packages/shared    Domain core: content, modes, scoring, and the pure reducers
+                   that decide every outcome. No React, no sockets, no Express.
 apps/server        Socket.IO gateway, session store and timers. The only
                    authority on game state.
 apps/web           All three screens, sharing one Zustand store.
@@ -37,12 +45,13 @@ e2e                Playwright suite driving all three roles at once.
 Two rules hold the design together:
 
 **The server is the only source of truth.** Clients render what they are told.
-Correct answers never travel to the browser, so a child with dev tools open sees
-the same thing as a child without. The server validates every payload at the
-socket boundary with zod and authorises host actions against a token.
+Correct answers never travel to the browser while a round is open, so a child
+with dev tools open sees the same thing as a child without. The server validates
+every payload at the socket boundary with zod and authorises host actions
+against a token.
 
-**Motion never passes through React.** The rope, the characters and the tension
-glow are driven by CSS custom properties written imperatively from a store
+**Motion never passes through React.** The rope, the racers and the tension glow
+are driven by CSS custom properties written imperatively from a store
 subscription, so a match running for an hour on a projector does no render work
 to animate. `apps/web/src/features/arena/rerender.test.tsx` pins the budgets
 that keep it that way.
@@ -56,6 +65,8 @@ npm run e2e        # builds, then drives all three roles in a real browser
 npm run lint
 npm run typecheck
 ```
+
+Tug of War coverage lives in `e2e/match.spec.ts`. Brain Race is `e2e/brainRace.spec.ts`.
 
 The load suite is worth knowing about: it fills a room with forty concurrent
 sockets and checks the behaviours that only break at classroom scale, such as a

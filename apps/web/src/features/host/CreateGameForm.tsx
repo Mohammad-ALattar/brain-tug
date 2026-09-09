@@ -1,6 +1,13 @@
 import { useId, useState, type ReactNode } from 'react';
-import type { CreateGamePayload, Difficulty, OperationChoice } from '@braintug/shared';
+import type {
+  CreateGamePayload,
+  Difficulty,
+  GameModeId,
+  OperationChoice,
+  Subject,
+} from '@braintug/shared';
 import {
+  DEFAULT_TRACK_METRES,
   DIFFICULTIES,
   MAX_SECONDS_PER_QUESTION,
   MAX_TOTAL_QUESTIONS,
@@ -8,7 +15,12 @@ import {
   MIN_TOTAL_QUESTIONS,
   OPERATION_CHOICES,
   OPERATION_LABEL,
+  isGeneratedSubject,
 } from '@braintug/shared';
+import { ModePicker } from './ModePicker';
+import { SubjectPicker } from './SubjectPicker';
+import { BrainRaceSettings } from './modeSettings/BrainRaceSettings';
+import { TugOfWarSettings } from './modeSettings/TugOfWarSettings';
 
 export type CreateGameFormProps = {
   error: string | null;
@@ -23,17 +35,6 @@ const DIFFICULTY_LABEL: Record<Difficulty, string> = {
 };
 
 /**
- * Win thresholds as a fraction of the rope, phrased as match length because
- * that is the decision a teacher is actually making. The rope maths lives in
- * `GameRules`; this only picks a value for it.
- */
-const LENGTHS = [
-  { value: 0.5, label: 'Short', hint: 'Half the rope' },
-  { value: 0.75, label: 'Standard', hint: 'Most of the rope' },
-  { value: 1, label: 'Full', hint: 'The whole rope' },
-] as const;
-
-/**
  * The teacher's setup screen.
  *
  * Every field is bounded by the same constants the server validates against, so
@@ -41,11 +42,17 @@ const LENGTHS = [
  * revalidates: this is a convenience, not the guard.
  */
 export function CreateGameForm({ error, busy, onCreate }: CreateGameFormProps) {
+  const [mode, setMode] = useState<GameModeId>('tug_of_war');
+  const [subject, setSubject] = useState<Subject>('math');
   const [operation, setOperation] = useState<OperationChoice>('mixed');
   const [difficulty, setDifficulty] = useState<Difficulty>('easy');
   const [totalQuestions, setTotalQuestions] = useState(20);
   const [secondsPerQuestion, setSecondsPerQuestion] = useState(20);
   const [winThreshold, setWinThreshold] = useState<number>(1);
+  const [trackMetres, setTrackMetres] = useState(DEFAULT_TRACK_METRES);
+  const [finishersRequiredPerTeam, setFinishersRequiredPerTeam] = useState<number | undefined>(
+    undefined,
+  );
   const [blueName, setBlueName] = useState('');
   const [redName, setRedName] = useState('');
 
@@ -67,11 +74,16 @@ export function CreateGameForm({ error, busy, onCreate }: CreateGameFormProps) {
           event.preventDefault();
           if (busy) return;
           onCreate({
+            mode,
+            subject,
             operation,
             difficulty,
             totalQuestions,
             secondsPerQuestion,
-            winThreshold,
+            winThreshold: mode === 'tug_of_war' ? winThreshold : undefined,
+            trackMetres: mode === 'brain_race' ? trackMetres : undefined,
+            finishersRequiredPerTeam:
+              mode === 'brain_race' ? finishersRequiredPerTeam : undefined,
             teamNames: {
               ...(blueName.trim() ? { blue: blueName.trim() } : {}),
               ...(redName.trim() ? { red: redName.trim() } : {}),
@@ -79,17 +91,22 @@ export function CreateGameForm({ error, busy, onCreate }: CreateGameFormProps) {
           });
         }}
       >
-        <Field label="Operation">
-          <Segmented
-            label="Operation"
-            options={OPERATION_CHOICES.map((choice) => ({
-              value: choice,
-              label: OPERATION_LABEL[choice],
-            }))}
-            value={operation}
-            onChange={setOperation}
-          />
-        </Field>
+        <ModePicker value={mode} onChange={setMode} />
+        <SubjectPicker value={subject} onChange={setSubject} />
+
+        {isGeneratedSubject(subject) ? (
+          <Field label="Operation">
+            <Segmented
+              label="Operation"
+              options={OPERATION_CHOICES.map((choice) => ({
+                value: choice,
+                label: OPERATION_LABEL[choice],
+              }))}
+              value={operation}
+              onChange={setOperation}
+            />
+          </Field>
+        ) : null}
 
         <Field label="Difficulty">
           <Segmented
@@ -127,14 +144,16 @@ export function CreateGameForm({ error, busy, onCreate }: CreateGameFormProps) {
           </Field>
         </div>
 
-        <Field label="Distance to win">
-          <Segmented
-            label="Distance to win"
-            options={LENGTHS.map(({ value, label, hint }) => ({ value, label, hint }))}
-            value={winThreshold}
-            onChange={setWinThreshold}
+        {mode === 'tug_of_war' ? (
+          <TugOfWarSettings winThreshold={winThreshold} onChange={setWinThreshold} />
+        ) : (
+          <BrainRaceSettings
+            trackMetres={trackMetres}
+            onTrackChange={setTrackMetres}
+            finishersRequiredPerTeam={finishersRequiredPerTeam}
+            onFinishersChange={setFinishersRequiredPerTeam}
           />
-        </Field>
+        )}
 
         <Field label="Team names" hint="Optional">
           <div className="grid gap-3 sm:grid-cols-2">
@@ -217,7 +236,6 @@ function Segmented<T extends string | number>({
   value,
   onChange,
 }: {
-  /** Names the group for assistive tech; `role="radio"` needs an owner. */
   label: string;
   options: { value: T; label: string; hint?: string }[];
   value: T;
@@ -256,10 +274,6 @@ function Segmented<T extends string | number>({
   );
 }
 
-/**
- * A stepper rather than a number input: it cannot be typed out of range, and it
- * gives a teacher on a tablet something big enough to hit.
- */
 function Stepper({
   value,
   min,

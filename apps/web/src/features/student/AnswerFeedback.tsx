@@ -1,18 +1,13 @@
 import { memo, type ReactNode } from 'react';
 import type { AnswerOutcome, RejectionReason } from '@braintug/shared';
-import { ropeToMetres } from '@braintug/shared';
-import { useRules } from '../../store/selectors';
+import { displayMetresForGain, formatBrainRaceStreakLabel } from '@braintug/shared';
+import { copyForState } from '../arena/modeCopy';
+import { useGameMode, useModeState } from '../../store/selectors';
 
 export type AnswerFeedbackProps = {
   outcome: AnswerOutcome | null;
 };
 
-/**
- * Why a submission was refused, in words a child can act on.
- *
- * Every reason the server can return is covered, so a rejection never surfaces
- * as a raw enum or a dead-end "something went wrong".
- */
 const REJECTION_COPY: Record<RejectionReason, string> = {
   game_not_active: 'The game has not started yet.',
   game_paused: 'Your teacher paused the game.',
@@ -21,42 +16,55 @@ const REJECTION_COPY: Record<RejectionReason, string> = {
   team_already_locked: 'A teammate already got this one.',
   player_already_answered: 'You have already answered this question.',
   time_expired: 'Time ran out on that question.',
-  malformed_answer: 'That answer was not a number.',
+  malformed_answer: 'That answer was not accepted.',
   not_a_player: 'You are not in this game any more.',
 };
 
 /**
  * The result of this student's last submission.
  *
- * Driven by the `submit_answer` acknowledgement rather than a broadcast, which
- * is what keeps one student's mistake private: the revealed correct answer is
- * only ever sent to the player who already spent their attempt.
+ * Driven by the `submit_answer` acknowledgement rather than a broadcast. An
+ * incorrect outcome never carries the correct answer: teammates may still be
+ * answering the same question.
  */
 export const AnswerFeedback = memo(function AnswerFeedback({ outcome }: AnswerFeedbackProps) {
-  const rules = useRules();
+  const modeState = useModeState();
+  const mode = useGameMode();
+  const copy = modeState ? copyForState(modeState) : null;
 
   if (!outcome) return null;
 
   if (outcome.status === 'correct') {
-    const metres = rules ? ropeToMetres(rules, outcome.pull) : 0;
+    const metres = modeState ? displayMetresForGain(modeState, outcome.gain) : 0;
+    const streakLabel =
+      mode === 'brain_race' ? formatBrainRaceStreakLabel(outcome.streak) : null;
+    const tugStreak =
+      mode !== 'brain_race' && outcome.streak >= 3 ? ` \u2022 ${outcome.streak} in a row` : '';
+
     return (
       <Banner tone="good" title="Correct!">
-        You pulled the rope {metres.toFixed(1)}m
-        {outcome.streak >= 3 ? ` \u2022 ${outcome.streak} in a row` : ''}
+        {copy ? copy.correctGain(metres) : ''}
+        {tugStreak}
+        {streakLabel ? (
+          <span className="mt-1 block text-sm font-bold">{streakLabel}</span>
+        ) : null}
       </Banner>
     );
   }
 
   if (outcome.status === 'incorrect') {
-    return (
-      <Banner tone="bad" title="Not quite">
-        The answer was {outcome.correctAnswer}
-      </Banner>
-    );
+    if (mode === 'brain_race') {
+      return (
+        <Banner tone="bad" title="Incorrect">
+          Streak reset
+        </Banner>
+      );
+    }
+    return <Banner tone="bad" title="Your answer was incorrect" />;
   }
 
   return (
-    <Banner tone="neutral" title="No pull">
+    <Banner tone="neutral" title={copy?.rejectedTitle ?? 'Not this time'}>
       {REJECTION_COPY[outcome.reason]}
     </Banner>
   );
@@ -77,18 +85,16 @@ function Banner({
 }: {
   tone: BannerTone;
   title: string;
-  children: ReactNode;
+  children?: ReactNode;
 }) {
   return (
-    // `assertive`: the student has just acted and is waiting on this specific
-    // answer, so it should interrupt rather than queue behind other updates.
     <div
       role="status"
       aria-live="assertive"
       className={`rounded-card border-2 px-4 py-3 text-center ${TONES[tone]}`}
     >
       <p className="font-display text-lg font-extrabold leading-tight">{title}</p>
-      <p className="mt-0.5 text-sm font-semibold">{children}</p>
+      {children ? <p className="mt-0.5 text-sm font-semibold">{children}</p> : null}
     </div>
   );
 }

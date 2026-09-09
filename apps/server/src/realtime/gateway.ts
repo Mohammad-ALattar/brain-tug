@@ -1,8 +1,10 @@
 import type { Server as HttpServer } from 'node:http';
 import { Server } from 'socket.io';
 import {
+  QUESTION_BANKS,
   createGame,
-  createQuestionQueue,
+  createQuestionDealer,
+  createQuestionSource,
   defaultIdFactory,
   disconnectPlayer,
   endGame,
@@ -126,6 +128,8 @@ export function attachGateway(
       const roomCode = allocateRoomCode(store);
 
       let session = createGame({
+        mode: options.mode,
+        subject: options.subject,
         operation: options.operation,
         difficulty: options.difficulty,
         totalQuestions: options.totalQuestions,
@@ -133,18 +137,25 @@ export function attachGateway(
         countdownMs: options.countdownMs,
         teamNames: options.teamNames,
         rules: options.winThreshold ? { winThreshold: options.winThreshold } : undefined,
+        trackMetres: options.trackMetres,
+        finishersRequiredPerTeam: options.finishersRequiredPerTeam,
         now: at,
       });
       // Use the collision-checked code rather than the one the factory minted.
       session = { ...session, roomCode };
 
-      const provider = createQuestionQueue({
-        operation: options.operation,
-        difficulty: options.difficulty,
-        ids: defaultIdFactory,
-      });
+      const dealer = createQuestionDealer(
+        createQuestionSource(
+          {
+            subject: options.subject,
+            difficulty: options.difficulty,
+            operation: options.operation,
+          },
+          { banks: QUESTION_BANKS, ids: defaultIdFactory },
+        ),
+      );
 
-      store.create({ session, provider, touchedAt: at });
+      store.create({ session, dealer, touchedAt: at });
 
       const identity: SocketIdentity = {
         gameId: session.gameId,

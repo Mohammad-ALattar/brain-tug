@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { PlayerId, QuestionId } from '../domain/ids.js';
 import { pauseGame } from './lifecycle.js';
 import { setAnswerDraft, submitAnswer } from './submitAnswer.js';
-import { T0, correctAnswerFor, questionIdFor, setupGame } from './testing.js';
+import { T0, asTug, correctAnswerFor, questionIdFor, setupGame } from './testing.js';
 
 const AT = T0 + 5000;
 
@@ -23,7 +23,7 @@ describe('submitAnswer - happy path', () => {
     expect(result.session.teams.blue.correctCount).toBe(1);
     expect(result.session.teams.blue.streak).toBe(1);
     // Blue pulls the rope negative.
-    expect(result.session.ropePosition).toBeLessThan(0);
+    expect(asTug(result.session).ropePosition).toBeLessThan(0);
     expect(result.session.teams.red.score).toBe(0);
   });
 
@@ -38,7 +38,7 @@ describe('submitAnswer - happy path', () => {
       now: AT,
     });
 
-    expect(result.session.ropePosition).toBeGreaterThan(0);
+    expect(asTug(result.session).ropePosition).toBeGreaterThan(0);
   });
 
   it('locks the team and names the player who locked it', () => {
@@ -70,11 +70,11 @@ describe('submitAnswer - happy path', () => {
 
     const player = result.session.players[blue]!;
     expect(player.correctCount).toBe(1);
-    expect(player.contributedPull).toBeGreaterThan(0);
+    expect(player.contribution).toBeGreaterThan(0);
     expect(player.fastestCorrectMs).toBe(AT - session.round!.startedAt);
   });
 
-  it('emits a pull_applied event carrying the rope delta for the arena', () => {
+  it('emits a progress_applied event carrying the mode snapshot for the arena', () => {
     const { session } = setupGame();
     const blue = session.teams.blue.playerIds[0]!;
 
@@ -85,9 +85,12 @@ describe('submitAnswer - happy path', () => {
       now: AT,
     });
 
-    const pull = result.events.find((e) => e.type === 'pull_applied');
-    expect(pull).toBeDefined();
-    expect(pull).toMatchObject({ teamId: 'blue', playerId: blue, streak: 1 });
+    const progress = result.events.find((e) => e.type === 'progress_applied');
+    expect(progress).toBeDefined();
+    expect(progress).toMatchObject({ teamId: 'blue', playerId: blue, streak: 1 });
+    if (progress?.type === 'progress_applied') {
+      expect(progress.modeState.kind).toBe('tug_of_war');
+    }
   });
 
   it('records the submission for the teacher review log', () => {
@@ -119,17 +122,17 @@ describe('submitAnswer - incorrect answers', () => {
     const result = submitAnswer(session, {
       playerId: blue,
       questionId: questionIdFor(session, 'blue'),
-      value: correctAnswerFor(session, 'blue') + 7,
+      value: '999',
       now: AT,
     });
 
     expect(result.outcome.status).toBe('incorrect');
     if (result.outcome.status === 'incorrect') {
-      expect(result.outcome.correctAnswer).toBe(correctAnswerFor(session, 'blue'));
+      expect(result.outcome.questionId).toBe(questionIdFor(session, 'blue'));
     }
     expect(result.session.teams.blue.streak).toBe(0);
     expect(result.session.teams.blue.incorrectCount).toBe(1);
-    expect(result.session.ropePosition).toBe(0);
+    expect(asTug(result.session).ropePosition).toBe(0);
     expect(result.session.round!.teams.blue.attemptedPlayerIds).toContain(blue);
     expect(result.session.round!.teams.blue.locked).toBe(false);
   });
@@ -161,7 +164,7 @@ describe('submitAnswer - rejections', () => {
     });
 
     expect(result.outcome).toEqual({ status: 'rejected', reason: 'stale_question' });
-    expect(result.session.ropePosition).toBe(0);
+    expect(asTug(result.session).ropePosition).toBe(0);
   });
 
   it('refuses a stale question id from a previous round', () => {
@@ -190,7 +193,7 @@ describe('submitAnswer - rejections', () => {
     });
 
     expect(result.outcome).toEqual({ status: 'rejected', reason: 'time_expired' });
-    expect(result.session.ropePosition).toBe(0);
+    expect(asTug(result.session).ropePosition).toBe(0);
   });
 
   it('accepts a submission on the final millisecond', () => {
@@ -215,7 +218,7 @@ describe('submitAnswer - rejections', () => {
     const first = submitAnswer(session, {
       playerId: blue,
       questionId,
-      value: correctAnswerFor(session, 'blue') + 1,
+      value: '999',
       now: AT,
     });
     const second = submitAnswer(first.session, {
@@ -226,7 +229,7 @@ describe('submitAnswer - rejections', () => {
     });
 
     expect(second.outcome).toEqual({ status: 'rejected', reason: 'player_already_answered' });
-    expect(second.session.ropePosition).toBe(0);
+    expect(asTug(second.session).ropePosition).toBe(0);
   });
 
   it('refuses a teammate once the team has locked', () => {
@@ -306,7 +309,7 @@ describe('submitAnswer - client cannot influence authoritative state', () => {
       // None of these are part of the command type and must have no effect.
       score: 9999,
       ropePosition: 0.99,
-      pull: 5,
+      gain: 5,
       streak: 50,
     } as Parameters<typeof submitAnswer>[1];
 
@@ -314,7 +317,7 @@ describe('submitAnswer - client cannot influence authoritative state', () => {
 
     expect(result.session.teams.blue.score).toBe(1);
     expect(result.session.teams.blue.streak).toBe(1);
-    expect(Math.abs(result.session.ropePosition)).toBeLessThan(0.2);
+    expect(Math.abs(asTug(result.session).ropePosition)).toBeLessThan(0.2);
   });
 
   it('derives elapsed time from the server clock, not the client', () => {
@@ -363,7 +366,7 @@ describe('setAnswerDraft', () => {
     const result = setAnswerDraft(session, { playerId: blue, value: '20', now: AT });
 
     expect(result.session.teams.blue.score).toBe(0);
-    expect(result.session.ropePosition).toBe(0);
+    expect(asTug(result.session).ropePosition).toBe(0);
   });
 
   it('is cleared once the player submits', () => {
@@ -387,7 +390,7 @@ describe('setAnswerDraft', () => {
     const spent = submitAnswer(session, {
       playerId: blue,
       questionId: questionIdFor(session, 'blue'),
-      value: correctAnswerFor(session, 'blue') + 3,
+      value: '999',
       now: AT,
     });
 

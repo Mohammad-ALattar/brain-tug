@@ -14,6 +14,7 @@ import {
   expectOk,
   once,
   startHarness,
+  tugRope,
   type Harness,
 } from '../test/harness.js';
 
@@ -76,7 +77,7 @@ describe('create_game', () => {
     expect(hostToken).toBeTruthy();
     expect(state.status).toBe('lobby');
     expect(state.totalQuestions).toBe(5);
-    expect(state.ropePosition).toBe(0);
+    expect(tugRope(state)).toBe(0);
     expect(state.currentQuestion).toBeNull();
   });
 
@@ -207,7 +208,7 @@ describe('submit_answer - authoritative validation', () => {
     expect(outcome.status).toBe('correct');
     const after = harness.session(game.roomCode);
     expect(after.teams.blue.score).toBe(1);
-    expect(after.ropePosition).toBeLessThan(0);
+    expect(tugRope(after)).toBeLessThan(0);
   });
 
   it('rejects a wrong answer without moving the rope', async () => {
@@ -222,7 +223,7 @@ describe('submit_answer - authoritative validation', () => {
     );
 
     expect(outcome.status).toBe('incorrect');
-    expect(harness.session(game.roomCode).ropePosition).toBe(0);
+    expect(tugRope(harness.session(game.roomCode))).toBe(0);
     expect(harness.session(game.roomCode).teams.blue.score).toBe(0);
   });
 
@@ -281,7 +282,7 @@ describe('submit_answer - authoritative validation', () => {
     );
 
     expect(outcome).toEqual({ status: 'rejected', reason: 'stale_question' });
-    expect(harness.session(game.roomCode).ropePosition).toBe(0);
+    expect(tugRope(harness.session(game.roomCode))).toBe(0);
   });
 
   it('refuses a stale question id', async () => {
@@ -309,7 +310,7 @@ describe('submit_answer - authoritative validation', () => {
     });
 
     expect(ack.ok).toBe(false);
-    expect(harness.session(game.roomCode).ropePosition).toBe(0);
+    expect(tugRope(harness.session(game.roomCode))).toBe(0);
   });
 
   it('refuses submissions while paused', async () => {
@@ -385,7 +386,7 @@ describe('submit_answer - client is never authoritative', () => {
     const after = harness.session(game.roomCode);
     expect(after.teams.blue.score).toBe(1);
     expect(after.teams.blue.streak).toBe(1);
-    expect(Math.abs(after.ropePosition)).toBeLessThan(0.2);
+    expect(Math.abs(tugRope(after))).toBeLessThan(0.2);
   });
 
   it('never broadcasts the correct answer or the host token', async () => {
@@ -397,7 +398,7 @@ describe('submit_answer - client is never authoritative', () => {
 
     // Capture everything the display is told, rather than racing one listener.
     const seen: unknown[] = [];
-    for (const event of ['question_started', 'game_state_updated', 'pull_applied'] as const) {
+    for (const event of ['question_started', 'game_state_updated', 'progress_applied'] as const) {
       arena.on(event, (payload: unknown) => seen.push(payload));
     }
 
@@ -469,7 +470,7 @@ describe('host controls', () => {
 
     expect(event.index).toBe(0);
     const after = harness.session(game.roomCode);
-    expect(after.ropePosition).toBe(0);
+    expect(tugRope(after)).toBe(0);
     expect(after.teams.blue.score).toBe(0);
   });
 
@@ -714,7 +715,7 @@ describe('answer drafts (classroom mirror)', () => {
     await new Promise((resolve) => setTimeout(resolve, 150));
     const after = harness.session(game.roomCode);
     expect(after.teams.blue.score).toBe(0);
-    expect(after.ropePosition).toBe(0);
+    expect(tugRope(after)).toBe(0);
   });
 });
 
@@ -859,6 +860,6 @@ describe('full game over sockets', () => {
     expect(final.status).toBe('finished');
     expect(final.teams.blue.score).toBe(2);
     expect(final.teams.red.score).toBe(0);
-    expect(final.ropePosition).toBeLessThan(0);
+    expect(tugRope(final)).toBeLessThan(0);
   });
 });

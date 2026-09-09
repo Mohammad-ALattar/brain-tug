@@ -13,29 +13,9 @@
     --arena-design-width: 1920px;
     --arena-design-height: 1080px;
 
-    /* The arena motion contract, written imperatively by `useArenaMotion` so
-       rope, character and glow motion never pass through a React render.
-       Everything below is read only by CSS. */
-
-    /* Rope position, normalised to [-1, 1]. */
-    --rope-pos: 0;
-    /* Distance from centre to a full win, in px on the design canvas. */
-    --rope-travel: 300px;
-    /* How close the leader is to winning, 0..1, and the same split by side. */
-    --tension: 0;
-    --tension-blue: 0;
-    --tension-red: 0;
-    /* Streak tier reached per team, 0 being the base tier. */
+    /* Streak tier reached per team, 0 being the base tier. Shared by both modes. */
     --streak-blue: 0;
     --streak-red: 0;
-    /* 1 while a team is braced from a just-landed pull, otherwise 0. */
-    --lean-blue: 0;
-    --lean-red: 0;
-
-    /* Seconds the rope takes to settle after a pull. */
-    --rope-settle: 0.65s;
-    /* Easing shared by the rope and the figures so they move as one assembly. */
-    --rope-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
   }
 
   html,
@@ -79,35 +59,6 @@
 
 @layer components {
   /*
-   * The rope assembly. One transform, driven entirely by `--rope-pos`, so the
-   * browser interpolates it on the compositor while React does nothing.
-   */
-  .bt-rope-track {
-    transform: translateX(calc(var(--rope-pos) * var(--rope-travel)));
-    transition: transform var(--rope-settle) var(--rope-ease);
-    will-change: transform;
-  }
-
-  /* The thin marker showing exactly where the rope sits on the field. */
-  .bt-rope-marker {
-    left: calc((var(--rope-pos) + 1) / 2 * 100%);
-    transition: left var(--rope-settle) var(--rope-ease);
-  }
-
-  /* Per-side tension glow. Opacity is the only animated property. */
-  .bt-tension-blue {
-    background: linear-gradient(90deg, rgba(47, 107, 243, 0.5), rgba(47, 107, 243, 0) 55%);
-    opacity: calc(var(--tension-blue) * 0.55);
-    transition: opacity var(--rope-settle) ease-out;
-  }
-
-  .bt-tension-red {
-    background: linear-gradient(270deg, rgba(239, 51, 68, 0.5), rgba(239, 51, 68, 0) 55%);
-    opacity: calc(var(--tension-red) * 0.55);
-    transition: opacity var(--rope-settle) ease-out;
-  }
-
-  /*
    * Streak tiers, as an escalating ring on a team panel. The tier index comes
    * from the same `GameRules` the server scores with, so adding a tier to the
    * rules deepens the glow without touching this file.
@@ -126,25 +77,6 @@
 }
 
 @layer utilities {
-  /* The floating pull badge rises and fades, then unmounts itself. */
-  @keyframes pullFloat {
-    0% {
-      opacity: 0;
-      transform: translate(-50%, 10px) scale(0.9);
-    }
-    18% {
-      opacity: 1;
-      transform: translate(-50%, -4px) scale(1.04);
-    }
-    30% {
-      transform: translate(-50%, -8px) scale(1);
-    }
-    100% {
-      opacity: 0;
-      transform: translate(-50%, -54px) scale(0.98);
-    }
-  }
-
   /* The result card lands rather than appearing, so the room notices it. */
   @keyframes victoryRise {
     from {
@@ -184,6 +116,7 @@
 @media (prefers-reduced-motion: reduce) {
   :root {
     --rope-settle: 0.01s;
+    --race-settle: 0.01s;
   }
 
   *,

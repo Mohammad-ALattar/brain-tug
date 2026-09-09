@@ -7,6 +7,7 @@ import { T0 } from '@braintug/shared/testing';
 import { makeSession, makeState, resetStore, seedStore } from '../../test/fixtures';
 import { CreateGameForm } from './CreateGameForm';
 import { GameResults } from './GameResults';
+import { HostLiveBoard } from './HostLiveBoard';
 import { LobbyRoster } from './LobbyRoster';
 import { RoomCodeDisplay } from './RoomCodeDisplay';
 import { TeacherControls } from './TeacherControls';
@@ -40,13 +41,35 @@ describe('CreateGameForm', () => {
     await userEvent.click(screen.getByRole('button', { name: /create match/i }));
 
     expect(onCreate).toHaveBeenCalledWith({
+      mode: 'tug_of_war',
+      subject: 'math',
       operation: 'mixed',
       difficulty: 'easy',
       totalQuestions: 20,
       secondsPerQuestion: 20,
       winThreshold: 1,
+      trackMetres: undefined,
       teamNames: {},
     });
+  });
+
+  it('sends Brain Race settings when that mode is chosen', async () => {
+    const onCreate = vi.fn();
+    render(<CreateGameForm error={null} busy={false} onCreate={onCreate} />);
+
+    await userEvent.click(screen.getByRole('radio', { name: /brain race/i }));
+    await userEvent.click(screen.getByRole('radio', { name: /sprint/i }));
+    await userEvent.click(screen.getByRole('button', { name: /create match/i }));
+
+    expect(onCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        mode: 'brain_race',
+        subject: 'math',
+        trackMetres: 500,
+        winThreshold: undefined,
+        finishersRequiredPerTeam: undefined,
+      }),
+    );
   });
 
   it('carries every chosen setting through to the payload', async () => {
@@ -62,11 +85,14 @@ describe('CreateGameForm', () => {
     await userEvent.click(screen.getByRole('button', { name: /create match/i }));
 
     expect(onCreate).toHaveBeenCalledWith({
+      mode: 'tug_of_war',
+      subject: 'math',
       operation: 'division',
       difficulty: 'hard',
       totalQuestions: 25,
       secondsPerQuestion: 15,
       winThreshold: 0.5,
+      trackMetres: undefined,
       teamNames: { blue: 'Blue Tigers' },
     });
   });
@@ -267,5 +293,59 @@ describe('GameResults', () => {
     await userEvent.click(screen.getByRole('button', { name: /another match/i }));
 
     expect(onNewMatch).toHaveBeenCalled();
+  });
+
+  it('uses Race contribution copy, not Tug puller wording', () => {
+    seedStore(makeState({ mode: 'brain_race' }));
+    const session = makeSession({ mode: 'brain_race', lockedTeams: ['blue'] });
+    const result = buildGameResult({ ...session, winner: 'blue' }, 'questions_exhausted', T0 + 60_000);
+
+    render(<GameResults result={result} onNewMatch={vi.fn()} />);
+
+    expect(screen.getByText(/top racer/i)).toBeDefined();
+    expect(screen.getByText(/^distance$/i)).toBeDefined();
+    expect(screen.queryByText(/top puller/i)).toBeNull();
+    expect(screen.queryByText(/^pulled$/i)).toBeNull();
+  });
+});
+
+describe('HostLiveBoard', () => {
+  it('describes a tied Brain Race by finisher count', () => {
+    const state = makeState({ mode: 'brain_race' });
+    seedStore({
+      ...state,
+      modeState: {
+        kind: 'brain_race',
+        progress: Object.fromEntries(state.players.map((player) => [player.id, 0.3])),
+        trackMetres: 1000,
+        finishersRequiredPerTeam: 1,
+        finishOrder: [],
+      },
+    });
+
+    render(<HostLiveBoard />);
+
+    expect(screen.getByText(/lanes level/i)).toBeDefined();
+    expect(screen.queryByText(/rope at the centre/i)).toBeNull();
+  });
+
+  it('names the leading team by finisher count', () => {
+    const state = makeState({ mode: 'brain_race', playersPerTeam: 1 });
+    const blue = state.players.find((player) => player.teamId === 'blue')!;
+    seedStore({
+      ...state,
+      modeState: {
+        kind: 'brain_race',
+        progress: { [blue.id]: 1 },
+        trackMetres: 1000,
+        finishersRequiredPerTeam: 1,
+        finishOrder: [{ playerId: blue.id, teamId: 'blue' }],
+      },
+    });
+
+    const { container } = render(<HostLiveBoard />);
+
+    expect(container.textContent).toMatch(/Blue Tigers ahead\s+by\s+1 finisher/);
+    expect(screen.queryByText(/rope/i)).toBeNull();
   });
 });

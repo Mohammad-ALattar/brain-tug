@@ -17,9 +17,13 @@ export async function openDevice(browser: Browser): Promise<Page> {
 /** Creates a match on the teacher dashboard and returns its room code. */
 export async function createMatch(
   page: Page,
-  options: { questions?: number; seconds?: number } = {},
+  options: { questions?: number; seconds?: number; mode?: 'tug_of_war' | 'brain_race' } = {},
 ): Promise<string> {
   await page.goto('/host');
+
+  if (options.mode === 'brain_race') {
+    await page.getByRole('radio', { name: /brain race/i }).click();
+  }
 
   // Fewer, longer questions keep the suite fast without racing the clock.
   const questions = options.questions ?? 5;

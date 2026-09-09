@@ -1,17 +1,20 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, cleanup } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { ropeToMetres } from '@braintug/shared';
-import { makeState, resetStore, seedStore } from '../../test/fixtures';
+import { buildGameResult, ropeToMetres, type PublicQuestion, type QuestionId } from '@braintug/shared';
+import { T0 } from '@braintug/shared/testing';
+import { makeSession, makeState, resetStore, seedStore } from '../../test/fixtures';
 import { useGameStore } from '../../store/gameStore';
-import { AnswerDisplay } from './AnswerDisplay';
-import { MirroredKeypad } from './MirroredKeypad';
-import { PullingBanner } from './PullingBanner';
-import { QuestionCard } from './QuestionCard';
-import { RopePosition } from './RopePosition';
-import { TeamStreak } from './TeamStreak';
-import { TopGameHeader } from './TopGameHeader';
-import { TugOfWarArena } from './TugOfWarArena';
+import { AnswerDisplay } from './modes/tugOfWar/AnswerDisplay';
+import { MirroredKeypad } from './modes/tugOfWar/MirroredKeypad';
+import { PullingBanner } from './modes/tugOfWar/PullingBanner';
+import { QuestionCard } from './modes/tugOfWar/QuestionCard';
+import { RopePosition } from './modes/tugOfWar/RopePosition';
+import { TeamPanel } from './modes/tugOfWar/TeamPanel';
+import { TeamStreak } from './shell/TeamStreak';
+import { TopGameHeader } from './shell/TopGameHeader';
+import { TugOfWarArena } from './modes/tugOfWar/TugOfWarArena';
+import { VictoryScreen } from './shell/VictoryScreen';
 
 afterEach(() => {
   cleanup();
@@ -51,6 +54,34 @@ describe('QuestionCard', () => {
     expect(state.currentQuestion!.blue).not.toHaveProperty('answer');
     expect(container.textContent).toContain('?');
   });
+
+  it('renders a non-math PublicQuestion without an equation or numeric keypad', () => {
+    const question: PublicQuestion = {
+      id: 'mc1' as QuestionId,
+      subject: 'science',
+      difficulty: 'easy',
+      type: 'multiple_choice',
+      prompt: 'Which planet is known as the Red Planet?',
+      options: [
+        { id: 'a', text: 'Mars' },
+        { id: 'b', text: 'Earth' },
+        { id: 'c', text: 'Venus' },
+        { id: 'd', text: 'Jupiter' },
+      ],
+    };
+    const state = makeState();
+    seedStore({
+      ...state,
+      currentQuestion: { blue: question, red: question },
+    });
+
+    const { container } = render(<TeamPanel teamId="blue" terminalNumber={1} />);
+
+    expect(screen.getByText(/which planet is known as the red planet/i)).toBeDefined();
+    expect(screen.getByText('Mars')).toBeDefined();
+    expect(container.textContent).not.toMatch(/=\s*\?/);
+    expect(container.textContent).not.toContain('<');
+  });
 });
 
 describe('AnswerDisplay', () => {
@@ -72,7 +103,7 @@ describe('AnswerDisplay', () => {
 
     render(<AnswerDisplay teamId="blue" />);
 
-    const locked = state.round!.teams.blue.lockedValue;
+    const locked = state.round!.teams.blue.revealedAnswer;
     expect(locked).not.toBeNull();
     expect(screen.getByText(/confirmed/i)).toBeDefined();
     expect(screen.getByLabelText(new RegExp(`locked: ${locked}`))).toBeDefined();
@@ -218,7 +249,14 @@ describe('PullingBanner', () => {
 
     render(<PullingBanner />);
 
-    const metres = Math.abs(ropeToMetres(state.rules, 0.5));
+    const metres = Math.abs(
+      ropeToMetres(
+        state.modeState.kind === 'tug_of_war'
+          ? state.modeState
+          : { kind: 'tug_of_war', ropePosition: 0.5, arenaHalfMetres: 4 },
+        0.5,
+      ),
+    );
     expect(screen.getByText(new RegExp(`${state.teams.red.name} pulling`, 'i'))).toBeDefined();
     expect(screen.getByText(new RegExp(`${metres.toFixed(1)}m`))).toBeDefined();
   });
@@ -236,8 +274,8 @@ describe('RopePosition scale', () => {
     const state = makeState();
     seedStore(state);
 
-    render(<RopePosition rules={state.rules} />);
-    const half = state.rules.arenaHalfMetres;
+    render(<RopePosition halfMetres={state.modeState.kind === 'tug_of_war' ? state.modeState.arenaHalfMetres : 4} />);
+    const half = state.modeState.kind === 'tug_of_war' ? state.modeState.arenaHalfMetres : 4;
 
     expect(screen.getByText(/center 0m/i)).toBeDefined();
     // Both goals are labelled, distinguished by sign.
@@ -263,5 +301,22 @@ describe('TeamStreak', () => {
 
     render(<TeamStreak teamId="blue" />);
     expect(screen.getByText(/full force/i)).toBeDefined();
+  });
+});
+
+describe('VictoryScreen', () => {
+  it('describes a Brain Race finish without rope copy', () => {
+    const session = makeSession({ mode: 'brain_race', lockedTeams: ['blue'] });
+    const result = buildGameResult({ ...session, winner: 'blue' }, 'target_reached', T0 + 60_000);
+    seedStore(makeState({ mode: 'brain_race' }));
+    useGameStore.setState({ result });
+
+    render(<VictoryScreen />);
+
+    expect(screen.getByText(/first across the finish line/i)).toBeDefined();
+    expect(screen.getAllByText(/finishers/i).length).toBeGreaterThan(0);
+    expect(screen.getByText(/top racer/i)).toBeDefined();
+    expect(screen.queryByText(/rope/i)).toBeNull();
+    expect(screen.queryByText(/puller/i)).toBeNull();
   });
 });

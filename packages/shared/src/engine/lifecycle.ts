@@ -1,13 +1,14 @@
 import { buildGameResult } from '../domain/result.js';
-import type { GameSession } from '../domain/session.js';
+import { modeOf, type GameSession } from '../domain/session.js';
 import { TEAM_IDS, type TeamId } from '../domain/team.js';
+import { prepareBrainRaceAtStart } from './brainRaceRoster.js';
 import { ok, reject, type EngineOutcome } from './types.js';
 
 export type StartGameOptions = {
   now: number;
   /**
-   * Allows a match with an empty side. Off by default because a tug of war with
-   * one team is unwinnable for the other; tests and demos opt in.
+   * Allows a match with an empty side. Off by default because a two-team game
+   * with one team is unwinnable for the other; tests and demos opt in.
    */
   allowEmptyTeams?: boolean;
 };
@@ -32,8 +33,9 @@ export function startGame(session: GameSession, options: StartGameOptions): Engi
   }
 
   const countdownEndsAt = options.now + session.config.countdownMs;
+  const prepared = prepareBrainRaceAtStart(session);
   const next: GameSession = {
-    ...session,
+    ...prepared,
     status: 'countdown',
     startedAt: options.now,
     countdownEndsAt,
@@ -77,7 +79,7 @@ export function resumeGame(session: GameSession, now: number): EngineOutcome {
 }
 
 /**
- * Host ends the match early. The rope decides the winner, exactly as it would on
+ * Host ends the match early. The mode decides the winner, exactly as it would on
  * question exhaustion, so ending early is never arbitrary.
  */
 export function endGame(session: GameSession, now: number): EngineOutcome {
@@ -86,11 +88,7 @@ export function endGame(session: GameSession, now: number): EngineOutcome {
   const winner: TeamId | 'draw' | null =
     session.startedAt === null
       ? null
-      : session.ropePosition < 0
-        ? 'blue'
-        : session.ropePosition > 0
-          ? 'red'
-          : 'draw';
+      : modeOf(session).winnerOnExhaustion(session.modeState, session);
 
   const next: GameSession = {
     ...session,

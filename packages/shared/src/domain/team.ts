@@ -31,8 +31,8 @@ export type Team = {
   correctCount: number;
   /** Total incorrect submissions across the game. */
   incorrectCount: number;
-  /** Cumulative rope distance this team has pulled, in normalised units. */
-  totalPull: number;
+  /** Cumulative progress this team has won, in normalised units. */
+  totalGain: number;
   playerIds: PlayerId[];
 };
 
@@ -45,7 +45,7 @@ export function createTeam(id: TeamId, name: string): Team {
     bestStreak: 0,
     correctCount: 0,
     incorrectCount: 0,
-    totalPull: 0,
+    totalGain: 0,
     playerIds: [],
   };
 }

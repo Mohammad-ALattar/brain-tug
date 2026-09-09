@@ -63,6 +63,12 @@ export default {
           blue: '#eaf1ff',
           red: '#fff0f1',
         },
+        track: {
+          DEFAULT: '#eef6ff',
+          line: '#c9d9ee',
+          blue: '#d9e7ff',
+          red: '#ffd9de',
+        },
         timer: '#f7c93e',
         // Dark enough to be legible as text, not just as a status dot.
         good: '#147a42',

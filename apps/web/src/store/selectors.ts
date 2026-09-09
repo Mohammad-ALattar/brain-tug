@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import type { PlayerId, PublicPlayer, TeamId } from '@braintug/shared';
+import type { GameSession, PlayerId, PublicPlayer, PublicQuestion, TeamId } from '@braintug/shared';
+import { displayTeamFinishers, playerProgress } from '@braintug/shared';
 import { useGameStore } from './gameStore';
 
 /**
@@ -14,10 +15,12 @@ export const useConnection = () => useGameStore((s) => s.connection);
 export const useGameError = () => useGameStore((s) => s.error);
 export const useStatus = () => useGameStore((s) => s.state?.status ?? 'lobby');
 export const useRoomCode = () => useGameStore((s) => s.state?.roomCode ?? null);
-export const useRopePosition = () => useGameStore((s) => s.state?.ropePosition ?? 0);
+export const useGameMode = () => useGameStore((s) => s.state?.config.mode ?? 'tug_of_war');
+export const useModeState = () => useGameStore((s) => s.state?.modeState ?? null);
 export const useWinner = () => useGameStore((s) => s.state?.winner ?? null);
 export const useResult = () => useGameStore((s) => s.result);
-export const useLastPull = () => useGameStore((s) => s.lastPull);
+export const useLastProgress = () => useGameStore((s) => s.lastProgress);
+export const useLastResolution = () => useGameStore((s) => s.lastResolution);
 export const useMe = () => useGameStore((s) => s.me);
 export const useMyOutcome = () => useGameStore((s) => s.myOutcome);
 
@@ -26,6 +29,21 @@ export const useTeamScore = (teamId: TeamId) =>
 
 export const useTeamStreak = (teamId: TeamId) =>
   useGameStore((s) => s.state?.teams[teamId].streak ?? 0);
+
+export const usePlayerStreak = (playerId: PlayerId) =>
+  useGameStore((s) => s.state?.players.find((p) => p.id === playerId)?.streak ?? 0);
+
+/** Highest personal streak among connected players on a team (Brain Race lanes). */
+export function useTeamPlayerStreakPeak(teamId: TeamId): number {
+  const players = usePlayers();
+  return useMemo(() => {
+    let peak = 0;
+    for (const player of players) {
+      if (player.teamId === teamId) peak = Math.max(peak, player.streak);
+    }
+    return peak;
+  }, [players, teamId]);
+}
 
 export const useTeamName = (teamId: TeamId) =>
   useGameStore((s) => s.state?.teams[teamId].name ?? (teamId === 'blue' ? 'Blue' : 'Red'));
@@ -46,6 +64,9 @@ export const useRules = () => useGameStore((s) => s.state?.rules ?? null);
 export const useTeamPrompt = (teamId: TeamId) =>
   useGameStore((s) => s.state?.currentQuestion?.[teamId].prompt ?? null);
 
+export const useTeamQuestion = (teamId: TeamId): PublicQuestion | null =>
+  useGameStore((s) => s.state?.currentQuestion?.[teamId] ?? null);
+
 export const useTeamQuestionId = (teamId: TeamId) =>
   useGameStore((s) => s.state?.currentQuestion?.[teamId].id ?? null);
 
@@ -55,8 +76,8 @@ export const useTeamLocked = (teamId: TeamId) =>
 export const useTeamLockedBy = (teamId: TeamId) =>
   useGameStore((s) => s.state?.round?.teams[teamId].lockedByPlayerId ?? null);
 
-export const useTeamLockedValue = (teamId: TeamId) =>
-  useGameStore((s) => s.state?.round?.teams[teamId].lockedValue ?? null);
+export const useTeamRevealedAnswer = (teamId: TeamId) =>
+  useGameStore((s) => s.state?.round?.teams[teamId].revealedAnswer ?? null);
 
 export const useNextRoundAt = () => useGameStore((s) => s.state?.nextRoundAt ?? null);
 
@@ -78,25 +99,9 @@ export const useIHaveAttempted = () =>
 
 export const usePlayers = () => useGameStore((s) => s.state?.players ?? EMPTY_PLAYERS);
 
-/**
- * Stable empty fallbacks.
- *
- * A selector passed to `useGameStore` must return the same reference when
- * nothing changed. Zustand reads it through `useSyncExternalStore`, which
- * re-reads the snapshot after every render and re-renders again if the
- * reference moved, so a fresh `[]` here is an infinite loop rather than a
- * wasted allocation.
- */
 const EMPTY_PLAYERS: PublicPlayer[] = [];
 const EMPTY_IDS: PlayerId[] = [];
 
-/**
- * Roster for one team.
- *
- * Filtering happens in `useMemo` rather than inside the store selector for the
- * reason above: the selector returns the store's own stable `players` array and
- * the derived list is recomputed only when that array actually changes.
- */
 export function useTeamPlayers(teamId: TeamId): PublicPlayer[] {
   const players = usePlayers();
   return useMemo(() => players.filter((p) => p.teamId === teamId), [players, teamId]);
@@ -113,4 +118,65 @@ export function useActiveResponders(teamId: TeamId): PublicPlayer[] {
     const spent = new Set(attempted);
     return players.filter((p) => p.teamId === teamId && p.connected && !spent.has(p.id));
   }, [players, attempted, teamId]);
+}
+
+export function useAttemptedCount(teamId: TeamId): { attempted: number; seated: number } {
+  const seated = useTeamPlayers(teamId).filter((p) => p.connected).length;
+  const attempted = useGameStore(
+    (s) => s.state?.round?.teams[teamId].attemptedPlayerIds.length ?? 0,
+  );
+  return { attempted, seated };
+}
+
+/** Connected players who have spent their attempt on the current round. */
+export function useRoundAnswerProgress(): { answered: number; seated: number } {
+  const players = usePlayers();
+  const blueAttempted = useGameStore(
+    (s) => s.state?.round?.teams.blue.attemptedPlayerIds.length ?? 0,
+  );
+  const redAttempted = useGameStore(
+    (s) => s.state?.round?.teams.red.attemptedPlayerIds.length ?? 0,
+  );
+  const seated = players.filter((p) => p.connected).length;
+  return { answered: blueAttempted + redAttempted, seated };
+}
+
+function finishersSessionSlice(
+  view: NonNullable<ReturnType<typeof useGameStore.getState>['state']>,
+): Pick<GameSession, 'teams' | 'players'> {
+  return {
+    teams: view.teams,
+    players: Object.fromEntries(view.players.map((player) => [player.id, player])) as GameSession['players'],
+  };
+}
+
+export const useRacePlayerProgress = (playerId: PlayerId) =>
+  useGameStore((s) => {
+    const modeState = s.state?.modeState;
+    if (modeState?.kind !== 'brain_race') return 0;
+    return playerProgress(modeState, playerId);
+  });
+
+export function useBrainRaceFinishers(teamId: TeamId): { finished: number; required: number } {
+  const finished = useGameStore((s) => {
+    const view = s.state;
+    if (!view || view.modeState.kind !== 'brain_race') return 0;
+    return displayTeamFinishers(
+      view.modeState,
+      finishersSessionSlice(view) as GameSession,
+      teamId,
+      view.rules.winThreshold,
+    ).finished;
+  });
+  const required = useGameStore((s) => {
+    const view = s.state;
+    if (!view || view.modeState.kind !== 'brain_race') return 0;
+    return displayTeamFinishers(
+      view.modeState,
+      finishersSessionSlice(view) as GameSession,
+      teamId,
+      view.rules.winThreshold,
+    ).required;
+  });
+  return { finished, required };
 }

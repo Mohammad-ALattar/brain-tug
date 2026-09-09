@@ -1,0 +1,56 @@
+/**
+ * Rope motion contract. Written imperatively by `useTugOfWarMotion` so the rope,
+ * characters and glow never pass through a React render.
+ */
+:root {
+  --rope-pos: 0;
+  --rope-travel: 300px;
+  --tension: 0;
+  --tension-blue: 0;
+  --tension-red: 0;
+  --lean-blue: 0;
+  --lean-red: 0;
+  --rope-settle: 0.65s;
+  --rope-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.bt-rope-track {
+  transform: translateX(calc(var(--rope-pos) * var(--rope-travel)));
+  transition: transform var(--rope-settle) var(--rope-ease);
+  will-change: transform;
+}
+
+.bt-rope-marker {
+  left: calc((var(--rope-pos) + 1) / 2 * 100%);
+  transition: left var(--rope-settle) var(--rope-ease);
+}
+
+.bt-tension-blue {
+  background: linear-gradient(90deg, rgba(47, 107, 243, 0.5), rgba(47, 107, 243, 0) 55%);
+  opacity: calc(var(--tension-blue) * 0.55);
+  transition: opacity var(--rope-settle) ease-out;
+}
+
+.bt-tension-red {
+  background: linear-gradient(270deg, rgba(239, 51, 68, 0.5), rgba(239, 51, 68, 0) 55%);
+  opacity: calc(var(--tension-red) * 0.55);
+  transition: opacity var(--rope-settle) ease-out;
+}
+
+@keyframes pullFloat {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 10px) scale(0.9);
+  }
+  18% {
+    opacity: 1;
+    transform: translate(-50%, -4px) scale(1.04);
+  }
+  30% {
+    transform: translate(-50%, -8px) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -54px) scale(0.98);
+  }
+}

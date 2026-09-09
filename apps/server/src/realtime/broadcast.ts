@@ -16,7 +16,7 @@ export type GameSocket = Socket<ClientToServerEvents, ServerToClientEvents>;
  * Engine events that describe a structural change, after which clients are also
  * sent a fresh compact state snapshot.
  *
- * Deliberately excludes `pull_applied`, `answer_result` and `draft_updated`:
+ * Deliberately excludes `progress_applied`, `answer_result` and `draft_updated`:
  * those are the high-frequency gameplay events, and each carries everything a
  * client needs, so a full snapshot per answer would be wasted bandwidth.
  */
@@ -99,14 +99,14 @@ export function dispatchEvents(
         break;
       }
 
-      case 'pull_applied':
-        io.to(rooms.game(gameId)).emit('pull_applied', {
+      case 'progress_applied':
+        io.to(rooms.game(gameId)).emit('progress_applied', {
           teamId: event.teamId,
           playerId: event.playerId,
-          pull: event.pull,
-          ropePosition: event.ropePosition,
+          gain: event.gain,
           streak: event.streak,
           score: event.score,
+          modeState: event.modeState,
         });
         break;
 
@@ -123,6 +123,7 @@ export function dispatchEvents(
           index: event.index,
           reason: event.reason,
           nextRoundAt: event.nextRoundAt,
+          revealed: event.revealed,
         });
         if (event.reason === 'skipped') {
           io.to(rooms.game(gameId)).emit('question_skipped', { index: event.index });

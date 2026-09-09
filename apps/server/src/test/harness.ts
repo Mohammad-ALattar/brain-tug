@@ -1,12 +1,13 @@
 import type { AddressInfo } from 'node:net';
 import { io as createClient, type Socket } from 'socket.io-client';
-import type {
-  Ack,
-  ClientToServerEvents,
-  GameSession,
-  RoomCode,
-  ServerToClientEvents,
-  TeamId,
+import {
+  revealAnswer,
+  type Ack,
+  type ClientToServerEvents,
+  type GameSession,
+  type RoomCode,
+  type ServerToClientEvents,
+  type TeamId,
 } from '@braintug/shared';
 import { loadConfig } from '../config.js';
 import { createLogger } from '../logger.js';
@@ -106,14 +107,34 @@ export function expectOk<T>(ack: Ack<T>): T {
 }
 
 /** The server-side correct answer for a team's current question. */
-export function correctAnswer(session: GameSession, teamId: TeamId): number {
+export function correctAnswer(session: GameSession, teamId: TeamId): string {
   const round = session.round;
   if (!round) throw new Error('No active round');
-  return round.teams[teamId].question.answer;
+  return revealAnswer(round.teams[teamId].question);
 }
 
 export function currentQuestionId(session: GameSession, teamId: TeamId): string {
   const round = session.round;
   if (!round) throw new Error('No active round');
   return round.teams[teamId].question.id;
+}
+
+export function tugRope(state: { modeState: GameSession['modeState'] }): number {
+  if (state.modeState.kind !== 'tug_of_war') {
+    throw new Error(`Expected tug of war, received "${state.modeState.kind}"`);
+  }
+  return state.modeState.ropePosition;
+}
+
+export function raceProgress(
+  session: GameSession,
+  teamId: TeamId,
+  playerIndex = 0,
+): number {
+  if (session.modeState.kind !== 'brain_race') {
+    throw new Error(`Expected brain race, received "${session.modeState.kind}"`);
+  }
+  const playerId = session.teams[teamId].playerIds[playerIndex];
+  if (!playerId) return 0;
+  return session.modeState.progress[playerId] ?? 0;
 }

@@ -3,19 +3,22 @@ import type {
   AnswerOutcome,
   GameResult,
   GameStateView,
+  ModeState,
   PlayerId,
   PublicPlayer,
   RoundResolution,
   TeamId,
 } from '@braintug/shared';
 
-/** A pull worth animating, e.g. the floating `+1.2m RED` badge. */
-export type PullFlash = {
+/** A gain worth animating, e.g. the floating `+40m` badge. */
+export type ProgressFlash = {
   key: number;
   teamId: TeamId;
   playerId: PlayerId;
-  pull: number;
+  gain: number;
   streak: number;
+  /** Team score after this answer, copied from the server event. */
+  score: number;
 };
 
 export type ConnectionStatus = 'connecting' | 'connected' | 'reconnecting' | 'disconnected';
@@ -28,9 +31,13 @@ export type GameStore = {
 
   /** In-progress typing per team, for the classroom mirror. */
   drafts: Record<TeamId, string>;
-  /** Most recent pull, consumed by the arena to fire a one-shot animation. */
-  lastPull: PullFlash | null;
-  lastResolution: { index: number; reason: RoundResolution } | null;
+  /** Most recent gain, consumed by the arena to fire a one-shot animation. */
+  lastProgress: ProgressFlash | null;
+  lastResolution: {
+    index: number;
+    reason: RoundResolution;
+    revealed: Record<TeamId, string> | null;
+  } | null;
 
   /** This client's own identity, when it is a student. */
   me: { playerId: PlayerId; teamId: TeamId } | null;
@@ -42,18 +49,29 @@ export type GameStore = {
   setError: (message: string | null) => void;
   setMe: (me: { playerId: PlayerId; teamId: TeamId } | null) => void;
   setMyOutcome: (outcome: AnswerOutcome | null) => void;
-  applyPull: (pull: Omit<PullFlash, 'key'> & { ropePosition: number; score: number }) => void;
+  applyProgress: (event: {
+    teamId: TeamId;
+    playerId: PlayerId;
+    gain: number;
+    streak: number;
+    score: number;
+    modeState: ModeState;
+  }) => void;
   applyDraft: (teamId: TeamId, value: string) => void;
   applyPlayerJoined: (player: PublicPlayer) => void;
   applyPlayerConnection: (playerId: PlayerId, connected: boolean) => void;
-  applyResolution: (index: number, reason: RoundResolution) => void;
+  applyResolution: (
+    index: number,
+    reason: RoundResolution,
+    revealed: Record<TeamId, string>,
+  ) => void;
   setResult: (result: GameResult, state: GameStateView) => void;
   reset: () => void;
 };
 
 const emptyDrafts: Record<TeamId, string> = { blue: '', red: '' };
 
-let pullKey = 0;
+let progressKey = 0;
 
 export const useGameStore = create<GameStore>((set) => ({
   state: null,
@@ -61,7 +79,7 @@ export const useGameStore = create<GameStore>((set) => ({
   connection: 'connecting',
   error: null,
   drafts: emptyDrafts,
-  lastPull: null,
+  lastProgress: null,
   lastResolution: null,
   me: null,
   myOutcome: null,
@@ -69,11 +87,12 @@ export const useGameStore = create<GameStore>((set) => ({
   setState: (state) =>
     set((prev) => ({
       state,
-      // A new round clears the mirrored input and the previous outcome.
       drafts:
         prev.state?.currentQuestionIndex === state.currentQuestionIndex ? prev.drafts : emptyDrafts,
       myOutcome:
         prev.state?.currentQuestionIndex === state.currentQuestionIndex ? prev.myOutcome : null,
+      lastProgress:
+        prev.state?.currentQuestionIndex === state.currentQuestionIndex ? prev.lastProgress : null,
     })),
 
   setConnection: (connection) => set({ connection }),
@@ -82,36 +101,51 @@ export const useGameStore = create<GameStore>((set) => ({
   setMyOutcome: (myOutcome) => set({ myOutcome }),
 
   /**
-   * Applies a pull without waiting for a full state snapshot. The server sends
-   * the authoritative rope position and score in the event itself, so the
-   * header and rope stay correct while costing one small message per answer.
+   * Applies a gain without waiting for a full state snapshot. The server sends
+   * the authoritative mode state and score in the event itself, so the header
+   * and arena stay correct while costing one small message per answer.
    */
-  applyPull: (pull) =>
+  applyProgress: (event) =>
     set((prev) => {
-      pullKey += 1;
-      const flash: PullFlash = {
-        key: pullKey,
-        teamId: pull.teamId,
-        playerId: pull.playerId,
-        pull: pull.pull,
-        streak: pull.streak,
+      progressKey += 1;
+      const flash: ProgressFlash = {
+        key: progressKey,
+        teamId: event.teamId,
+        playerId: event.playerId,
+        gain: event.gain,
+        streak: event.streak,
+        score: event.score,
       };
-      if (!prev.state) return { lastPull: flash };
+      if (!prev.state) return { lastProgress: flash };
+
+      const isRace = prev.state.config.mode === 'brain_race';
+      const players = prev.state.players.map((player) =>
+        player.id === event.playerId && isRace ? { ...player, streak: event.streak } : player,
+      );
 
       return {
-        lastPull: flash,
-        drafts: { ...prev.drafts, [pull.teamId]: '' },
+        lastProgress: flash,
+        drafts: { ...prev.drafts, [event.teamId]: '' },
         state: {
           ...prev.state,
-          ropePosition: pull.ropePosition,
-          teams: {
-            ...prev.state.teams,
-            [pull.teamId]: {
-              ...prev.state.teams[pull.teamId],
-              score: pull.score,
-              streak: pull.streak,
-            },
-          },
+          players,
+          modeState: event.modeState,
+          teams: isRace
+            ? {
+                ...prev.state.teams,
+                [event.teamId]: {
+                  ...prev.state.teams[event.teamId],
+                  score: event.score,
+                },
+              }
+            : {
+                ...prev.state.teams,
+                [event.teamId]: {
+                  ...prev.state.teams[event.teamId],
+                  score: event.score,
+                  streak: event.streak,
+                },
+              },
         },
       };
     }),
@@ -137,7 +171,8 @@ export const useGameStore = create<GameStore>((set) => ({
       };
     }),
 
-  applyResolution: (index, reason) => set({ lastResolution: { index, reason } }),
+  applyResolution: (index, reason, revealed) =>
+    set({ lastResolution: { index, reason, revealed } }),
 
   setResult: (result, state) => set({ result, state }),
 
@@ -147,7 +182,7 @@ export const useGameStore = create<GameStore>((set) => ({
       result: null,
       error: null,
       drafts: emptyDrafts,
-      lastPull: null,
+      lastProgress: null,
       lastResolution: null,
       me: null,
       myOutcome: null,

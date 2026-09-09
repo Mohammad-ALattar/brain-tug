@@ -1,23 +1,20 @@
-import type { GameSession } from '../domain/session.js';
+import { modeOf, type GameSession } from '../domain/session.js';
 import type { TeamId } from '../domain/team.js';
-import { ropeWinner } from '../rules/rope.js';
 
 /**
- * Winner once the rope has reached the threshold, or null. This is the only way
- * a game can end early.
+ * Winner once a mode's own target has been reached, or null. This is the only
+ * way a game can end before the question bank runs out.
  */
-export function ropeVictory(session: GameSession): TeamId | null {
-  return ropeWinner(session.rules, session.ropePosition);
+export function targetReached(session: GameSession): TeamId | null {
+  return modeOf(session).victor(session.modeState, session.rules, session);
 }
 
 /**
- * Winner when the question bank runs out: whichever side the rope favours. A
- * rope resting exactly at centre is a genuine draw.
+ * Winner when the question bank runs out or the host ends the match. A genuine
+ * draw is possible when both sides sit at the same progress.
  */
 export function winnerOnExhaustion(session: GameSession): TeamId | 'draw' {
-  if (session.ropePosition < 0) return 'blue';
-  if (session.ropePosition > 0) return 'red';
-  return 'draw';
+  return modeOf(session).winnerOnExhaustion(session.modeState, session);
 }
 
 /** True once the last round of the configured bank has been played. */

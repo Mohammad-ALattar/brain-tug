@@ -3,6 +3,10 @@ import { createPlayer, sanitisePlayerName } from '../domain/player.js';
 import type { GameSession } from '../domain/session.js';
 import { toPublicPlayer } from '../domain/session.js';
 import { TEAM_IDS, type TeamId } from '../domain/team.js';
+import {
+  addBrainRaceRosterEntry,
+  removeBrainRaceRosterEntry,
+} from './brainRaceRoster.js';
 import { ok, reject, type EngineEvent, type EngineOutcome } from './types.js';
 
 /** Guard against a runaway room; a classroom is far below this. */
@@ -45,6 +49,9 @@ export function joinGame(
   if (session.status === 'finished') {
     return reject('game_not_active', 'This game has already finished.');
   }
+  if (session.config.mode === 'brain_race' && session.status !== 'lobby') {
+    return reject('game_in_progress', 'This race has already started. Wait for the next match.');
+  }
   if (Object.keys(session.players).length >= MAX_PLAYERS_PER_GAME) {
     return reject('game_full', 'This game is full.');
   }
@@ -60,7 +67,7 @@ export function joinGame(
   const playerToken = ids.playerToken();
   const player = createPlayer(playerId, name, teamId, options.now);
 
-  const next: GameSession = {
+  let next: GameSession = {
     ...session,
     players: { ...session.players, [playerId]: player },
     playerTokens: { ...session.playerTokens, [playerToken]: playerId },
@@ -72,6 +79,7 @@ export function joinGame(
       },
     },
   };
+  next = addBrainRaceRosterEntry(next, playerId);
 
   const events: EngineEvent[] = [
     { type: 'player_joined', player: toPublicPlayer(player) },
@@ -142,7 +150,7 @@ export function removePlayer(session: GameSession, playerId: PlayerId): EngineOu
     if (id === playerId) delete playerTokens[token as PlayerToken];
   }
 
-  const next: GameSession = {
+  let next: GameSession = {
     ...session,
     players,
     playerTokens,
@@ -154,6 +162,7 @@ export function removePlayer(session: GameSession, playerId: PlayerId): EngineOu
       },
     },
   };
+  next = removeBrainRaceRosterEntry(next, playerId);
 
   return ok(next, [{ type: 'player_left', playerId, teamId: player.teamId }]);
 }

@@ -36,16 +36,16 @@ export function useGameSocket(): void {
       useGameStore.getState().setMyOutcome(null);
     });
 
-    socket.on('pull_applied', (payload) => {
-      useGameStore.getState().applyPull(payload);
+    socket.on('progress_applied', (payload) => {
+      useGameStore.getState().applyProgress(payload);
     });
 
     socket.on('draft_updated', ({ teamId, draft }) => {
       useGameStore.getState().applyDraft(teamId, draft.value);
     });
 
-    socket.on('round_resolved', ({ index, reason }) => {
-      useGameStore.getState().applyResolution(index, reason);
+    socket.on('round_resolved', ({ index, reason, revealed }) => {
+      useGameStore.getState().applyResolution(index, reason, revealed);
     });
 
     socket.on('answer_result', ({ playerId, outcome }) => {
@@ -82,7 +82,7 @@ export function useGameSocket(): void {
       socket.off('connect_error', onConnectError);
       socket.off('game_state_updated');
       socket.off('question_started');
-      socket.off('pull_applied');
+      socket.off('progress_applied');
       socket.off('draft_updated');
       socket.off('round_resolved');
       socket.off('answer_result');

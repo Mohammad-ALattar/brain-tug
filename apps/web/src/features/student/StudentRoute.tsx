@@ -112,7 +112,13 @@ export function Component() {
       setError(null);
       void request<JoinGameAck>('join_game', payload)
         .then((ack) => adopt(ack, payload.name))
-        .catch((err: Error) => setError(err.message))
+        .catch((err: Error & { reason?: string }) => {
+          if (err.reason === 'game_in_progress') {
+            setError('This race has already started. Wait for the next match.');
+            return;
+          }
+          setError(err.message);
+        })
         .finally(() => setBusy(false));
     },
     [adopt],

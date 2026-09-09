@@ -27,7 +27,7 @@ export const SERVER_EVENTS = {
   countdownStarted: 'countdown_started',
   questionStarted: 'question_started',
   answerResult: 'answer_result',
-  pullApplied: 'pull_applied',
+  progressApplied: 'progress_applied',
   draftUpdated: 'draft_updated',
   roundResolved: 'round_resolved',
   gameStateUpdated: 'game_state_updated',

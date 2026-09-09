@@ -1,5 +1,8 @@
 import { z } from 'zod';
-import { DIFFICULTIES, OPERATION_CHOICES } from '../domain/question.js';
+import { DIFFICULTIES } from '../content/question.js';
+import { OPERATION_CHOICES } from '../content/math/operations.js';
+import { SUBJECTS } from '../content/subject.js';
+import { GAME_MODES } from '../modes/types.js';
 import { TEAM_IDS } from '../domain/team.js';
 import {
   MAX_COUNTDOWN_MS,
@@ -13,8 +16,8 @@ import {
 /**
  * Every inbound payload is parsed with one of these before it reaches the
  * engine. The client is untrusted, so these schemas are the only doorway, and
- * they deliberately do not accept score, rope position or any other
- * authoritative field even if a client sends one.
+ * they deliberately do not accept score, progress or any other authoritative
+ * field even if a client sends one.
  */
 
 const roomCodeSchema = z
@@ -29,6 +32,8 @@ const tokenSchema = z.string().min(8).max(128);
 const teamIdSchema = z.enum(TEAM_IDS);
 
 export const createGameSchema = z.object({
+  mode: z.enum(GAME_MODES).default('tug_of_war'),
+  subject: z.enum(SUBJECTS).default('math'),
   operation: z.enum(OPERATION_CHOICES).default('mixed'),
   difficulty: z.enum(DIFFICULTIES).default('easy'),
   totalQuestions: z.coerce
@@ -56,6 +61,10 @@ export const createGameSchema = z.object({
     })
     .optional(),
   winThreshold: z.coerce.number().min(0.1).max(1).optional(),
+  /** Brain Race track length in metres. Ignored by other modes. */
+  trackMetres: z.coerce.number().int().min(100).max(10_000).optional(),
+  /** Brain Race finishers required per team. Defaults from roster at start. */
+  finishersRequiredPerTeam: z.coerce.number().int().min(1).max(40).optional(),
 });
 
 export const joinGameSchema = z.object({
@@ -94,12 +103,12 @@ export const submitAnswerSchema = z.object({
   /** Which question the client believes it is answering. */
   questionId: idSchema,
   /** Raw input; parsed and validated server-side against the real answer. */
-  value: z.union([z.string().max(16), z.number()]),
+  value: z.union([z.string().max(64), z.number()]),
 });
 
 export const answerDraftSchema = z.object({
   questionId: idSchema,
-  value: z.string().max(16),
+  value: z.string().max(64),
 });
 
 export const hostActionSchema = z.object({

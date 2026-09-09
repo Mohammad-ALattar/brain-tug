@@ -51,7 +51,7 @@ export function createTimerService(deps: TimerServiceDeps): TimerService {
     if (!entry) return;
 
     const at = now();
-    const result = advance(entry.session, entry.provider, at);
+    const result = advance(entry.session, entry.dealer, at);
 
     if (result.session !== entry.session) {
       deps.store.save(result.session, at);

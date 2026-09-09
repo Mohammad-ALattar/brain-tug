@@ -1,12 +1,12 @@
+import { revealAnswer } from '../content/answer.js';
+import type { QuestionDealer } from '../content/dealer.js';
 import { bothTeamsLocked, type Round, type RoundTeamState } from '../domain/game.js';
-import type { TeamId } from '../domain/team.js';
 import { buildGameResult } from '../domain/result.js';
-import type { GameSession } from '../domain/session.js';
-import { toPublicRound } from '../domain/session.js';
-import type { QuestionProvider } from '../questions/queue.js';
+import { modeOf, toPublicRound, type GameSession } from '../domain/session.js';
+import type { TeamId } from '../domain/team.js';
 import { INTER_ROUND_MS } from '../rules/rules.js';
 import type { EngineEvent, EngineResult, RoundResolution } from './types.js';
-import { isLastQuestion, ropeVictory, winnerOnExhaustion } from './winner.js';
+import { isLastQuestion, targetReached, winnerOnExhaustion } from './winner.js';
 
 export function roundDurationMs(session: GameSession): number {
   return session.config.secondsPerQuestion * 1000;
@@ -23,23 +23,33 @@ function freshTeamState(question: RoundTeamState['question']): RoundTeamState {
   };
 }
 
+function revealedFor(round: Round): Record<TeamId, string> {
+  return {
+    blue: revealAnswer(round.teams.blue.question),
+    red: revealAnswer(round.teams.red.question),
+  };
+}
+
 /**
- * Issues the next round: one distinct question per team, a shared clock, and a
- * shared index. Assumes the caller has already decided a round should start.
+ * Issues the next round: questions according to the mode's assignment, a shared
+ * clock, and a shared index. Assumes the caller has already decided a round
+ * should start.
  */
 export function startRound(
   session: GameSession,
-  provider: QuestionProvider,
+  dealer: QuestionDealer,
   now: number,
 ): EngineResult {
-  const pair = provider.getNextQuestionPair();
+  const mode = modeOf(session);
+  const dealt = dealer.deal(mode.questionAssignment);
   const round: Round = {
     index: session.currentQuestionIndex + 1,
     startedAt: now,
     endsAt: now + roundDurationMs(session),
+    assignment: mode.questionAssignment,
     teams: {
-      blue: freshTeamState(pair.blue),
-      red: freshTeamState(pair.red),
+      blue: freshTeamState(dealt.blue),
+      red: freshTeamState(dealt.red),
     },
     resolvedAt: null,
   };
@@ -58,8 +68,8 @@ export function startRound(
 }
 
 /**
- * Closes the current round and decides what happens next: finish on a rope
- * victory, finish when the bank is exhausted, or schedule the next round.
+ * Closes the current round and decides what happens next: finish on a target
+ * reached, finish when the bank is exhausted, or schedule the next round.
  *
  * This does not start the next round itself. The server's timer service calls
  * `startRound` when `nextRoundAt` arrives, which keeps the reducer free of
@@ -75,8 +85,9 @@ export function resolveRound(
 
   const resolved: Round = { ...round, resolvedAt: now };
   const events: EngineEvent[] = [];
+  const revealed = revealedFor(resolved);
 
-  const victor = ropeVictory(session);
+  const victor = targetReached(session);
   if (victor !== null) {
     const finished: GameSession = {
       ...session,
@@ -87,10 +98,14 @@ export function resolveRound(
       nextRoundAt: null,
       result: null,
     };
-    // Built once and both stored and broadcast, so a client that reattaches
-    // later is given exactly what the live clients were given.
-    const result = buildGameResult(finished, 'rope_victory', now);
-    events.push({ type: 'round_resolved', index: round.index, reason, nextRoundAt: null });
+    const result = buildGameResult(finished, 'target_reached', now);
+    events.push({
+      type: 'round_resolved',
+      index: round.index,
+      reason,
+      nextRoundAt: null,
+      revealed,
+    });
     events.push({ type: 'game_finished', result });
     return { session: { ...finished, result }, events };
   }
@@ -107,14 +122,26 @@ export function resolveRound(
       result: null,
     };
     const result = buildGameResult(finished, 'questions_exhausted', now);
-    events.push({ type: 'round_resolved', index: round.index, reason, nextRoundAt: null });
+    events.push({
+      type: 'round_resolved',
+      index: round.index,
+      reason,
+      nextRoundAt: null,
+      revealed,
+    });
     events.push({ type: 'game_finished', result });
     return { session: { ...finished, result }, events };
   }
 
   const nextRoundAt = now + INTER_ROUND_MS;
   const next: GameSession = { ...session, round: resolved, nextRoundAt };
-  events.push({ type: 'round_resolved', index: round.index, reason, nextRoundAt });
+  events.push({
+    type: 'round_resolved',
+    index: round.index,
+    reason,
+    nextRoundAt,
+    revealed,
+  });
   return { session: next, events };
 }
 
@@ -133,8 +160,8 @@ export function expireRoundIfDue(session: GameSession, now: number): EngineResul
 }
 
 /**
- * True when a team has locked in an answer or every connected player on it has
- * already spent their attempt, so the team can contribute nothing further.
+ * True when a team is locked, or every connected player on it has already spent
+ * their attempt, so the team can contribute nothing further.
  */
 function teamIsDone(session: GameSession, teamId: TeamId): boolean {
   const round = session.round;
@@ -151,17 +178,19 @@ function teamIsDone(session: GameSession, teamId: TeamId): boolean {
 }
 
 /**
- * Applied immediately after any submission. A pull reaching the win threshold
- * ends the match at once rather than waiting for the round to close; otherwise
- * the round closes early once neither team can answer again, which spares the
- * class from sitting through dead air.
+ * Applied immediately after any submission. Reaching the mode's win target ends
+ * the match at once rather than waiting for the round to close; otherwise the
+ * round closes early once neither team can answer again, which spares the class
+ * from sitting through dead air.
  */
-export function settleAfterPull(session: GameSession, now: number): EngineResult {
+export function settleAfterAnswer(session: GameSession, now: number): EngineResult {
   const round = session.round;
   if (!round || round.resolvedAt !== null) return { session, events: [] };
 
-  if (ropeVictory(session) !== null) return resolveRound(session, 'victory', now);
-  if (bothTeamsLocked(round)) return resolveRound(session, 'both_locked', now);
+  if (targetReached(session) !== null) return resolveRound(session, 'victory', now);
+  if (modeOf(session).locksTeamOnCorrect && bothTeamsLocked(round)) {
+    return resolveRound(session, 'both_locked', now);
+  }
   if (teamIsDone(session, 'blue') && teamIsDone(session, 'red')) {
     return resolveRound(session, 'all_attempted', now);
   }
@@ -169,16 +198,17 @@ export function settleAfterPull(session: GameSession, now: number): EngineResult
 }
 
 /**
- * Host-initiated skip. Abandons the current round with no pull awarded to
+ * Host-initiated skip. Abandons the current round with no progress awarded to
  * either team, then follows the normal resolution path.
  */
 export function skipQuestion(session: GameSession, now: number): EngineResult {
   if (session.status !== 'active' && session.status !== 'paused') {
     return { session, events: [] };
   }
-  const base: GameSession = session.status === 'paused'
-    ? { ...session, status: 'active', pausedRemainingMs: null }
-    : session;
+  const base: GameSession =
+    session.status === 'paused'
+      ? { ...session, status: 'active', pausedRemainingMs: null }
+      : session;
   return resolveRound(base, 'skipped', now);
 }
 

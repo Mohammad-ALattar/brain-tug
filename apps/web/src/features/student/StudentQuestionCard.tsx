@@ -1,7 +1,8 @@
 import { memo } from 'react';
 import type { TeamId } from '@braintug/shared';
 import { TEAM_THEME } from '../../design/teamTheme';
-import { useQuestionIndex, useTeamPrompt, useTotalQuestions } from '../../store/selectors';
+import { useQuestionIndex, useTeamQuestion, useTotalQuestions } from '../../store/selectors';
+import { SharedQuestionPrompt } from '../question/SharedQuestionPrompt';
 
 export type StudentQuestionCardProps = {
   teamId: TeamId;
@@ -16,7 +17,7 @@ export type StudentQuestionCardProps = {
 export const StudentQuestionCard = memo(function StudentQuestionCard({
   teamId,
 }: StudentQuestionCardProps) {
-  const prompt = useTeamPrompt(teamId);
+  const question = useTeamQuestion(teamId);
   const index = useQuestionIndex();
   const total = useTotalQuestions();
   const theme = TEAM_THEME[teamId];
@@ -27,19 +28,14 @@ export const StudentQuestionCard = memo(function StudentQuestionCard({
         {index >= 0 ? `Question ${index + 1} of ${total}` : 'Your problem'}
       </p>
 
-      <p
-        className="tabular mt-2 font-display text-[46px] font-extrabold leading-none text-ink sm:text-[56px]"
-        aria-live="polite"
-      >
-        {prompt ? (
-          <>
-            {prompt} <span className="text-ink-faint">=</span>{' '}
-            <span className={theme.text}>?</span>
-          </>
-        ) : (
-          <span className="text-2xl text-ink-faint">Waiting&hellip;</span>
-        )}
-      </p>
+      <div className="mt-2">
+        <SharedQuestionPrompt
+          question={question}
+          size="phone"
+          accentClassName={theme.text}
+          empty="Waiting…"
+        />
+      </div>
     </section>
   );
 });
