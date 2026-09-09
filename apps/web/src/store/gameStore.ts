@@ -7,7 +7,7 @@ import type {
   PublicPlayer,
   RoundResolution,
   TeamId,
-} from '@mtow/shared';
+} from '@braintug/shared';
 
 /** A pull worth animating, e.g. the floating `+1.2m RED` badge. */
 export type PullFlash = {

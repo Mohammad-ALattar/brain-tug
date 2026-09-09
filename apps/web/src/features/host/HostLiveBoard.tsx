@@ -1,5 +1,5 @@
-import type { TeamId } from '@mtow/shared';
-import { leadingTeam, ropeToMetres } from '@mtow/shared';
+import type { TeamId } from '@braintug/shared';
+import { leadingTeam, ropeToMetres } from '@braintug/shared';
 import { TEAM_THEME } from '../../design/teamTheme';
 import {
   usePlayers,
@@ -27,7 +27,7 @@ export function HostLiveBoard() {
   const metres = rules ? Math.abs(ropeToMetres(rules, rope)) : 0;
 
   return (
-    <section className="mtow-panel p-4">
+    <section className="bt-panel p-4">
       <div className="flex items-baseline justify-between">
         <h2 className="text-[11px] font-extrabold uppercase tracking-[0.18em] text-ink-faint">
           Live

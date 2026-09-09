@@ -1,4 +1,4 @@
-import { formatRoomCode, type HostToken } from '@mtow/shared';
+import { formatRoomCode, type HostToken } from '@braintug/shared';
 import { useConnection, usePlayers, useRoomCode, useStatus } from '../../store/selectors';
 import { request } from '../../realtime/socket';
 
@@ -43,7 +43,7 @@ export function TeacherControlBar({
   const live = status === 'active' || status === 'paused';
 
   return (
-    <footer className="mtow-panel flex h-[72px] items-center gap-3 px-4">
+    <footer className="bt-panel flex h-[72px] items-center gap-3 px-4">
       <div className="flex items-center gap-2.5">
         <div className="rounded-card bg-ink px-3 py-2">
           <p className="text-[9px] font-bold uppercase tracking-wider text-white/60">room</p>
@@ -123,7 +123,7 @@ function ControlButton({
     <button
       type="button"
       onClick={onClick}
-      className={`mtow-focus rounded-chip border px-3.5 py-2 text-[12px] font-extrabold uppercase tracking-wide transition-colors ${tones[tone]}`}
+      className={`bt-focus rounded-chip border px-3.5 py-2 text-[12px] font-extrabold uppercase tracking-wide transition-colors ${tones[tone]}`}
     >
       {children}
     </button>

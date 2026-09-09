@@ -1,4 +1,4 @@
-import { ropeToMetres } from '@mtow/shared';
+import { ropeToMetres } from '@braintug/shared';
 import { useResult, useRules } from '../../store/selectors';
 
 const REASON_LABEL: Record<string, string> = {

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { normaliseRoomCode } from '@mtow/shared';
+import { normaliseRoomCode } from '@braintug/shared';
 
 /** Shown when the display is opened without a room code in the URL. */
 export function JoinArenaForm({ error }: { error: string | null }) {
@@ -27,14 +27,14 @@ export function JoinArenaForm({ error }: { error: string | null }) {
           placeholder="ABC-123"
           autoFocus
           aria-label="Room code"
-          className="tabular mtow-focus mt-6 w-full rounded-card border-2 border-white/20 bg-white/10 px-4 py-4 text-center font-display text-3xl font-extrabold uppercase tracking-[0.2em] text-white placeholder:text-white/30"
+          className="tabular bt-focus mt-6 w-full rounded-card border-2 border-white/20 bg-white/10 px-4 py-4 text-center font-display text-3xl font-extrabold uppercase tracking-[0.2em] text-white placeholder:text-white/30"
         />
 
         {error && <p className="mt-3 text-sm font-bold text-redteam-300">{error}</p>}
 
         <button
           type="submit"
-          className="mtow-focus mt-4 w-full rounded-chip bg-blueteam-600 py-3.5 font-display text-lg font-extrabold uppercase tracking-wide text-white hover:bg-blueteam-500"
+          className="bt-focus mt-4 w-full rounded-chip bg-blueteam-600 py-3.5 font-display text-lg font-extrabold uppercase tracking-wide text-white hover:bg-blueteam-500"
         >
           Open display
         </button>

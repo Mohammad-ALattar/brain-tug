@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import type { TeamId } from '@mtow/shared';
+import type { TeamId } from '@braintug/shared';
 
 export type TugOfWarCharactersProps = {
   teamId: TeamId;

@@ -29,7 +29,7 @@ import {
   type RoomCode,
   type ServerToClientEvents,
   type TeamId,
-} from '@mtow/shared';
+} from '@braintug/shared';
 import {
   answerDraftSchema,
   clockSyncSchema,
@@ -43,7 +43,7 @@ import {
   submitAnswerSchema,
   switchTeamSchema,
   watchArenaSchema,
-} from '@mtow/shared';
+} from '@braintug/shared';
 import { corsOriginCheck, type ServerConfig } from '../config.js';
 import type { Logger } from '../logger.js';
 import { allocateRoomCode } from '../store/roomCodes.js';

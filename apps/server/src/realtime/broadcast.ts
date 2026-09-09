@@ -6,7 +6,7 @@ import {
   type GameSession,
   type PlayerId,
   type ServerToClientEvents,
-} from '@mtow/shared';
+} from '@braintug/shared';
 import { rooms } from './rooms.js';
 
 export type GameServer = Server<ClientToServerEvents, ServerToClientEvents>;

@@ -6,14 +6,14 @@ import {
   type PlayerId,
   type PublicPlayer,
   type TeamId,
-} from '@mtow/shared';
+} from '@braintug/shared';
 import {
   correctAnswerFor,
   questionIdFor,
   scriptedProvider,
   setupGame,
   T0,
-} from '@mtow/shared/testing';
+} from '@braintug/shared/testing';
 import { useGameStore } from '../store/gameStore';
 
 export type FixtureOptions = {

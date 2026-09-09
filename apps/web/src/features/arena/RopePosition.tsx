@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import type { GameRules } from '@mtow/shared';
+import type { GameRules } from '@braintug/shared';
 
 export type RopePositionProps = {
   rules: GameRules;

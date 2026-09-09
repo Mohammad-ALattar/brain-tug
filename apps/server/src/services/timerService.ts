@@ -1,4 +1,4 @@
-import { advance, nextDeadline, type EngineEvent, type GameId, type GameSession } from '@mtow/shared';
+import { advance, nextDeadline, type EngineEvent, type GameId, type GameSession } from '@braintug/shared';
 import type { SessionStore } from '../store/sessionStore.js';
 import type { Logger } from '../logger.js';
 

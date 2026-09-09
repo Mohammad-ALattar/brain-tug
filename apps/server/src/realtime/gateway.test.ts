@@ -6,7 +6,7 @@ import type {
   JoinGameAck,
   RoomCode,
   WatchArenaAck,
-} from '@mtow/shared';
+} from '@braintug/shared';
 import {
   correctAnswer,
   currentQuestionId,

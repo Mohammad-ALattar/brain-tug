@@ -1,9 +1,9 @@
 {
-  "name": "@mtow/server",
+  "name": "@braintug/server",
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Authoritative Math Tug of War game server",
+  "description": "Authoritative Brain Tug game server: server-owned state for every game mode",
   "main": "./dist/index.js",
   "scripts": {
     "dev": "tsx watch --clear-screen=false src/index.ts",
@@ -13,7 +13,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@mtow/shared": "*",
+    "@braintug/shared": "*",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",

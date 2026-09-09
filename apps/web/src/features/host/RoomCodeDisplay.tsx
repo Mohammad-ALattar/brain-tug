@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import type { HostToken, RoomCode } from '@mtow/shared';
-import { formatRoomCode } from '@mtow/shared';
+import type { HostToken, RoomCode } from '@braintug/shared';
+import { formatRoomCode } from '@braintug/shared';
 
 export type RoomCodeDisplayProps = {
   roomCode: RoomCode;
@@ -31,7 +31,7 @@ export function RoomCodeDisplay({ roomCode, hostToken }: RoomCodeDisplayProps) {
   };
 
   return (
-    <section className="mtow-panel px-5 py-5 text-center">
+    <section className="bt-panel px-5 py-5 text-center">
       <p className="text-[11px] font-extrabold uppercase tracking-[0.18em] text-ink-faint">
         Students join at {origin.replace(/^https?:\/\//, '')}/play
       </p>
@@ -44,7 +44,7 @@ export function RoomCodeDisplay({ roomCode, hostToken }: RoomCodeDisplayProps) {
         <button
           type="button"
           onClick={() => void copy()}
-          className="mtow-focus rounded-chip border-2 border-paper-line bg-paper-card px-4 py-2 text-xs font-extrabold uppercase tracking-wide text-ink transition hover:border-ink/30"
+          className="bt-focus rounded-chip border-2 border-paper-line bg-paper-card px-4 py-2 text-xs font-extrabold uppercase tracking-wide text-ink transition hover:border-ink/30"
         >
           {copied ? 'Link copied' : 'Copy join link'}
         </button>
@@ -52,7 +52,7 @@ export function RoomCodeDisplay({ roomCode, hostToken }: RoomCodeDisplayProps) {
           href={arenaUrl}
           target="_blank"
           rel="noreferrer"
-          className="mtow-focus rounded-chip border-2 border-blueteam-600 bg-blueteam-600 px-4 py-2 text-xs font-extrabold uppercase tracking-wide text-white transition hover:bg-blueteam-700"
+          className="bt-focus rounded-chip border-2 border-blueteam-600 bg-blueteam-600 px-4 py-2 text-xs font-extrabold uppercase tracking-wide text-white transition hover:bg-blueteam-700"
         >
           Open classroom display
         </a>

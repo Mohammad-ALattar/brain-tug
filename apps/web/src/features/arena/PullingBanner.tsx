@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { leadingTeam, ropeToMetres } from '@mtow/shared';
+import { leadingTeam, ropeToMetres } from '@braintug/shared';
 import { useGameStore } from '../../store/gameStore';
 import { useRopePosition, useRules, useTeamName } from '../../store/selectors';
 

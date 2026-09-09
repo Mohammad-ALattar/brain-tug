@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import type { TeamId } from '@mtow/shared';
+import type { TeamId } from '@braintug/shared';
 import { MirroredKeypad } from './MirroredKeypad';
 import { QuestionCard } from './QuestionCard';
 import { TeamHeader } from './TeamHeader';
@@ -21,7 +21,7 @@ export const TeamPanel = memo(function TeamPanel({ teamId, terminalNumber }: Tea
     <aside
       // The streak glow deepens by tier, driven by `--streak-*` rather than a
       // subscription, so a rising streak never rerenders this column.
-      className={`mtow-panel mtow-streak-${teamId} flex h-full w-[404px] shrink-0 flex-col gap-3 p-4`}
+      className={`bt-panel bt-streak-${teamId} flex h-full w-[404px] shrink-0 flex-col gap-3 p-4`}
     >
       <TeamHeader teamId={teamId} terminalNumber={terminalNumber} />
       <TeamStreak teamId={teamId} />

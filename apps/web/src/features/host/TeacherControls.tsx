@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react';
-import type { HostToken } from '@mtow/shared';
+import type { HostToken } from '@braintug/shared';
 import { Chip } from '../../components/Chip';
 import { request } from '../../realtime/socket';
 import { useGameStore } from '../../store/gameStore';
@@ -34,7 +34,7 @@ export function TeacherControls({ hostToken }: TeacherControlsProps) {
     players.some((p) => p.teamId === 'blue') && players.some((p) => p.teamId === 'red');
 
   return (
-    <section className="mtow-panel p-4">
+    <section className="bt-panel p-4">
       <div className="flex items-center justify-between">
         <h2 className="text-[11px] font-extrabold uppercase tracking-[0.18em] text-ink-faint">
           Controls
@@ -145,7 +145,7 @@ function Action({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={`mtow-focus h-12 rounded-card border-2 text-sm font-extrabold uppercase tracking-wide transition active:translate-y-px disabled:opacity-30 ${tones[tone]}`}
+      className={`bt-focus h-12 rounded-card border-2 text-sm font-extrabold uppercase tracking-wide transition active:translate-y-px disabled:opacity-30 ${tones[tone]}`}
     >
       {children}
     </button>

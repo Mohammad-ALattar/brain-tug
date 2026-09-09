@@ -1,4 +1,4 @@
-import type { ClockSyncAck, ClockSyncPayload } from '@mtow/shared';
+import type { ClockSyncAck, ClockSyncPayload } from '@braintug/shared';
 
 /**
  * The server broadcasts absolute deadlines (`endsAt`) rather than countdowns, so

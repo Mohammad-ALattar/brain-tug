@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef } from 'react';
-import type { QuestionId } from '@mtow/shared';
+import type { QuestionId } from '@braintug/shared';
 import { notify } from '../../realtime/socket';
 
 /**

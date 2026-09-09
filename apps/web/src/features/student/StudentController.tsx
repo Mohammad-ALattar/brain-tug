@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import type { AnswerOutcome, GameStatus, TeamId } from '@mtow/shared';
+import type { AnswerOutcome, GameStatus, TeamId } from '@braintug/shared';
 import { request } from '../../realtime/socket';
 import { useGameStore } from '../../store/gameStore';
 import {
@@ -150,7 +150,7 @@ export function StudentController({ teamId, playerName, onLeave }: StudentContro
                   type="button"
                   onClick={() => void submit()}
                   disabled={!value || submitting}
-                  className="mtow-focus h-16 touch-manipulation rounded-card bg-ink font-display text-xl font-extrabold text-white shadow-key transition active:translate-y-px disabled:opacity-30"
+                  className="bt-focus h-16 touch-manipulation rounded-card bg-ink font-display text-xl font-extrabold text-white shadow-key transition active:translate-y-px disabled:opacity-30"
                 >
                   {submitting ? 'Sending\u2026' : 'Lock it in'}
                 </button>
@@ -172,7 +172,7 @@ export function StudentController({ teamId, playerName, onLeave }: StudentContro
 
 function WaitPanel({ title, body }: { title: string; body: string }) {
   return (
-    <div className="mtow-panel grid flex-1 place-items-center px-6 py-10 text-center">
+    <div className="bt-panel grid flex-1 place-items-center px-6 py-10 text-center">
       <div>
         <p className="font-display text-2xl font-extrabold text-ink">{title}</p>
         <p className="mt-2 text-sm font-semibold text-ink-muted">{body}</p>
@@ -205,7 +205,7 @@ function LockoutPanel({
             : { title: 'Waiting', body: 'Hold tight.' };
 
   return (
-    <div className="mtow-card px-5 py-6 text-center">
+    <div className="bt-card px-5 py-6 text-center">
       <p className="font-display text-xl font-extrabold text-ink">{title}</p>
       <p className="mt-1 text-sm font-semibold text-ink-muted">{body}</p>
     </div>

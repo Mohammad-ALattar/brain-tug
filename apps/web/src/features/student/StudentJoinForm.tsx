@@ -1,5 +1,5 @@
 import { useId, useState } from 'react';
-import type { TeamId } from '@mtow/shared';
+import type { TeamId } from '@braintug/shared';
 import { TEAM_THEME } from '../../design/teamTheme';
 
 export type JoinRequest = {
@@ -43,7 +43,7 @@ export function StudentJoinForm({
     <main className="flex min-h-full flex-col justify-center bg-paper px-5 py-8">
       <div className="mx-auto w-full max-w-sm">
         <h1 className="text-center font-display text-3xl font-extrabold text-ink">
-          Math Tug of War
+          Brain Tug
         </h1>
         <p className="mt-1 text-center text-sm font-semibold text-ink-muted">
           Enter the code on the board to join your team.
@@ -81,7 +81,7 @@ export function StudentJoinForm({
               spellCheck={false}
               maxLength={12}
               placeholder="ABC-123"
-              className="mtow-focus tabular mt-1.5 h-16 w-full rounded-card border-2 border-paper-line bg-paper-card text-center font-display text-3xl font-extrabold uppercase tracking-[0.15em] text-ink placeholder:text-ink-faint/50"
+              className="bt-focus tabular mt-1.5 h-16 w-full rounded-card border-2 border-paper-line bg-paper-card text-center font-display text-3xl font-extrabold uppercase tracking-[0.15em] text-ink placeholder:text-ink-faint/50"
             />
           </div>
 
@@ -99,7 +99,7 @@ export function StudentJoinForm({
               autoComplete="given-name"
               maxLength={20}
               placeholder="e.g. Sam"
-              className="mtow-focus mt-1.5 h-14 w-full rounded-card border-2 border-paper-line bg-paper-card px-4 font-display text-xl font-bold text-ink placeholder:text-ink-faint/50"
+              className="bt-focus mt-1.5 h-14 w-full rounded-card border-2 border-paper-line bg-paper-card px-4 font-display text-xl font-bold text-ink placeholder:text-ink-faint/50"
             />
           </div>
 
@@ -123,7 +123,7 @@ export function StudentJoinForm({
                     aria-pressed={selected}
                     onClick={() => setTeamId(option)}
                     className={[
-                      'mtow-focus h-12 touch-manipulation rounded-card border-2 text-sm font-extrabold transition',
+                      'bt-focus h-12 touch-manipulation rounded-card border-2 text-sm font-extrabold transition',
                       selected
                         ? selectedClass
                         : 'border-paper-line bg-paper-card text-ink-muted',
@@ -148,7 +148,7 @@ export function StudentJoinForm({
           <button
             type="submit"
             disabled={!ready || busy}
-            className="mtow-focus h-16 touch-manipulation rounded-card bg-ink font-display text-xl font-extrabold text-white shadow-key transition active:translate-y-px disabled:opacity-30"
+            className="bt-focus h-16 touch-manipulation rounded-card bg-ink font-display text-xl font-extrabold text-white shadow-key transition active:translate-y-px disabled:opacity-30"
           >
             {busy ? 'Joining\u2026' : 'Join the game'}
           </button>

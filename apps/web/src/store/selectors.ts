@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import type { PlayerId, PublicPlayer, TeamId } from '@mtow/shared';
+import type { PlayerId, PublicPlayer, TeamId } from '@braintug/shared';
 import { useGameStore } from './gameStore';
 
 /**

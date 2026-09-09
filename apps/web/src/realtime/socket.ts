@@ -1,5 +1,5 @@
 import { io, type Socket } from 'socket.io-client';
-import type { ClientToServerEvents, ServerToClientEvents } from '@mtow/shared';
+import type { ClientToServerEvents, ServerToClientEvents } from '@braintug/shared';
 
 export type GameClientSocket = Socket<ServerToClientEvents, ClientToServerEvents>;
 

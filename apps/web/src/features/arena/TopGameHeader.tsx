@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import type { TeamId } from '@mtow/shared';
+import type { TeamId } from '@braintug/shared';
 import { TEAM_THEME } from '../../design/teamTheme';
 import {
   usePlayers,
@@ -72,7 +72,7 @@ export const TopGameHeader = memo(function TopGameHeader() {
   const status = useStatus();
 
   return (
-    <header className="mtow-panel flex h-[88px] items-center gap-4 px-4">
+    <header className="bt-panel flex h-[88px] items-center gap-4 px-4">
       <TeamBadge teamId="blue" />
       <ScoreBadge teamId="blue" />
 

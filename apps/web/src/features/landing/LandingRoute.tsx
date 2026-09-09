@@ -38,7 +38,7 @@ export function LandingRoute() {
             <Link
               key={role.to}
               to={role.to}
-              className="mtow-panel mtow-focus group flex flex-col p-5 transition-transform hover:-translate-y-0.5"
+              className="bt-panel bt-focus group flex flex-col p-5 transition-transform hover:-translate-y-0.5"
             >
               <span className={`h-2 w-10 rounded-chip ${role.accent}`} />
               <span className="mt-4 font-display text-xl font-extrabold">{role.title}</span>

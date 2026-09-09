@@ -1,5 +1,5 @@
 import { useEffect, type RefObject } from 'react';
-import { clampRope, ropeTension, streakTierIndex, type TeamId } from '@mtow/shared';
+import { clampRope, ropeTension, streakTierIndex, type TeamId } from '@braintug/shared';
 import { useGameStore, type GameStore } from '../../store/gameStore';
 
 /** How far, in px, the rope assembly travels from centre to a full win. */

@@ -1,4 +1,4 @@
-import type { TeamId } from '@mtow/shared';
+import type { TeamId } from '@braintug/shared';
 
 /**
  * One place for every team-coloured class, so components read

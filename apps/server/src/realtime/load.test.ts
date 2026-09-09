@@ -6,7 +6,7 @@ import type {
   RoomCode,
   TeamId,
   WatchArenaAck,
-} from '@mtow/shared';
+} from '@braintug/shared';
 import {
   correctAnswer,
   currentQuestionId,

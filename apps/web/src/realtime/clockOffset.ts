@@ -1,4 +1,4 @@
-import type { ClockSyncAck } from '@mtow/shared';
+import type { ClockSyncAck } from '@braintug/shared';
 import { request } from './socket';
 
 /**

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ropeToMetres } from '@mtow/shared';
+import { ropeToMetres } from '@braintug/shared';
 import { useLastPull, useRules, useTeamName } from '../../store/selectors';
 
 /**

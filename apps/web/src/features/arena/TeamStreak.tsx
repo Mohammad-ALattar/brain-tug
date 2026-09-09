@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { streakTier, type TeamId } from '@mtow/shared';
+import { streakTier, type TeamId } from '@braintug/shared';
 import { Chip } from '../../components/Chip';
 import { TEAM_THEME } from '../../design/teamTheme';
 import { useRules, useTeamStreak } from '../../store/selectors';

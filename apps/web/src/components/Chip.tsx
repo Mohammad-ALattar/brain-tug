@@ -21,7 +21,7 @@ export type ChipProps = {
 /** The small pill used throughout the reference for status and labels. */
 export function Chip({ tone = 'neutral', children, className = '' }: ChipProps) {
   return (
-    <span className={`mtow-chip border px-2.5 py-1 text-[11px] ${TONES[tone]} ${className}`}>
+    <span className={`bt-chip border px-2.5 py-1 text-[11px] ${TONES[tone]} ${className}`}>
       {children}
     </span>
   );

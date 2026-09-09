@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, cleanup } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { ropeToMetres } from '@mtow/shared';
+import { ropeToMetres } from '@braintug/shared';
 import { makeState, resetStore, seedStore } from '../../test/fixtures';
 import { useGameStore } from '../../store/gameStore';
 import { AnswerDisplay } from './AnswerDisplay';
@@ -186,10 +186,10 @@ describe('TugOfWarArena across rope positions', () => {
     seedStore(makeState({ ropePosition: 0.5 }));
     const { container } = render(<TugOfWarArena />);
 
-    // The transform lives in `.mtow-rope-track` and reads `--rope-pos`, which
+    // The transform lives in `.bt-rope-track` and reads `--rope-pos`, which
     // `useArenaMotion` writes. An inline transform here would mean rope motion
     // had regressed onto the React render path.
-    const track = container.querySelector('.mtow-rope-track') as HTMLElement | null;
+    const track = container.querySelector('.bt-rope-track') as HTMLElement | null;
     expect(track).not.toBeNull();
     expect(track!.style.transform).toBe('');
     expect(container.querySelector('[style*="translateX("]')).toBeNull();
@@ -199,9 +199,9 @@ describe('TugOfWarArena across rope positions', () => {
     seedStore(makeState({ ropePosition: -0.5 }));
     const { container } = render(<TugOfWarArena />);
 
-    expect(container.querySelector('.mtow-rope-marker')).not.toBeNull();
-    expect(container.querySelector('.mtow-tension-blue')).not.toBeNull();
-    expect(container.querySelector('.mtow-tension-red')).not.toBeNull();
+    expect(container.querySelector('.bt-rope-marker')).not.toBeNull();
+    expect(container.querySelector('.bt-tension-blue')).not.toBeNull();
+    expect(container.querySelector('.bt-tension-red')).not.toBeNull();
   });
 });
 

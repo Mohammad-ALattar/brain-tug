@@ -1,9 +1,9 @@
 import { Profiler, useRef } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { act, cleanup, render, screen } from '@testing-library/react';
-import { DEFAULT_RULES, type PlayerId, type TeamId } from '@mtow/shared';
-import { buildGameResult } from '@mtow/shared';
-import { T0 } from '@mtow/shared/testing';
+import { DEFAULT_RULES, type PlayerId, type TeamId } from '@braintug/shared';
+import { buildGameResult } from '@braintug/shared';
+import { T0 } from '@braintug/shared/testing';
 import { makeSession, makeState, resetStore, seedStore } from '../../test/fixtures';
 import { useGameStore } from '../../store/gameStore';
 import { useArenaAudio } from '../../audio/useArenaAudio';

@@ -1,5 +1,5 @@
 import { useId, useState, type ReactNode } from 'react';
-import type { CreateGamePayload, Difficulty, OperationChoice } from '@mtow/shared';
+import type { CreateGamePayload, Difficulty, OperationChoice } from '@braintug/shared';
 import {
   DIFFICULTIES,
   MAX_SECONDS_PER_QUESTION,
@@ -8,7 +8,7 @@ import {
   MIN_TOTAL_QUESTIONS,
   OPERATION_CHOICES,
   OPERATION_LABEL,
-} from '@mtow/shared';
+} from '@braintug/shared';
 
 export type CreateGameFormProps = {
   error: string | null;
@@ -148,7 +148,7 @@ export function CreateGameForm({ error, busy, onCreate }: CreateGameFormProps) {
                 onChange={(event) => setBlueName(event.target.value)}
                 maxLength={24}
                 placeholder="Blue Tigers"
-                className="mtow-focus mt-1 h-12 w-full rounded-card border-2 border-blueteam-200 bg-paper-card px-3 font-bold text-ink placeholder:text-ink-faint/60"
+                className="bt-focus mt-1 h-12 w-full rounded-card border-2 border-blueteam-200 bg-paper-card px-3 font-bold text-ink placeholder:text-ink-faint/60"
               />
             </div>
             <div>
@@ -161,7 +161,7 @@ export function CreateGameForm({ error, busy, onCreate }: CreateGameFormProps) {
                 onChange={(event) => setRedName(event.target.value)}
                 maxLength={24}
                 placeholder="Red Dragons"
-                className="mtow-focus mt-1 h-12 w-full rounded-card border-2 border-redteam-200 bg-paper-card px-3 font-bold text-ink placeholder:text-ink-faint/60"
+                className="bt-focus mt-1 h-12 w-full rounded-card border-2 border-redteam-200 bg-paper-card px-3 font-bold text-ink placeholder:text-ink-faint/60"
               />
             </div>
           </div>
@@ -179,7 +179,7 @@ export function CreateGameForm({ error, busy, onCreate }: CreateGameFormProps) {
         <button
           type="submit"
           disabled={busy}
-          className="mtow-focus h-14 rounded-card bg-ink font-display text-lg font-extrabold text-white shadow-key transition active:translate-y-px disabled:opacity-30"
+          className="bt-focus h-14 rounded-card bg-ink font-display text-lg font-extrabold text-white shadow-key transition active:translate-y-px disabled:opacity-30"
         >
           {busy ? 'Creating\u2026' : 'Create match'}
         </button>
@@ -235,7 +235,7 @@ function Segmented<T extends string | number>({
             aria-checked={selected}
             onClick={() => onChange(option.value)}
             className={[
-              'mtow-focus flex-1 rounded-card border-2 px-3 py-2.5 text-sm font-extrabold transition',
+              'bt-focus flex-1 rounded-card border-2 px-3 py-2.5 text-sm font-extrabold transition',
               selected
                 ? 'border-ink bg-ink text-white'
                 : 'border-paper-line bg-paper-card text-ink-muted hover:border-ink/30',
@@ -306,7 +306,7 @@ function StepButton({
       type="button"
       aria-label={label}
       onClick={onClick}
-      className="mtow-focus grid h-11 w-11 shrink-0 place-items-center rounded-card border-2 border-paper-line bg-paper-card text-xl font-extrabold text-ink transition hover:border-ink/30 active:translate-y-px"
+      className="bt-focus grid h-11 w-11 shrink-0 place-items-center rounded-card border-2 border-paper-line bg-paper-card text-xl font-extrabold text-ink transition hover:border-ink/30 active:translate-y-px"
     >
       {children}
     </button>

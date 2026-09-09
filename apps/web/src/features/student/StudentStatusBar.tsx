@@ -1,6 +1,6 @@
 import { memo } from 'react';
-import type { TeamId } from '@mtow/shared';
-import { formatRoomCode, streakTier } from '@mtow/shared';
+import type { TeamId } from '@braintug/shared';
+import { formatRoomCode, streakTier } from '@braintug/shared';
 import { TEAM_THEME } from '../../design/teamTheme';
 import { Chip } from '../../components/Chip';
 import {

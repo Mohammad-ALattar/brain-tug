@@ -1,4 +1,4 @@
-import type { TeamId } from '@mtow/shared';
+import type { TeamId } from '@braintug/shared';
 import { TEAM_THEME } from '../../design/teamTheme';
 import { Chip } from '../../components/Chip';
 import { useMe, useResult, useTeamName, useWinner } from '../../store/selectors';
@@ -43,7 +43,7 @@ export function StudentResults({ teamId, playerName, onLeave }: StudentResultsPr
       <main className="flex flex-1 flex-col gap-3 px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-4">
         {result ? (
           <>
-            <section className="mtow-panel px-5 py-4">
+            <section className="bt-panel px-5 py-4">
               <div className="flex items-center justify-between">
                 <p className="font-display text-lg font-extrabold text-ink">{playerName}</p>
                 {result.topPlayerId && result.topPlayerId === me?.playerId ? (
@@ -61,7 +61,7 @@ export function StudentResults({ teamId, playerName, onLeave }: StudentResultsPr
               </dl>
             </section>
 
-            <section className="mtow-card px-5 py-4">
+            <section className="bt-card px-5 py-4">
               <h2 className="text-[11px] font-extrabold uppercase tracking-[0.18em] text-ink-faint">
                 Team scores
               </h2>
@@ -93,7 +93,7 @@ export function StudentResults({ teamId, playerName, onLeave }: StudentResultsPr
         <button
           type="button"
           onClick={onLeave}
-          className="mtow-focus mt-auto h-14 shrink-0 touch-manipulation rounded-card border-2 border-paper-line bg-paper-card font-display text-base font-extrabold text-ink transition active:translate-y-px"
+          className="bt-focus mt-auto h-14 shrink-0 touch-manipulation rounded-card border-2 border-paper-line bg-paper-card font-display text-base font-extrabold text-ink transition active:translate-y-px"
         >
           Join another game
         </button>

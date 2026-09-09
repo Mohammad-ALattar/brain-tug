@@ -1,6 +1,6 @@
 import { memo, type ReactNode } from 'react';
-import type { AnswerOutcome, RejectionReason } from '@mtow/shared';
-import { ropeToMetres } from '@mtow/shared';
+import type { AnswerOutcome, RejectionReason } from '@braintug/shared';
+import { ropeToMetres } from '@braintug/shared';
 import { useRules } from '../../store/selectors';
 
 export type AnswerFeedbackProps = {

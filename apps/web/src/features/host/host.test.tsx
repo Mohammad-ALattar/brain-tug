@@ -1,9 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { act, cleanup, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { HostToken, RoomCode } from '@mtow/shared';
-import { buildGameResult } from '@mtow/shared';
-import { T0 } from '@mtow/shared/testing';
+import type { HostToken, RoomCode } from '@braintug/shared';
+import { buildGameResult } from '@braintug/shared';
+import { T0 } from '@braintug/shared/testing';
 import { makeSession, makeState, resetStore, seedStore } from '../../test/fixtures';
 import { CreateGameForm } from './CreateGameForm';
 import { GameResults } from './GameResults';

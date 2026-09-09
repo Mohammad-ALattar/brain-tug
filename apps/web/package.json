@@ -1,9 +1,9 @@
 {
-  "name": "@mtow/web",
+  "name": "@braintug/web",
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Math Tug of War clients: Classroom Arena, Student controller, Teacher host",
+  "description": "Brain Tug clients: Classroom Arena, Student controller, Teacher host",
   "scripts": {
     "dev": "vite",
     "build": "tsc --build && vite build",
@@ -11,7 +11,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@mtow/shared": "*",
+    "@braintug/shared": "*",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.28.1",

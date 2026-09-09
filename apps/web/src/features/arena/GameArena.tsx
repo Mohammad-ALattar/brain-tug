@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import type { HostToken } from '@mtow/shared';
+import type { HostToken } from '@braintug/shared';
 import { ScaledCanvas } from '../../components/ScaledCanvas';
 import { unlockAudio } from '../../audio/sfx';
 import { useArenaAudio } from '../../audio/useArenaAudio';

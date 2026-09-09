@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { AnswerOutcome, GameStateView, QuestionId } from '@mtow/shared';
-import { buildGameResult } from '@mtow/shared';
+import type { AnswerOutcome, GameStateView, QuestionId } from '@braintug/shared';
+import { buildGameResult } from '@braintug/shared';
 import { makeSession, makeState, playerOn, resetStore, seedStore } from '../../test/fixtures';
 import { useGameStore } from '../../store/gameStore';
 import { AnswerFeedback } from './AnswerFeedback';

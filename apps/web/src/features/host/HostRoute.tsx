@@ -5,7 +5,7 @@ import type {
   HostAttachAck,
   HostToken,
   RoomCode,
-} from '@mtow/shared';
+} from '@braintug/shared';
 import { request } from '../../realtime/socket';
 import { useGameSocket } from '../../realtime/useGameSocket';
 import { useGameStore } from '../../store/gameStore';

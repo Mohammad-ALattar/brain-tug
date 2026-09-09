@@ -1,4 +1,4 @@
-# Math Tug of War
+# Brain Tug
 
 A real-time classroom game. Two teams answer arithmetic problems on their phones;
 each correct answer pulls a rope on a shared display at the front of the room.

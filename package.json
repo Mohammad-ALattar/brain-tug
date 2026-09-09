@@ -1,8 +1,8 @@
 {
-  "name": "math-tug-of-war",
+  "name": "brain-tug",
   "private": true,
   "version": "0.1.0",
-  "description": "Real-time classroom mathematics tug-of-war competition",
+  "description": "Real-time classroom multiplayer learning platform",
   "type": "module",
   "engines": {
     "node": ">=20.11"
@@ -13,13 +13,13 @@
   ],
   "scripts": {
     "dev": "npm run build:shared && concurrently --names \"shared,server,web\" --prefix-colors \"gray,cyan,magenta\" --kill-others-on-fail \"npm:dev:shared\" \"npm:dev:server\" \"npm:dev:web\"",
-    "dev:shared": "npm run dev --workspace=@mtow/shared",
-    "dev:server": "npm run dev --workspace=@mtow/server",
-    "dev:web": "npm run dev --workspace=@mtow/web",
-    "build:shared": "npm run build --workspace=@mtow/shared",
+    "dev:shared": "npm run dev --workspace=@braintug/shared",
+    "dev:server": "npm run dev --workspace=@braintug/server",
+    "dev:web": "npm run dev --workspace=@braintug/web",
+    "build:shared": "npm run build --workspace=@braintug/shared",
     "build": "npm run build:server && npm run build:web",
-    "build:web": "npm run build --workspace=@mtow/web",
-    "build:server": "npm run build --workspace=@mtow/server",
+    "build:web": "npm run build --workspace=@braintug/web",
+    "build:server": "npm run build --workspace=@braintug/server",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",

@@ -9,7 +9,7 @@ const logger = createLogger(config.logLevel);
 const { httpServer, shutdown } = startServer(config, logger);
 
 httpServer.listen(config.port, () => {
-  logger.info(`Math Tug of War server listening on :${config.port}`, {
+  logger.info(`Brain Tug server listening on :${config.port}`, {
     env: config.nodeEnv,
     cors: config.corsOrigins,
   });

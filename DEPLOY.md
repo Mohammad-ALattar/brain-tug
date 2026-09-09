@@ -1,4 +1,4 @@
-# Deploying Math Tug of War
+# Deploying Brain Tug
 
 ## The short version
 

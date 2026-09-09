@@ -1,11 +1,11 @@
-import type { HostToken, RoomCode } from '@mtow/shared';
+import type { HostToken, RoomCode } from '@braintug/shared';
 
 /**
  * The host token is the credential for every privileged action, so it is kept in
  * `sessionStorage` rather than `localStorage`: a teacher's match should not
  * survive as an authority on a shared classroom machine after the tab closes.
  */
-const key = (roomCode: RoomCode): string => `mtow:host:${roomCode}`;
+const key = (roomCode: RoomCode): string => `braintug:host:${roomCode}`;
 
 export function storeHostToken(roomCode: RoomCode, token: HostToken): void {
   try {
@@ -38,7 +38,7 @@ export function clearHostToken(roomCode: RoomCode): void {
  * whose tablet slept would land back on the setup form with a match still
  * running and no way to reach it.
  */
-const currentKey = 'mtow:host:current';
+const currentKey = 'braintug:host:current';
 
 export function storeCurrentRoom(roomCode: RoomCode): void {
   try {

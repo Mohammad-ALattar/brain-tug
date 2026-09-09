@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, render, screen } from '@testing-library/react';
-import type { TeamId } from '@mtow/shared';
+import type { TeamId } from '@braintug/shared';
 import { makeState, playerOn, resetStore, seedStore } from '../test/fixtures';
 import { StudentJoinForm } from './student/StudentJoinForm';
 import { StudentController } from './student/StudentController';

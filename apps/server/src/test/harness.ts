@@ -7,7 +7,7 @@ import type {
   RoomCode,
   ServerToClientEvents,
   TeamId,
-} from '@mtow/shared';
+} from '@braintug/shared';
 import { loadConfig } from '../config.js';
 import { createLogger } from '../logger.js';
 import { startServer, type RunningServer } from '../server.js';

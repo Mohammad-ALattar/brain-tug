@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import type { TeamId } from '@mtow/shared';
+import type { TeamId } from '@braintug/shared';
 import { TEAM_THEME } from '../../design/teamTheme';
 import { useQuestionIndex, useTeamPrompt, useTotalQuestions } from '../../store/selectors';
 

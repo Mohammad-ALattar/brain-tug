@@ -1,4 +1,4 @@
-import { defaultIdFactory, type IdFactory, type RoomCode } from '@mtow/shared';
+import { defaultIdFactory, type IdFactory, type RoomCode } from '@braintug/shared';
 import type { SessionStore } from './sessionStore.js';
 
 /** Room codes are short and human-readable, so collisions must be retried. */

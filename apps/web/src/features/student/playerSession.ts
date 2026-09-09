@@ -1,4 +1,4 @@
-import type { PlayerToken, RoomCode } from '@mtow/shared';
+import type { PlayerToken, RoomCode } from '@braintug/shared';
 
 /**
  * A student's seat, remembered per room code.
@@ -9,8 +9,8 @@ import type { PlayerToken, RoomCode } from '@mtow/shared';
  * name and the accumulated score, so it has to survive more than the tab. The
  * token only ever authorises acting as that one player in that one game.
  */
-const tokenKey = (roomCode: RoomCode): string => `mtow:player:${roomCode}`;
-const nameKey = 'mtow:playerName';
+const tokenKey = (roomCode: RoomCode): string => `braintug:player:${roomCode}`;
+const nameKey = 'braintug:playerName';
 
 export function storePlayerToken(roomCode: RoomCode, token: PlayerToken): void {
   try {

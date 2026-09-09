@@ -1,5 +1,5 @@
-import type { GameResult, TeamId } from '@mtow/shared';
-import { ropeToMetres } from '@mtow/shared';
+import type { GameResult, TeamId } from '@braintug/shared';
+import { ropeToMetres } from '@braintug/shared';
 import { TEAM_THEME } from '../../design/teamTheme';
 import { Chip } from '../../components/Chip';
 import { useRules } from '../../store/selectors';
@@ -114,7 +114,7 @@ export function GameResults({ result, onNewMatch }: GameResultsProps) {
       <button
         type="button"
         onClick={onNewMatch}
-        className="mtow-focus mt-7 h-14 w-full rounded-card bg-ink font-display text-lg font-extrabold text-white shadow-key transition active:translate-y-px"
+        className="bt-focus mt-7 h-14 w-full rounded-card bg-ink font-display text-lg font-extrabold text-white shadow-key transition active:translate-y-px"
       >
         Set up another match
       </button>

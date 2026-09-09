@@ -1,4 +1,4 @@
-import type { GameId, TeamId } from '@mtow/shared';
+import type { GameId, TeamId } from '@braintug/shared';
 
 /**
  * Room naming. Every broadcast targets one of these rather than the whole

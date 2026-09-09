@@ -1,4 +1,4 @@
-import type { GameId, GameSession, HostToken, PlayerId, TeamId } from '@mtow/shared';
+import type { GameId, GameSession, HostToken, PlayerId, TeamId } from '@braintug/shared';
 
 /**
  * What a socket has proven about itself. Populated on join and never taken from

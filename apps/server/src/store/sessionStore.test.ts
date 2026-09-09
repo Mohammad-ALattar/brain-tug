@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
-import { createGame, createSequentialIdFactory, type GameId, type RoomCode } from '@mtow/shared';
-import { constantProvider } from '@mtow/shared/testing';
+import { createGame, createSequentialIdFactory, type GameId, type RoomCode } from '@braintug/shared';
+import { constantProvider } from '@braintug/shared/testing';
 import { createInMemorySessionStore } from './sessionStore.js';
 import { allocateRoomCode } from './roomCodes.js';
 import { createTimerService } from '../services/timerService.js';

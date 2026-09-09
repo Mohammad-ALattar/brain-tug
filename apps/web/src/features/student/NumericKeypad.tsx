@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import type { TeamId } from '@mtow/shared';
+import type { TeamId } from '@braintug/shared';
 import { TEAM_THEME } from '../../design/teamTheme';
 
 export type KeypadKey = string;
@@ -47,7 +47,7 @@ export const NumericKeypad = memo(function NumericKeypad({
               onKey(key);
             }}
             className={[
-              'mtow-focus grid h-16 touch-manipulation select-none place-items-center rounded-card border text-2xl font-extrabold shadow-key transition sm:h-[68px]',
+              'bt-focus grid h-16 touch-manipulation select-none place-items-center rounded-card border text-2xl font-extrabold shadow-key transition sm:h-[68px]',
               'active:translate-y-px active:shadow-none',
               'disabled:pointer-events-none disabled:opacity-40',
               // Variant-prefixed team classes are avoided here: Tailwind only

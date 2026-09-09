@@ -29,7 +29,7 @@ export const TugOfWarArena = memo(function TugOfWarArena() {
     );
 
   return (
-    <section className="mtow-panel flex h-full min-w-0 flex-1 flex-col gap-3 p-4">
+    <section className="bt-panel flex h-full min-w-0 flex-1 flex-col gap-3 p-4">
       {rules && <RopePosition rules={rules} />}
 
       {/* The field. Halves are tinted toward each team, as in the reference. */}
@@ -55,18 +55,18 @@ export const TugOfWarArena = memo(function TugOfWarArena() {
         <div className="absolute inset-y-0 left-1/2 w-[3px] -translate-x-1/2 bg-timer" />
 
         {/* Tension glow, one element per side, opacity driven by CSS. */}
-        <div aria-hidden className="mtow-tension-blue pointer-events-none absolute inset-0" />
-        <div aria-hidden className="mtow-tension-red pointer-events-none absolute inset-0" />
+        <div aria-hidden className="bt-tension-blue pointer-events-none absolute inset-0" />
+        <div aria-hidden className="bt-tension-red pointer-events-none absolute inset-0" />
 
         {/* Live rope marker, independent of the rope assembly. */}
         <div
           aria-hidden
-          className="mtow-rope-marker absolute inset-y-0 w-[2px] -translate-x-1/2 bg-ink/25"
+          className="bt-rope-marker absolute inset-y-0 w-[2px] -translate-x-1/2 bg-ink/25"
         />
 
         {/* The rope assembly: both teams and the rope move together. */}
         <div className="absolute inset-0 grid place-items-center">
-          <div className="mtow-rope-track flex items-end justify-center">
+          <div className="bt-rope-track flex items-end justify-center">
             <TugOfWarCharacters teamId="blue" count={figures('blue')} />
             <Rope width={280} />
             <TugOfWarCharacters teamId="red" count={figures('red')} />

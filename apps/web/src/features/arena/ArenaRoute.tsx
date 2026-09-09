@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
-import type { HostToken, WatchArenaAck } from '@mtow/shared';
-import { normaliseRoomCode } from '@mtow/shared';
+import type { HostToken, WatchArenaAck } from '@braintug/shared';
+import { normaliseRoomCode } from '@braintug/shared';
 import { useGameSocket } from '../../realtime/useGameSocket';
 import { request } from '../../realtime/socket';
 import { useGameStore } from '../../store/gameStore';

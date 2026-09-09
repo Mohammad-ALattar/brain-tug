@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import type { JoinGameAck, RoomCode } from '@mtow/shared';
-import { formatRoomCode, normaliseRoomCode } from '@mtow/shared';
+import type { JoinGameAck, RoomCode } from '@braintug/shared';
+import { formatRoomCode, normaliseRoomCode } from '@braintug/shared';
 import { request } from '../../realtime/socket';
 import { useGameSocket } from '../../realtime/useGameSocket';
 import { useGameStore } from '../../store/gameStore';

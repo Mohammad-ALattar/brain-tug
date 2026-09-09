@@ -59,20 +59,20 @@
 }
 
 @layer components {
-  .mtow-card {
+  .bt-card {
     @apply rounded-card bg-paper-card shadow-card border border-paper-line;
   }
 
-  .mtow-panel {
+  .bt-panel {
     @apply rounded-panel bg-paper-card shadow-panel border border-paper-line;
   }
 
-  .mtow-chip {
+  .bt-chip {
     @apply rounded-chip inline-flex items-center gap-1.5 font-bold uppercase tracking-wide;
   }
 
   /* Focus ring used across every interactive surface, including the student pad. */
-  .mtow-focus {
+  .bt-focus {
     @apply outline-none focus-visible:ring-4 focus-visible:ring-blueteam-300 focus-visible:ring-offset-1;
   }
 }
@@ -82,26 +82,26 @@
    * The rope assembly. One transform, driven entirely by `--rope-pos`, so the
    * browser interpolates it on the compositor while React does nothing.
    */
-  .mtow-rope-track {
+  .bt-rope-track {
     transform: translateX(calc(var(--rope-pos) * var(--rope-travel)));
     transition: transform var(--rope-settle) var(--rope-ease);
     will-change: transform;
   }
 
   /* The thin marker showing exactly where the rope sits on the field. */
-  .mtow-rope-marker {
+  .bt-rope-marker {
     left: calc((var(--rope-pos) + 1) / 2 * 100%);
     transition: left var(--rope-settle) var(--rope-ease);
   }
 
   /* Per-side tension glow. Opacity is the only animated property. */
-  .mtow-tension-blue {
+  .bt-tension-blue {
     background: linear-gradient(90deg, rgba(47, 107, 243, 0.5), rgba(47, 107, 243, 0) 55%);
     opacity: calc(var(--tension-blue) * 0.55);
     transition: opacity var(--rope-settle) ease-out;
   }
 
-  .mtow-tension-red {
+  .bt-tension-red {
     background: linear-gradient(270deg, rgba(239, 51, 68, 0.5), rgba(239, 51, 68, 0) 55%);
     opacity: calc(var(--tension-red) * 0.55);
     transition: opacity var(--rope-settle) ease-out;
@@ -112,13 +112,13 @@
    * from the same `GameRules` the server scores with, so adding a tier to the
    * rules deepens the glow without touching this file.
    */
-  .mtow-streak-blue {
+  .bt-streak-blue {
     box-shadow: 0 0 calc(var(--streak-blue) * 10px) calc(var(--streak-blue) * 2px)
       rgba(47, 107, 243, calc(var(--streak-blue) * 0.18));
     transition: box-shadow 0.4s ease-out;
   }
 
-  .mtow-streak-red {
+  .bt-streak-red {
     box-shadow: 0 0 calc(var(--streak-red) * 10px) calc(var(--streak-red) * 2px)
       rgba(239, 51, 68, calc(var(--streak-red) * 0.18));
     transition: box-shadow 0.4s ease-out;

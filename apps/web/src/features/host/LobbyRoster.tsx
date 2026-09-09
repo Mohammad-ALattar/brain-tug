@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import type { HostToken, PublicPlayer, TeamId } from '@mtow/shared';
+import type { HostToken, PublicPlayer, TeamId } from '@braintug/shared';
 import { TEAM_THEME } from '../../design/teamTheme';
 import { Chip } from '../../components/Chip';
 import { request } from '../../realtime/socket';
@@ -146,7 +146,7 @@ function RosterButton({
       aria-label={label}
       onClick={onClick}
       className={[
-        'mtow-focus grid h-8 w-8 shrink-0 place-items-center rounded-chip border text-sm font-extrabold transition',
+        'bt-focus grid h-8 w-8 shrink-0 place-items-center rounded-chip border text-sm font-extrabold transition',
         danger
           ? 'border-redteam-200 bg-redteam-50 text-redteam-700 hover:bg-redteam-100'
           : 'border-paper-line bg-paper-sunk text-ink-muted hover:bg-paper-line',

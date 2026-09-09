@@ -1,7 +1,7 @@
 import { Profiler, type ReactNode } from 'react';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { act, cleanup, render, screen } from '@testing-library/react';
-import type { PlayerId, PublicPlayer, TeamId } from '@mtow/shared';
+import type { PlayerId, PublicPlayer, TeamId } from '@braintug/shared';
 import { makeState, resetStore, seedStore } from '../../test/fixtures';
 import { useGameStore } from '../../store/gameStore';
 import { MirroredKeypad } from './MirroredKeypad';

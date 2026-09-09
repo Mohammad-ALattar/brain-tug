@@ -1,5 +1,5 @@
-import type { GameId, GameSession, RoomCode } from '@mtow/shared';
-import type { QuestionProvider } from '@mtow/shared';
+import type { GameId, GameSession, RoomCode } from '@braintug/shared';
+import type { QuestionProvider } from '@braintug/shared';
 
 /**
  * A live game plus the per-game collaborators the engine needs but does not own.
