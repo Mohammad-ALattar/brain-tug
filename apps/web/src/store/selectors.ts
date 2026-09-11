@@ -160,7 +160,7 @@ export const useRacePlayerProgress = (playerId: PlayerId) =>
 export function useBrainRaceFinishers(teamId: TeamId): { finished: number; required: number } {
   const finished = useGameStore((s) => {
     const view = s.state;
-    if (!view || view.modeState.kind !== 'brain_race') return 0;
+    if (!view || view.modeState?.kind !== 'brain_race') return 0;
     return displayTeamFinishers(
       view.modeState,
       finishersSessionSlice(view) as GameSession,
@@ -170,7 +170,7 @@ export function useBrainRaceFinishers(teamId: TeamId): { finished: number; requi
   });
   const required = useGameStore((s) => {
     const view = s.state;
-    if (!view || view.modeState.kind !== 'brain_race') return 0;
+    if (!view || view.modeState?.kind !== 'brain_race') return 0;
     return displayTeamFinishers(
       view.modeState,
       finishersSessionSlice(view) as GameSession,

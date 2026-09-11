@@ -51,7 +51,7 @@ export function copyFor(mode: GameModeId): ModeCopy {
 }
 
 export function copyForState(state: ModeState): ModeCopy {
-  return MODE_COPY[state.kind];
+  return MODE_COPY[state?.kind ?? 'tug_of_war'];
 }
 
 export function resultReasonLabel(result: GameResult): string {

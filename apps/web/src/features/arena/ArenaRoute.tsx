@@ -16,6 +16,7 @@ export function Component() {
   const { roomCode: routeRoomCode } = useParams<{ roomCode?: string }>();
   const [searchParams] = useSearchParams();
   const connection = useConnection();
+  const gameState = useGameStore((s) => s.state);
 
   const [attached, setAttached] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -64,7 +65,7 @@ export function Component() {
     return <JoinArenaForm error={error} />;
   }
 
-  if (!attached) {
+  if (!attached || !gameState) {
     return (
       <div className="grid h-full place-items-center bg-ink">
         <p className="font-display text-xl font-bold text-white/70">
