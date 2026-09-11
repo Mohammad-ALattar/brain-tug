@@ -36,12 +36,18 @@ describe('question banks', () => {
     expect([...types].sort()).toEqual([...QUESTION_TYPES].sort());
   });
 
-  it.each(banks)('%s has a non-empty, unique prompt on every entry', (_subject, bank) => {
-    const prompts = bank.entries.map((entry) => entry.prompt);
-    for (const prompt of prompts) {
-      expect(prompt.trim().length).toBeGreaterThan(0);
+  it.each(banks)('%s has a unique bankKey on every entry', (_subject, bank) => {
+    const keys = bank.entries.map((entry) => entry.bankKey);
+    for (const key of keys) {
+      expect(key.trim().length).toBeGreaterThan(0);
     }
-    expect(new Set(prompts).size).toBe(prompts.length);
+    expect(new Set(keys).size).toBe(keys.length);
+  });
+
+  it.each(banks)('%s has Arabic translations with a non-empty prompt', (_subject, bank) => {
+    for (const entry of bank.entries) {
+      expect(entry.translations.ar.prompt.trim().length).toBeGreaterThan(0);
+    }
   });
 
   it.each(banks)('%s offers well-formed multiple choice options', (_subject, bank) => {
@@ -99,6 +105,7 @@ describe('createBankSource', () => {
       const source = createBankSource({
         bank,
         difficulty,
+        language: 'en',
         rng: createSeededRng(3),
         ids: createSequentialIdFactory(),
       });
@@ -114,6 +121,7 @@ describe('createBankSource', () => {
     const source = createBankSource({
       bank: QUESTION_BANKS.science!,
       difficulty: 'easy',
+      language: 'en',
       rng: createSeededRng(9),
       ids: createSequentialIdFactory(),
     });
@@ -121,11 +129,12 @@ describe('createBankSource', () => {
     expect(new Set(ids).size).toBe(ids.length);
   });
 
-  it('prefers unseen prompts but still deals once the pool is exhausted', () => {
+  it('prefers unseen bankKeys but still deals once the pool is exhausted', () => {
     const bank = QUESTION_BANKS.coding!;
     const source = createBankSource({
       bank,
       difficulty: 'easy',
+      language: 'en',
       rng: createSeededRng(11),
       ids: createSequentialIdFactory(),
     });
@@ -133,17 +142,33 @@ describe('createBankSource', () => {
     const seen = new Set<string>();
     for (let i = 0; i < 5; i += 1) {
       const question = source.next(seen);
-      expect(seen.has(question.prompt)).toBe(false);
-      seen.add(question.prompt);
+      expect(seen.has(question.bankKey!)).toBe(false);
+      seen.add(question.bankKey!);
     }
     // Everything at this difficulty is now spent; the source must not stall.
-    expect(source.next(seen).prompt).toBeTruthy();
+    expect(source.next(seen).bankKey).toBeTruthy();
+  });
+
+  it('deals Arabic prompts when language is ar', () => {
+    const bank = QUESTION_BANKS.science!;
+    const source = createBankSource({
+      bank,
+      difficulty: 'easy',
+      language: 'ar',
+      rng: createSeededRng(7),
+      ids: createSequentialIdFactory(),
+    });
+    const question = source.next(new Set());
+    const entry = bank.entries.find((e) => e.bankKey === question.bankKey)!;
+    expect(question.prompt).toBe(entry.translations.ar.prompt);
+    expect(question.locale).toBe('ar');
   });
 
   it('falls back to the whole bank when a difficulty is empty', () => {
     const source = createBankSource({
       bank: { subject: 'science', entries: [QUESTION_BANKS.science!.entries[0]!] },
       difficulty: 'hard',
+      language: 'en',
       rng: createSeededRng(5),
       ids: createSequentialIdFactory(),
     });
@@ -152,7 +177,7 @@ describe('createBankSource', () => {
 
   it('refuses to build a source over an empty bank', () => {
     expect(() =>
-      createBankSource({ bank: { subject: 'science', entries: [] }, difficulty: 'easy' }),
+      createBankSource({ bank: { subject: 'science', entries: [] }, difficulty: 'easy', language: 'en' }),
     ).toThrow(/empty/i);
   });
 });

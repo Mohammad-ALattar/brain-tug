@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { initTestI18n, renderWithI18n } from '../../test/i18n';
 import type { AnswerOutcome, GameStateView, QuestionId } from '@braintug/shared';
 import { buildGameResult } from '@braintug/shared';
 import { makeSession, makeState, playerOn, resetStore, seedStore } from '../../test/fixtures';
@@ -19,7 +20,8 @@ const { request, notify } = await import('../../realtime/socket');
 const requestMock = request as unknown as Mock;
 const notifyMock = notify as unknown as Mock;
 
-beforeEach(() => {
+beforeEach(async () => {
+  await initTestI18n('en');
   requestMock.mockReset();
   notifyMock.mockReset();
 });
@@ -34,7 +36,9 @@ afterEach(() => {
 function renderAsBluePlayer(state: GameStateView = makeState()) {
   const me = playerOn(state, 'blue', 0);
   seedStore(state, { playerId: me.id, teamId: 'blue' });
-  const view = render(<StudentController teamId="blue" playerName={me.name} onLeave={vi.fn()} />);
+  const view = renderWithI18n(
+    <StudentController teamId="blue" playerName={me.name} onLeave={vi.fn()} />,
+  );
   return { ...view, state, me };
 }
 
@@ -228,7 +232,7 @@ describe('lockout and wait states', () => {
     const me = playerOn(state, 'blue', 1);
     seedStore(state, { playerId: me.id, teamId: 'blue' });
 
-    render(<StudentController teamId="blue" playerName={me.name} onLeave={vi.fn()} />);
+    renderWithI18n(<StudentController teamId="blue" playerName={me.name} onLeave={vi.fn()} />);
 
     expect(screen.getByText(/teammate got it/i)).toBeDefined();
     expect(screen.queryByRole('group', { name: /answer keypad/i })).toBeNull();
@@ -256,7 +260,7 @@ describe('end of match', () => {
 
   it('shows the final result and the student\u2019s own contribution', () => {
     const me = seedFinished();
-    render(<StudentController teamId="blue" playerName={me.name} onLeave={vi.fn()} />);
+    renderWithI18n(<StudentController teamId="blue" playerName={me.name} onLeave={vi.fn()} />);
 
     expect(screen.getByText(/final result/i)).toBeDefined();
     expect(screen.getByText(/your team won/i)).toBeDefined();
@@ -269,7 +273,7 @@ describe('end of match', () => {
   it('offers a way into the next match, since it has a new room code', async () => {
     const me = seedFinished();
     const onLeave = vi.fn();
-    render(<StudentController teamId="blue" playerName={me.name} onLeave={onLeave} />);
+    renderWithI18n(<StudentController teamId="blue" playerName={me.name} onLeave={onLeave} />);
 
     await userEvent.click(screen.getByRole('button', { name: /join another game/i }));
     expect(onLeave).toHaveBeenCalledTimes(1);
@@ -279,7 +283,7 @@ describe('end of match', () => {
 describe('AnswerFeedback', () => {
   it('does not reveal the correct answer after a miss, and does not close the round', () => {
     seedStore(makeState());
-    render(
+    renderWithI18n(
       <AnswerFeedback
         outcome={{
           status: 'incorrect',
@@ -298,14 +302,14 @@ describe('AnswerFeedback', () => {
 
   it('explains a rejection in words rather than an error code', () => {
     seedStore(makeState());
-    render(<AnswerFeedback outcome={{ status: 'rejected', reason: 'team_already_locked' }} />);
+    renderWithI18n(<AnswerFeedback outcome={{ status: 'rejected', reason: 'team_already_locked' }} />);
 
     expect(screen.getByText(/a teammate already got this one/i)).toBeDefined();
   });
 
   it('reports the pull in metres using the same rules the server scored with', () => {
     seedStore(makeState());
-    const { container } = render(
+    const { container } = renderWithI18n(
       <AnswerFeedback
         outcome={{
           status: 'correct',
@@ -326,7 +330,7 @@ describe('AnswerFeedback', () => {
 describe('StudentJoinForm', () => {
   it('will not submit until both a room code and a name are given', async () => {
     const onJoin = vi.fn();
-    render(<StudentJoinForm error={null} busy={false} onJoin={onJoin} />);
+    renderWithI18n(<StudentJoinForm error={null} busy={false} onJoin={onJoin} />);
 
     const submit = screen.getByRole('button', { name: /join the game/i });
     expect(submit).toHaveProperty('disabled', true);
@@ -340,7 +344,7 @@ describe('StudentJoinForm', () => {
 
   it('upper-cases the code as it is typed and omits the team so the server balances', async () => {
     const onJoin = vi.fn();
-    render(<StudentJoinForm error={null} busy={false} onJoin={onJoin} />);
+    renderWithI18n(<StudentJoinForm error={null} busy={false} onJoin={onJoin} />);
 
     await userEvent.type(screen.getByLabelText(/room code/i), 'abc123');
     await userEvent.type(screen.getByLabelText(/your name/i), '  Sam  ');
@@ -351,7 +355,7 @@ describe('StudentJoinForm', () => {
 
   it('sends an explicit team when the student picks one', async () => {
     const onJoin = vi.fn();
-    render(
+    renderWithI18n(
       <StudentJoinForm initialRoomCode="ABC123" initialName="Sam" error={null} busy={false} onJoin={onJoin} />,
     );
 
@@ -362,7 +366,7 @@ describe('StudentJoinForm', () => {
   });
 
   it('surfaces a join failure as an alert', () => {
-    render(
+    renderWithI18n(
       <StudentJoinForm error="That room code does not exist." busy={false} onJoin={vi.fn()} />,
     );
 
@@ -370,7 +374,7 @@ describe('StudentJoinForm', () => {
   });
 
   it('surfaces a game-in-progress rejection', () => {
-    render(
+    renderWithI18n(
       <StudentJoinForm
         error="This race has already started. Wait for the next match."
         busy={false}

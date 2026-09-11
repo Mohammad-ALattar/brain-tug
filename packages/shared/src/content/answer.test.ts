@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import type { QuestionId } from '../domain/ids.js';
-import { checkAnswer, normaliseTextAnswer, parseIntegerAnswer, revealAnswer } from './answer.js';
+import {
+  checkAnswer,
+  normaliseArabicTextAnswer,
+  normaliseTextAnswer,
+  parseIntegerAnswer,
+  revealAnswer,
+} from './answer.js';
 import type {
   MultipleChoiceQuestion,
   Question,
@@ -62,6 +68,36 @@ describe('normaliseTextAnswer', () => {
   it('strips punctuation and accents', () => {
     expect(normaliseTextAnswer('Caf\u00e9!')).toBe('cafe');
     expect(normaliseTextAnswer("it's, here.")).toBe('its here');
+  });
+
+  it('does not change English behaviour when language is omitted', () => {
+    expect(normaliseTextAnswer('Nile')).toBe('nile');
+  });
+});
+
+describe('normaliseArabicTextAnswer', () => {
+  it('strips diacritics and normalises alef and ta marbuta', () => {
+    expect(normaliseArabicTextAnswer('الجَاذِبِيَّة')).toBe('الجاذبيه');
+    expect(normaliseArabicTextAnswer('جاذبية')).toBe('جاذبيه');
+    expect(normaliseArabicTextAnswer('أرض')).toBe('ارض');
+  });
+});
+
+describe('checkAnswer: Arabic typed text', () => {
+  const arabicNile: TypeAnswerQuestion = {
+    ...typedText,
+    locale: 'ar',
+    prompt: 'ما أطول نهر في أفريقيا؟',
+    accepted: ['النيل', 'نهر النيل'],
+  };
+
+  it('accepts Arabic answers with normalisation', () => {
+    expect(checkAnswer(arabicNile, 'النيل')).toMatchObject({ correct: true });
+    expect(checkAnswer(arabicNile, 'نَهر النيل')).toMatchObject({ correct: true });
+  });
+
+  it('still uses English normalisation for English locale', () => {
+    expect(checkAnswer(typedText, 'Nile')).toMatchObject({ correct: true });
   });
 });
 
@@ -177,5 +213,10 @@ describe('revealAnswer', () => {
     for (const [question, expected] of cases) {
       expect(revealAnswer(question)).toBe(expected);
     }
+  });
+
+  it('renders Arabic true/false labels when locale is ar', () => {
+    expect(revealAnswer({ ...trueFalse, locale: 'ar' })).toBe('صحيح');
+    expect(revealAnswer({ ...trueFalse, correct: false, locale: 'ar' })).toBe('خطأ');
   });
 });

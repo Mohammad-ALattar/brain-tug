@@ -1,0 +1,61 @@
+{
+  "appName": "Brain Tug",
+  "language": {
+    "label": "اللغة",
+    "en": "English",
+    "ar": "العربية"
+  },
+  "landing": {
+    "title": "Brain <1>Tug</1>",
+    "subtitle": "اختر كيف ستنضم إلى هذه المباراة.",
+    "teacher": {
+      "title": "المعلّم",
+      "blurb": "أنشئ مباراة، ووازن الفرق وشغّل اللعبة."
+    },
+    "classroom": {
+      "title": "شاشة الصف",
+      "blurb": "ساحة 16:9 للعرض على الشاشة أو التلفاز."
+    },
+    "student": {
+      "title": "الطالب",
+      "blurb": "انضم برمز الغرفة وأجب من هاتفك."
+    }
+  },
+  "routeError": {
+    "title": "حدث خطأ ما",
+    "unexpected": "خطأ غير متوقع",
+    "back": "العودة للبداية"
+  },
+  "connection": {
+    "reconnecting": "جارٍ إعادة الاتصال"
+  },
+  "subjects": {
+    "math": "رياضيات",
+    "science": "علوم",
+    "english": "لغة إنجليزية",
+    "history": "تاريخ",
+    "geography": "جغرافيا",
+    "coding": "برمجة",
+    "general": "معلومات عامة"
+  },
+  "operations": {
+    "addition": "جمع",
+    "subtraction": "طرح",
+    "multiplication": "ضرب",
+    "division": "قسمة",
+    "mixed": "مختلط"
+  },
+  "difficulties": {
+    "easy": "سهل",
+    "medium": "متوسط",
+    "hard": "صعب"
+  },
+  "units": {
+    "questions": "أسئلة",
+    "seconds": "ثوانٍ",
+    "finishers": "متأهّلين",
+    "fewer": "أقل {{unit}}",
+    "more": "أكثر {{unit}}"
+  },
+  "offline": "غير متصل"
+}

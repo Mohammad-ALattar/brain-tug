@@ -50,7 +50,18 @@ export function createTeam(id: TeamId, name: string): Team {
   };
 }
 
+import type { GameLanguage } from '../content/language.js';
+
 export const DEFAULT_TEAM_NAMES: Record<TeamId, string> = {
   blue: 'Blue Tigers',
   red: 'Red Dragons',
 };
+
+const DEFAULT_TEAM_NAMES_AR: Record<TeamId, string> = {
+  blue: 'نمور زرقاء',
+  red: 'تنانين حمراء',
+};
+
+export function defaultTeamNames(language: GameLanguage): Record<TeamId, string> {
+  return language === 'ar' ? DEFAULT_TEAM_NAMES_AR : DEFAULT_TEAM_NAMES;
+}

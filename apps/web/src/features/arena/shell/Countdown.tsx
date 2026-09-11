@@ -1,23 +1,16 @@
 import { useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { playSfx } from '../../../audio/sfx';
 import { serverNow } from '../../../realtime/clockOffset';
+import { useModeCopy } from '../../../i18n/useModeCopy';
 import { useCountdownEndsAt, useGameMode, useStatus } from '../../../store/selectors';
-import { MODE_COPY } from '../modeCopy';
 
-/**
- * Full-screen "get ready" overlay between the host pressing start and the first
- * question.
- *
- * Like the game timer, the digit is written straight to a ref on an animation
- * frame rather than held in React state, so counting the class in does not
- * rerender the arena behind the overlay. The pop animation is restarted by
- * re-triggering it on the element, which is also why the digit does not need a
- * React key.
- */
 export function Countdown() {
+  const { t } = useTranslation('game');
   const endsAt = useCountdownEndsAt();
   const status = useStatus();
   const mode = useGameMode();
+  const copy = useModeCopy(mode);
 
   const digitRef = useRef<HTMLParagraphElement>(null);
 
@@ -32,9 +25,7 @@ export function Countdown() {
       const seconds = Math.max(0, Math.ceil((endsAt - serverNow()) / 1000));
       if (seconds !== shown) {
         shown = seconds;
-        digit.textContent = seconds > 0 ? String(seconds) : 'Go!';
-        // Restarting the animation requires clearing it and forcing a reflow;
-        // reading `offsetWidth` is the standard way to do that.
+        digit.textContent = seconds > 0 ? String(seconds) : t('countdown.go');
         digit.style.animation = 'none';
         void digit.offsetWidth;
         digit.style.animation = 'countdownPop 0.35s ease-out';
@@ -45,7 +36,7 @@ export function Countdown() {
     loop();
 
     return () => cancelAnimationFrame(frame);
-  }, [endsAt, status]);
+  }, [endsAt, status, t]);
 
   if (status !== 'countdown') return null;
 
@@ -57,13 +48,13 @@ export function Countdown() {
     >
       <div className="text-center">
         <p className="font-display text-2xl font-extrabold uppercase tracking-[0.3em] text-white/70">
-          Get ready
+          {t('countdown.getReady')}
         </p>
         <p
           ref={digitRef}
           className="tabular mt-4 font-display text-[180px] font-extrabold leading-none text-white"
         />
-        <p className="mt-4 text-lg font-bold text-white/70">{MODE_COPY[mode].countdownCue}</p>
+        <p className="mt-4 text-lg font-bold text-white/70">{copy.countdownCue}</p>
       </div>
     </div>
   );

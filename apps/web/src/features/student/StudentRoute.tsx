@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import type { JoinGameAck, RoomCode } from '@braintug/shared';
 import { formatRoomCode, normaliseRoomCode } from '@braintug/shared';
@@ -24,6 +25,7 @@ import { StudentJoinForm, type JoinRequest } from './StudentJoinForm';
  * means the controller never has to render a half-joined state.
  */
 export function Component() {
+  const { t } = useTranslation('errors');
   useGameSocket();
 
   const { roomCode: routeRoomCode } = useParams<{ roomCode?: string }>();
@@ -114,14 +116,14 @@ export function Component() {
         .then((ack) => adopt(ack, payload.name))
         .catch((err: Error & { reason?: string }) => {
           if (err.reason === 'game_in_progress') {
-            setError('This race has already started. Wait for the next match.');
+            setError(t('socket.gameInProgress'));
             return;
           }
           setError(err.message);
         })
         .finally(() => setBusy(false));
     },
-    [adopt],
+    [adopt, t],
   );
 
   /**
@@ -149,7 +151,7 @@ export function Component() {
     <StudentJoinForm
       initialRoomCode={urlRoomCode ? formatRoomCode(urlRoomCode) : ''}
       initialName={rememberedName}
-      error={error ?? (connection === 'disconnected' ? 'No connection to the server.' : null)}
+      error={error ?? (connection === 'disconnected' ? t('socket.noConnection') : null)}
       busy={busy || connection === 'connecting'}
       onJoin={join}
     />

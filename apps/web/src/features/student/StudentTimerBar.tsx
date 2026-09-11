@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   usePausedRemaining,
   useRoundEndsAt,
@@ -16,6 +17,7 @@ import { serverNow } from '../../realtime/clockOffset';
  * rerender the keypad underneath it.
  */
 export function StudentTimerBar() {
+  const { t } = useTranslation('student');
   const endsAt = useRoundEndsAt();
   const pausedRemaining = usePausedRemaining();
   const status = useStatus();
@@ -61,7 +63,7 @@ export function StudentTimerBar() {
   }, [endsAt, pausedRemaining, status, totalSeconds]);
 
   return (
-    <div className="flex items-center gap-3" role="timer" aria-label="Time remaining">
+    <div className="flex items-center gap-3" role="timer" aria-label={t('timer.ariaLabel')}>
       <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-paper-sunk">
         <div
           ref={barRef}
@@ -69,7 +71,7 @@ export function StudentTimerBar() {
           style={{ transform: 'scaleX(1)', backgroundColor: '#f7c93e' }}
         />
       </div>
-      <span ref={labelRef} className="tabular w-9 text-right text-sm font-extrabold text-ink-muted">
+      <span ref={labelRef} className="tabular w-9 text-end text-sm font-extrabold text-ink-muted">
         {totalSeconds}s
       </span>
     </div>

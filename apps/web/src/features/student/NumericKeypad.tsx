@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { TeamId } from '@braintug/shared';
 import { TEAM_THEME } from '../../design/teamTheme';
 
@@ -13,8 +14,6 @@ export type NumericKeypadProps = {
 
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', '<'] as const;
 
-const LABELS: Record<string, string> = { C: 'Clear', '<': 'Backspace' };
-
 /**
  * The student's interactive keypad.
  *
@@ -28,10 +27,15 @@ export const NumericKeypad = memo(function NumericKeypad({
   disabled,
   onKey,
 }: NumericKeypadProps) {
+  const { t } = useTranslation('student');
   const theme = TEAM_THEME[teamId];
+  const labels: Record<string, string> = {
+    C: t('keypad.clear'),
+    '<': t('keypad.backspace'),
+  };
 
   return (
-    <div className="grid grid-cols-3 gap-2.5 sm:gap-3" role="group" aria-label="Answer keypad">
+    <div className="grid grid-cols-3 gap-2.5 sm:gap-3" role="group" aria-label={t('keypad.ariaLabel')}>
       {KEYS.map((key) => {
         const isAction = key === 'C' || key === '<';
         return (
@@ -39,7 +43,7 @@ export const NumericKeypad = memo(function NumericKeypad({
             key={key}
             type="button"
             disabled={disabled}
-            aria-label={LABELS[key] ?? key}
+            aria-label={labels[key] ?? key}
             // `onPointerDown` rather than `onClick`: it fires on touch-down, so
             // the keypad feels immediate instead of waiting for touch-end.
             onPointerDown={(event) => {

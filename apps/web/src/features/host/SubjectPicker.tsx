@@ -1,4 +1,5 @@
-import { SUBJECTS, SUBJECT_LABEL, type Subject } from '@braintug/shared';
+import { useTranslation } from 'react-i18next';
+import { SUBJECTS, type Subject } from '@braintug/shared';
 
 export type SubjectPickerProps = {
   value: Subject;
@@ -6,12 +7,18 @@ export type SubjectPickerProps = {
 };
 
 export function SubjectPicker({ value, onChange }: SubjectPickerProps) {
+  const { t } = useTranslation(['game', 'common']);
+
   return (
     <fieldset>
       <legend className="text-[11px] font-extrabold uppercase tracking-[0.18em] text-ink-faint">
-        Subject
+        {t('game:fieldLabels.subject')}
       </legend>
-      <div role="radiogroup" aria-label="Subject" className="mt-2 flex flex-wrap gap-2">
+      <div
+        role="radiogroup"
+        aria-label={t('game:fieldLabels.subject')}
+        className="mt-2 flex flex-wrap gap-2"
+      >
         {SUBJECTS.map((subject) => {
           const selected = subject === value;
           return (
@@ -28,7 +35,7 @@ export function SubjectPicker({ value, onChange }: SubjectPickerProps) {
                   : 'border-paper-line bg-paper-card text-ink-muted hover:border-ink/30',
               ].join(' ')}
             >
-              {SUBJECT_LABEL[subject]}
+              {t(`common:subjects.${subject}`)}
             </button>
           );
         })}

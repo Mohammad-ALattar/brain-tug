@@ -15,7 +15,7 @@ export function BrainRaceStage() {
   useRaceMotion(rootRef);
 
   return (
-    <div ref={rootRef} className="flex min-h-0 flex-1 flex-col gap-3">
+    <div ref={rootRef} className="game-stage flex min-h-0 flex-1 flex-col gap-3" dir="ltr">
       <div className="min-h-0 flex-[3] shrink-0">
         <RaceTrack />
       </div>

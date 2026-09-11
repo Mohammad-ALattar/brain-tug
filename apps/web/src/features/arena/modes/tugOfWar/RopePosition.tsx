@@ -1,30 +1,26 @@
 import { memo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export type RopePositionProps = {
   halfMetres: number;
 };
 
-/**
- * The distance scale above the field: `-4m Advantage`, `CENTER 0m`, `+4m
- * Advantage`, plus the tick marks between them. Static once the arena scale is
- * known, so it renders exactly once per game.
- */
 export const RopePosition = memo(function RopePosition({ halfMetres }: RopePositionProps) {
+  const { t } = useTranslation('game');
   const half = halfMetres;
-  // A tick per metre, from -half to +half.
   const ticks = Array.from({ length: half * 2 + 1 }, (_, i) => i - half);
 
   return (
     <div className="select-none">
       <div className="flex items-end justify-between px-1">
         <span className="rounded-chip bg-blueteam-100 px-2.5 py-1 text-[11px] font-extrabold uppercase tracking-wide text-blueteam-800">
-          &minus;{half}m advantage
+          &minus;{t('arena.tug.advantage', { metres: half })}
         </span>
         <span className="rounded-chip border border-paper-line bg-paper-card px-2.5 py-1 text-[11px] font-extrabold uppercase tracking-wide text-ink-muted">
-          center 0m
+          {t('arena.tug.center')}
         </span>
         <span className="rounded-chip bg-redteam-100 px-2.5 py-1 text-[11px] font-extrabold uppercase tracking-wide text-redteam-800">
-          +{half}m advantage
+          +{t('arena.tug.advantage', { metres: half })}
         </span>
       </div>
 

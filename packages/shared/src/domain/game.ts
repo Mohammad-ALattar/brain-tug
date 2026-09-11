@@ -1,4 +1,5 @@
 import type { QuestionAssignment } from '../content/dealer.js';
+import type { GameLanguage } from '../content/language.js';
 import type { ContentConfig } from '../content/source.js';
 import type { PublicQuestion, Question } from '../content/question.js';
 import type { GameModeId } from '../modes/types.js';
@@ -24,6 +25,8 @@ export type GameConfig = {
   /** Length of the "get ready" beat before the first question, in milliseconds. */
   countdownMs: number;
   teamNames: Record<TeamId, string>;
+  /** UI and question content language for this match. */
+  language: GameLanguage;
   /** Label under the question counter, e.g. `Science - Brain Race`. */
   roundLabel: string;
   /** Brain Race: finishers needed to win. Defaults from roster at start. */

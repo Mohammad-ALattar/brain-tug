@@ -1,4 +1,5 @@
 import { memo, useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { TeamId } from '@braintug/shared';
 import { TEAM_THEME } from '../../../design/teamTheme';
 import { useTeamQuestionId } from '../../../store/selectors';
@@ -22,6 +23,7 @@ export const TypeAnswerInput = memo(function TypeAnswerInput({
   disabled,
   onSubmit,
 }: TypeAnswerInputProps) {
+  const { t } = useTranslation('student');
   const questionId = useTeamQuestionId(teamId);
   const [value, setValue] = useState('');
   const canType = !disabled;
@@ -84,7 +86,7 @@ export const TypeAnswerInput = memo(function TypeAnswerInput({
           value={value}
           disabled={disabled}
           onChange={(event) => setValue(event.target.value.slice(0, MAX_TEXT))}
-          aria-label="Your answer"
+          aria-label={t('keypad.yourAnswer')}
           className={`bt-focus h-16 rounded-card border-2 px-4 font-display text-2xl font-extrabold ${theme.border} bg-paper-card text-ink`}
         />
         <button
@@ -92,7 +94,7 @@ export const TypeAnswerInput = memo(function TypeAnswerInput({
           disabled={!value.trim() || disabled}
           className="bt-focus h-16 touch-manipulation rounded-card bg-ink font-display text-xl font-extrabold text-white shadow-key transition active:translate-y-px disabled:opacity-30"
         >
-          Lock it in
+          {t('keypad.lockItIn')}
         </button>
       </form>
     );
@@ -108,7 +110,7 @@ export const TypeAnswerInput = memo(function TypeAnswerInput({
         disabled={!value || disabled}
         className="bt-focus h-16 touch-manipulation rounded-card bg-ink font-display text-xl font-extrabold text-white shadow-key transition active:translate-y-px disabled:opacity-30"
       >
-        Lock it in
+        {t('keypad.lockItIn')}
       </button>
     </>
   );

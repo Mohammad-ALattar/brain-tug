@@ -24,6 +24,14 @@
     height: 100%;
   }
 
+  html[dir='rtl'] body {
+    font-family: 'Noto Sans Arabic', 'Nunito', system-ui, sans-serif;
+  }
+
+  html[dir='rtl'] .font-display {
+    font-family: 'Noto Sans Arabic', 'Baloo 2', 'Nunito', system-ui, sans-serif;
+  }
+
   body {
     @apply bg-paper text-ink font-sans antialiased;
     /* The arena is a kiosk display and the student pad is a touch surface;

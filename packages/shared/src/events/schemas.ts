@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { GAME_LANGUAGES } from '../content/language.js';
 import { DIFFICULTIES } from '../content/question.js';
 import { OPERATION_CHOICES } from '../content/math/operations.js';
 import { SUBJECTS } from '../content/subject.js';
@@ -32,6 +33,7 @@ const tokenSchema = z.string().min(8).max(128);
 const teamIdSchema = z.enum(TEAM_IDS);
 
 export const createGameSchema = z.object({
+  language: z.enum(GAME_LANGUAGES).default('en'),
   mode: z.enum(GAME_MODES).default('tug_of_war'),
   subject: z.enum(SUBJECTS).default('math'),
   operation: z.enum(OPERATION_CHOICES).default('mixed'),

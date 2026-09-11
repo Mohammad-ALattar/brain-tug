@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import type { PlayerId, TeamId } from '@braintug/shared';
 
@@ -33,6 +34,7 @@ export const PlayerRaceLane = memo(function PlayerRaceLane({
   isLeading,
   showOvertake,
 }: PlayerRaceLaneProps) {
+  const { t } = useTranslation('game');
   const theme = TEAM_THEME[teamId];
   const race = useRaceModeState();
   const progress = useRacePlayerProgress(playerId);
@@ -74,9 +76,9 @@ export const PlayerRaceLane = memo(function PlayerRaceLane({
         >
           {metres.toFixed(0)}m / {track}m
         </span>
-        {isLeading && !finished ? <Chip tone="timer">Leading</Chip> : null}
-        {finished ? <Chip tone="good">Finished</Chip> : null}
-        {showOvertake ? <Chip tone="warn">Overtake</Chip> : null}
+        {isLeading && !finished ? <Chip tone="timer">{t('arena.race.leading')}</Chip> : null}
+        {finished ? <Chip tone="good">{t('arena.race.finished')}</Chip> : null}
+        {showOvertake ? <Chip tone="warn">{t('arena.race.overtake')}</Chip> : null}
       </div>
 
       <Racer

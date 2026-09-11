@@ -1,6 +1,7 @@
 import { Profiler, useRef } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { act, cleanup, render, screen } from '@testing-library/react';
+import { initTestI18n, renderWithI18n } from '../../test/i18n';
 import { DEFAULT_RULES, type PlayerId, type TeamId } from '@braintug/shared';
 import { buildGameResult } from '@braintug/shared';
 import { T0 } from '@braintug/shared/testing';
@@ -243,9 +244,13 @@ describe('arena audio', () => {
 });
 
 describe('Countdown', () => {
+  beforeEach(async () => {
+    await initTestI18n('en');
+  });
+
   it('shows nothing outside the countdown', () => {
     seedStore(makeState());
-    const { container } = render(<Countdown />);
+    const { container } = renderWithI18n(<Countdown />);
 
     expect(container.firstChild).toBeNull();
   });
@@ -254,7 +259,7 @@ describe('Countdown', () => {
     const state = makeState({ stayInLobby: true });
     seedStore({ ...state, status: 'countdown', countdownEndsAt: Date.now() + 2500 });
 
-    render(<Countdown />);
+    renderWithI18n(<Countdown />);
 
     expect(screen.getByText('Get ready')).toBeDefined();
     expect(playSfxMock).toHaveBeenCalledWith('tick');

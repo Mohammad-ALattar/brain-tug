@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { TEAM_THEME } from '../../../../design/teamTheme';
 
@@ -18,6 +19,7 @@ type FeedItem = {
 
 /** Recent correct answers, so the class can scan who moved while answering continues. */
 export function ActivityFeed() {
+  const { t } = useTranslation('game');
   const lastProgress = useLastProgress();
   const race = useRaceModeState();
   const players = usePlayers();
@@ -29,9 +31,9 @@ export function ActivityFeed() {
     if (!lastProgress || !race) return;
 
     const player = players.find((entry) => entry.id === lastProgress.playerId);
-    const presentation = formatRaceGainPresentation({
+    const presentation = formatRaceGainPresentation(t, {
       flash: lastProgress,
-      playerName: player?.name ?? 'Player',
+      playerName: player?.name ?? t('arena.race.defaultPlayer'),
       teamName: lastProgress.teamId === 'blue' ? blueName : redName,
       modeState: race,
     });
@@ -45,16 +47,16 @@ export function ActivityFeed() {
     };
 
     setItems((prev) => [next, ...prev.filter((item) => item.key !== next.key)].slice(0, 6));
-  }, [lastProgress, race, blueName, redName, players]);
+  }, [lastProgress, race, blueName, redName, players, t]);
 
   return (
     <section className="bt-card h-[120px] overflow-hidden p-3">
       <p className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-ink-faint">
-        Recent gains
+        {t('arena.race.recentGains')}
       </p>
       {items.length === 0 ? (
         <p className="mt-3 text-xs font-semibold text-ink-faint">
-          Waiting for the first correct answer.
+          {t('arena.race.waitingFirstAnswer')}
         </p>
       ) : (
         <ul className="mt-2 space-y-1.5">
@@ -64,7 +66,7 @@ export function ActivityFeed() {
               <li key={item.key} className="flex items-center justify-between gap-2 text-sm">
                 <div className="min-w-0">
                   <span className={`font-extrabold ${theme.text}`}>{item.playerName}</span>
-                  <span className="ml-1.5 text-xs font-bold text-ink-muted">{item.teamName}</span>
+                  <span className="ms-1.5 text-xs font-bold text-ink-muted">{item.teamName}</span>
                 </div>
                 <span className="tabular shrink-0 font-bold text-ink">{item.metresLabel}</span>
               </li>

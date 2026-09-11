@@ -1,0 +1,82 @@
+{
+  "join": {
+    "title": "Brain Tug",
+    "subtitle": "Enter the code on the board to join your team.",
+    "roomCode": "Room code",
+    "roomCodePlaceholder": "ABC-123",
+    "yourName": "Your name",
+    "namePlaceholder": "e.g. Sam",
+    "team": "Team",
+    "teamAuto": "Auto",
+    "teamBlue": "Blue",
+    "teamRed": "Red",
+    "teamAutoHint": "Auto puts you on the smaller team.",
+    "joining": "Joining…",
+    "joinButton": "Join the game"
+  },
+  "status": {
+    "teamCorrect": "team correct",
+    "reconnecting": "Reconnecting",
+    "offline": "Offline"
+  },
+  "question": {
+    "questionOf": "Question {{current}} of {{total}}",
+    "yourProblem": "Your problem",
+    "waiting": "Waiting…"
+  },
+  "wait": {
+    "youreIn": "You're in!",
+    "lobbyBody": "You're on {{teamName}}. Waiting for your teacher to start the game.",
+    "getReady": "Get ready",
+    "countdownBody": "The first question is about to appear."
+  },
+  "lockout": {
+    "paused": "Paused",
+    "pausedBody": "Your teacher paused the game. The clock is stopped.",
+    "nextQuestion": "Next question coming",
+    "holdTight": "Hold tight.",
+    "teammateGotIt": "Teammate got it",
+    "teamLockedBody": "Your team already locked in this answer.",
+    "answerSent": "Answer sent",
+    "answerSentBody": "One attempt per question. Waiting for the next one.",
+    "doneForQuestion": "You're done for this question",
+    "waiting": "Waiting"
+  },
+  "feedback": {
+    "correct": "Correct!",
+    "incorrect": "Incorrect",
+    "incorrectGeneric": "Your answer was incorrect",
+    "streakReset": "Streak reset",
+    "notThisTime": "Not this time",
+    "tugStreak": "• {{count}} in a row"
+  },
+  "keypad": {
+    "ariaLabel": "Answer keypad",
+    "clear": "Clear",
+    "backspace": "Backspace",
+    "yourAnswer": "Your answer",
+    "tapNumbers": "Tap the numbers",
+    "lockItIn": "Lock it in"
+  },
+  "input": {
+    "choicesAria": "Answer choices",
+    "trueFalseAria": "True or false",
+    "true": "True",
+    "false": "False"
+  },
+  "timer": {
+    "ariaLabel": "Time remaining"
+  },
+  "results": {
+    "finalResult": "Final result",
+    "draw": "It's a draw",
+    "won": "Your team won!",
+    "lost": "Your team lost",
+    "correct": "Correct",
+    "missed": "Missed",
+    "accuracy": "Accuracy",
+    "teamScores": "Team scores",
+    "waitingScores": "Waiting for the final scores…",
+    "joinAnother": "Join another game"
+  }
+}

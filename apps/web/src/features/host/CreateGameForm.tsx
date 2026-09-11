@@ -1,11 +1,15 @@
-import { useId, useState, type ReactNode } from 'react';
+import { useEffect, useId, useState, type ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
+import { applyDocumentLanguage, i18n } from '../../i18n';
 import type {
   CreateGamePayload,
   Difficulty,
+  GameLanguage,
   GameModeId,
   OperationChoice,
   Subject,
 } from '@braintug/shared';
+import { GAME_LANGUAGES } from '@braintug/shared';
 import {
   DEFAULT_TRACK_METRES,
   DIFFICULTIES,
@@ -14,7 +18,6 @@ import {
   MIN_SECONDS_PER_QUESTION,
   MIN_TOTAL_QUESTIONS,
   OPERATION_CHOICES,
-  OPERATION_LABEL,
   isGeneratedSubject,
 } from '@braintug/shared';
 import { ModePicker } from './ModePicker';
@@ -28,12 +31,6 @@ export type CreateGameFormProps = {
   onCreate: (settings: CreateGamePayload) => void;
 };
 
-const DIFFICULTY_LABEL: Record<Difficulty, string> = {
-  easy: 'Easy',
-  medium: 'Medium',
-  hard: 'Hard',
-};
-
 /**
  * The teacher's setup screen.
  *
@@ -42,6 +39,12 @@ const DIFFICULTY_LABEL: Record<Difficulty, string> = {
  * revalidates: this is a convenience, not the guard.
  */
 export function CreateGameForm({ error, busy, onCreate }: CreateGameFormProps) {
+  const { t } = useTranslation(['host', 'common']);
+  const [language, setLanguage] = useState<GameLanguage>('en');
+
+  useEffect(() => {
+    void i18n.changeLanguage(language).then(() => applyDocumentLanguage(language));
+  }, [language]);
   const [mode, setMode] = useState<GameModeId>('tug_of_war');
   const [subject, setSubject] = useState<Subject>('math');
   const [operation, setOperation] = useState<OperationChoice>('mixed');
@@ -62,10 +65,8 @@ export function CreateGameForm({ error, busy, onCreate }: CreateGameFormProps) {
   return (
     <main className="mx-auto w-full max-w-2xl px-5 py-8">
       <header>
-        <h1 className="font-display text-3xl font-extrabold text-ink">New match</h1>
-        <p className="mt-1 text-sm font-semibold text-ink-muted">
-          Set it up here, then put the room code on the board.
-        </p>
+        <h1 className="font-display text-3xl font-extrabold text-ink">{t('host:create.title')}</h1>
+        <p className="mt-1 text-sm font-semibold text-ink-muted">{t('host:create.subtitle')}</p>
       </header>
 
       <form
@@ -74,6 +75,7 @@ export function CreateGameForm({ error, busy, onCreate }: CreateGameFormProps) {
           event.preventDefault();
           if (busy) return;
           onCreate({
+            language,
             mode,
             subject,
             operation,
@@ -91,16 +93,28 @@ export function CreateGameForm({ error, busy, onCreate }: CreateGameFormProps) {
           });
         }}
       >
+        <Field label={t('common:language.label')}>
+          <Segmented
+            label={t('common:language.label')}
+            options={GAME_LANGUAGES.map((value) => ({
+              value,
+              label: t(`common:language.${value}`),
+            }))}
+            value={language}
+            onChange={setLanguage}
+          />
+        </Field>
+
         <ModePicker value={mode} onChange={setMode} />
         <SubjectPicker value={subject} onChange={setSubject} />
 
         {isGeneratedSubject(subject) ? (
-          <Field label="Operation">
+          <Field label={t('host:create.operation')}>
             <Segmented
-              label="Operation"
+              label={t('host:create.operation')}
               options={OPERATION_CHOICES.map((choice) => ({
                 value: choice,
-                label: OPERATION_LABEL[choice],
+                label: t(`common:operations.${choice}`),
               }))}
               value={operation}
               onChange={setOperation}
@@ -108,29 +122,37 @@ export function CreateGameForm({ error, busy, onCreate }: CreateGameFormProps) {
           </Field>
         ) : null}
 
-        <Field label="Difficulty">
+        <Field label={t('host:create.difficulty')}>
           <Segmented
-            label="Difficulty"
-            options={DIFFICULTIES.map((value) => ({ value, label: DIFFICULTY_LABEL[value] }))}
+            label={t('host:create.difficulty')}
+            options={DIFFICULTIES.map((value) => ({
+              value,
+              label: t(`common:difficulties.${value}`),
+            }))}
             value={difficulty}
             onChange={setDifficulty}
           />
         </Field>
 
         <div className="grid gap-6 sm:grid-cols-2">
-          <Field label="Questions" hint={`${MIN_TOTAL_QUESTIONS}\u2013${MAX_TOTAL_QUESTIONS}`}>
+          <Field
+            label={t('host:create.questions')}
+            hint={`${MIN_TOTAL_QUESTIONS}\u2013${MAX_TOTAL_QUESTIONS}`}
+          >
             <Stepper
               value={totalQuestions}
               min={MIN_TOTAL_QUESTIONS}
               max={MAX_TOTAL_QUESTIONS}
               step={5}
               onChange={setTotalQuestions}
-              suffix="questions"
+              suffix={t('common:units.questions')}
+              fewerLabel={t('common:units.fewer', { unit: t('common:units.questions') })}
+              moreLabel={t('common:units.more', { unit: t('common:units.questions') })}
             />
           </Field>
 
           <Field
-            label="Time per question"
+            label={t('host:create.timePerQuestion')}
             hint={`${MIN_SECONDS_PER_QUESTION}\u2013${MAX_SECONDS_PER_QUESTION}s`}
           >
             <Stepper
@@ -139,7 +161,9 @@ export function CreateGameForm({ error, busy, onCreate }: CreateGameFormProps) {
               max={MAX_SECONDS_PER_QUESTION}
               step={5}
               onChange={setSecondsPerQuestion}
-              suffix="seconds"
+              suffix={t('common:units.seconds')}
+              fewerLabel={t('common:units.fewer', { unit: t('common:units.seconds') })}
+              moreLabel={t('common:units.more', { unit: t('common:units.seconds') })}
             />
           </Field>
         </div>
@@ -155,31 +179,31 @@ export function CreateGameForm({ error, busy, onCreate }: CreateGameFormProps) {
           />
         )}
 
-        <Field label="Team names" hint="Optional">
+        <Field label={t('host:create.teamNames')} hint={t('host:create.optional')}>
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
               <label htmlFor={blueId} className="text-xs font-bold text-blueteam-700">
-                Blue team
+                {t('host:create.blueTeam')}
               </label>
               <input
                 id={blueId}
                 value={blueName}
                 onChange={(event) => setBlueName(event.target.value)}
                 maxLength={24}
-                placeholder="Blue Tigers"
+                placeholder={t('host:create.placeholders.blueTeam')}
                 className="bt-focus mt-1 h-12 w-full rounded-card border-2 border-blueteam-200 bg-paper-card px-3 font-bold text-ink placeholder:text-ink-faint/60"
               />
             </div>
             <div>
               <label htmlFor={redId} className="text-xs font-bold text-redteam-700">
-                Red team
+                {t('host:create.redTeam')}
               </label>
               <input
                 id={redId}
                 value={redName}
                 onChange={(event) => setRedName(event.target.value)}
                 maxLength={24}
-                placeholder="Red Dragons"
+                placeholder={t('host:create.placeholders.redTeam')}
                 className="bt-focus mt-1 h-12 w-full rounded-card border-2 border-redteam-200 bg-paper-card px-3 font-bold text-ink placeholder:text-ink-faint/60"
               />
             </div>
@@ -200,7 +224,7 @@ export function CreateGameForm({ error, busy, onCreate }: CreateGameFormProps) {
           disabled={busy}
           className="bt-focus h-14 rounded-card bg-ink font-display text-lg font-extrabold text-white shadow-key transition active:translate-y-px disabled:opacity-30"
         >
-          {busy ? 'Creating\u2026' : 'Create match'}
+          {busy ? t('host:create.creating') : t('host:create.submit')}
         </button>
       </form>
     </main>
@@ -280,6 +304,8 @@ function Stepper({
   max,
   step,
   suffix,
+  fewerLabel,
+  moreLabel,
   onChange,
 }: {
   value: number;
@@ -287,19 +313,21 @@ function Stepper({
   max: number;
   step: number;
   suffix: string;
+  fewerLabel: string;
+  moreLabel: string;
   onChange: (next: number) => void;
 }) {
   const clamp = (next: number): number => Math.min(max, Math.max(min, next));
 
   return (
     <div className="flex items-center gap-2">
-      <StepButton label={`Fewer ${suffix}`} onClick={() => onChange(clamp(value - step))}>
+      <StepButton label={fewerLabel} onClick={() => onChange(clamp(value - step))}>
         &minus;
       </StepButton>
       <output className="tabular flex-1 rounded-card border-2 border-paper-line bg-paper-card py-2.5 text-center font-display text-lg font-extrabold text-ink">
         {value} <span className="text-xs font-bold text-ink-faint">{suffix}</span>
       </output>
-      <StepButton label={`More ${suffix}`} onClick={() => onChange(clamp(value + step))}>
+      <StepButton label={moreLabel} onClick={() => onChange(clamp(value + step))}>
         +
       </StepButton>
     </div>

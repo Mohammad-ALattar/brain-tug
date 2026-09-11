@@ -1,0 +1,84 @@
+{
+  "create": {
+    "title": "New match",
+    "subtitle": "Set it up here, then put the room code on the board.",
+    "operation": "Operation",
+    "difficulty": "Difficulty",
+    "questions": "Questions",
+    "timePerQuestion": "Time per question",
+    "teamNames": "Team names",
+    "optional": "Optional",
+    "blueTeam": "Blue team",
+    "redTeam": "Red team",
+    "placeholders": {
+      "blueTeam": "Blue Tigers",
+      "redTeam": "Red Dragons"
+    },
+    "submit": "Create match",
+    "creating": "Creating…"
+  },
+  "dashboard": {
+    "title": "Match in progress"
+  },
+  "roomCode": {
+    "joinAt": "Students join at {{host}}/play",
+    "copyLink": "Copy join link",
+    "linkCopied": "Link copied",
+    "openArena": "Open classroom display",
+    "copiedAnnouncement": "Join link copied to the clipboard."
+  },
+  "lobby": {
+    "players": "Players ({{count}})",
+    "waiting": "Waiting for students",
+    "uneven": "Teams are uneven by {{gap}}",
+    "balanced": "Teams are balanced",
+    "nobodyYet": "Nobody yet",
+    "movePlayer": "Move {{name}} to {{team}} team",
+    "removePlayer": "Remove {{name}}",
+    "teamBlue": "blue",
+    "teamRed": "red"
+  },
+  "controls": {
+    "title": "Controls",
+    "startMatch": "Start match",
+    "needBothTeams": "Both teams need at least one player.",
+    "countingIn": "Counting the class in…",
+    "pause": "Pause",
+    "resume": "Resume",
+    "skipQuestion": "Skip question",
+    "endConfirm": "End the match now and show the results?",
+    "endYes": "Yes, end it",
+    "keepPlaying": "Keep playing",
+    "endMatch": "End match"
+  },
+  "tugOfWar": {
+    "distanceToWin": "Distance to win",
+    "short": "Short",
+    "shortHint": "Half the rope",
+    "standard": "Standard",
+    "standardHint": "Most of the rope",
+    "full": "Full",
+    "fullHint": "The whole rope"
+  },
+  "brainRace": {
+    "trackLength": "Track length",
+    "sprint": "Sprint",
+    "standard": "Standard",
+    "marathon": "Marathon",
+    "finishersToWin": "Finishers to win",
+    "perTeam": "Per team",
+    "autoHint": "Auto uses half of the largest team when the race starts.",
+    "auto": "Auto",
+    "fewerFinishers": "Fewer finishers required",
+    "moreFinishers": "More finishers required",
+    "resetAuto": "Reset to auto",
+    "setManually": "Set manually"
+  },
+  "arenaJoin": {
+    "title": "Classroom display",
+    "subtitle": "Enter the room code shown on the teacher's dashboard.",
+    "roomCode": "Room code",
+    "placeholder": "ABC-123",
+    "submit": "Open display"
+  }
+}

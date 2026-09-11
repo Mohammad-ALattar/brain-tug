@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { HostToken, PublicPlayer, TeamId } from '@braintug/shared';
 import { TEAM_THEME } from '../../design/teamTheme';
 import { Chip } from '../../components/Chip';
@@ -9,15 +10,8 @@ export type LobbyRosterProps = {
   hostToken: HostToken;
 };
 
-/**
- * The lobby roster with team balancing.
- *
- * Moving a player is a host command rather than a local edit, because team
- * membership decides which questions a phone receives; only the server can
- * change it. It is refused once the game starts, which is why the move controls
- * disappear rather than erroring.
- */
 export function LobbyRoster({ hostToken }: LobbyRosterProps) {
+  const { t } = useTranslation('host');
   const players = usePlayers();
   const status = useStatus();
   const canBalance = status === 'lobby';
@@ -30,14 +24,14 @@ export function LobbyRoster({ hostToken }: LobbyRosterProps) {
     <section>
       <div className="flex items-baseline justify-between">
         <h2 className="text-[11px] font-extrabold uppercase tracking-[0.18em] text-ink-faint">
-          Players ({players.length})
+          {t('lobby.players', { count: players.length })}
         </h2>
         {players.length === 0 ? (
-          <Chip tone="neutral">Waiting for students</Chip>
+          <Chip tone="neutral">{t('lobby.waiting')}</Chip>
         ) : gap > 1 ? (
-          <Chip tone="warn">Teams are uneven by {gap}</Chip>
+          <Chip tone="warn">{t('lobby.uneven', { gap })}</Chip>
         ) : (
-          <Chip tone="good">Teams are balanced</Chip>
+          <Chip tone="good">{t('lobby.balanced')}</Chip>
         )}
       </div>
 
@@ -60,9 +54,11 @@ function TeamColumn({
   hostToken: HostToken;
   canBalance: boolean;
 }) {
+  const { t } = useTranslation(['host', 'common']);
   const theme = TEAM_THEME[teamId];
   const name = useTeamName(teamId);
   const other: TeamId = teamId === 'blue' ? 'red' : 'blue';
+  const otherLabel = t(`lobby.team${other === 'blue' ? 'Blue' : 'Red'}`);
 
   return (
     <div className={`rounded-panel border ${theme.border} ${theme.tint} p-3`}>
@@ -72,7 +68,9 @@ function TeamColumn({
       </div>
 
       {players.length === 0 ? (
-        <p className="px-1 py-4 text-center text-xs font-semibold text-ink-faint">Nobody yet</p>
+        <p className="px-1 py-4 text-center text-xs font-semibold text-ink-faint">
+          {t('lobby.nobodyYet')}
+        </p>
       ) : (
         <ul className="mt-2 flex flex-col gap-1.5">
           {players.map((player) => (
@@ -89,15 +87,15 @@ function TeamColumn({
               <span className="min-w-0 flex-1 truncate text-sm font-bold text-ink">
                 {player.name}
                 {!player.connected ? (
-                  <span className="ml-1.5 text-[10px] font-bold uppercase text-ink-faint">
-                    offline
+                  <span className="ms-1.5 text-[10px] font-bold uppercase text-ink-faint">
+                    {t('common:offline')}
                   </span>
                 ) : null}
               </span>
 
               {canBalance ? (
                 <RosterButton
-                  label={`Move ${player.name} to ${other} team`}
+                  label={t('lobby.movePlayer', { name: player.name, team: otherLabel })}
                   onClick={() =>
                     void request('move_player', {
                       hostToken,
@@ -111,7 +109,7 @@ function TeamColumn({
               ) : null}
 
               <RosterButton
-                label={`Remove ${player.name}`}
+                label={t('lobby.removePlayer', { name: player.name })}
                 danger
                 onClick={() =>
                   void request('remove_player', { hostToken, playerId: player.id }).catch(

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../../../store/gameStore';
 import {
   useLastProgress,
@@ -15,6 +16,7 @@ import { formatRaceStreakPresentation } from './raceFeedback';
  * never replay after reattaching.
  */
 export function RaceStreakFlash() {
+  const { t } = useTranslation('game');
   const flash = useLastProgress();
   const players = usePlayers();
   const resolution = useLastResolution();
@@ -33,9 +35,9 @@ export function RaceStreakFlash() {
   if (resolution && resolution.index === questionIndex) return null;
 
   const player = players.find((entry) => entry.id === flash.playerId);
-  const presentation = formatRaceStreakPresentation({
+  const presentation = formatRaceStreakPresentation(t, {
     flash,
-    playerName: player?.name ?? 'Player',
+    playerName: player?.name ?? t('arena.race.defaultPlayer'),
   });
   if (!presentation) return null;
 
@@ -46,7 +48,7 @@ export function RaceStreakFlash() {
       aria-live="polite"
       className="pointer-events-none absolute bottom-4 left-4 z-20 animate-[raceGainPop_0.45s_ease-out_both]"
     >
-      <div className="rounded-panel border border-amber-300/80 bg-amber-50/95 px-4 py-3 text-left shadow-panel backdrop-blur-sm">
+      <div className="rounded-panel border border-amber-300/80 bg-amber-50/95 px-4 py-3 text-start shadow-panel backdrop-blur-sm">
         <p className="font-display text-sm font-extrabold uppercase tracking-[0.14em] text-amber-900">
           {presentation.headline}
         </p>

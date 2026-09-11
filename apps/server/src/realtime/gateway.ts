@@ -128,6 +128,7 @@ export function attachGateway(
       const roomCode = allocateRoomCode(store);
 
       let session = createGame({
+        language: options.language,
         mode: options.mode,
         subject: options.subject,
         operation: options.operation,
@@ -149,6 +150,7 @@ export function attachGateway(
           {
             subject: options.subject,
             difficulty: options.difficulty,
+            language: options.language,
             operation: options.operation,
           },
           { banks: QUESTION_BANKS, ids: defaultIdFactory },

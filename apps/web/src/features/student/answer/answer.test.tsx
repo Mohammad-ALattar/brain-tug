@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
-import { cleanup, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { initTestI18n, renderWithI18n } from '../../../test/i18n';
 import type { AnswerOutcome, PublicQuestion, QuestionId } from '@braintug/shared';
 import { makeState, playerOn, resetStore, seedStore } from '../../../test/fixtures';
 import { StudentController } from '../StudentController';
@@ -24,6 +25,10 @@ const ACK: AnswerOutcome = {
   elapsedMs: 400,
 };
 
+beforeEach(async () => {
+  await initTestI18n('en');
+});
+
 afterEach(() => {
   cleanup();
   resetStore();
@@ -43,7 +48,7 @@ function withQuestion(question: PublicQuestion) {
   };
   const me = playerOn(next, 'blue', 0);
   seedStore(next, { playerId: me.id, teamId: 'blue' });
-  render(<StudentController teamId="blue" playerName={me.name} onLeave={vi.fn()} />);
+  renderWithI18n(<StudentController teamId="blue" playerName={me.name} onLeave={vi.fn()} />);
   return { state: next, me };
 }
 

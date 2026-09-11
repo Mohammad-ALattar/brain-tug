@@ -6,9 +6,11 @@ export * from './domain/game.js';
 export * from './domain/session.js';
 export * from './domain/result.js';
 
+export * from './content/language.js';
 export * from './content/subject.js';
 export * from './content/question.js';
 export * from './content/answer.js';
+export * from './content/localize.js';
 export * from './content/source.js';
 export * from './content/dealer.js';
 export * from './content/random.js';

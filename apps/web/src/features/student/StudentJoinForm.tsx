@@ -1,4 +1,5 @@
 import { useId, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { TeamId } from '@braintug/shared';
 import { TEAM_THEME } from '../../design/teamTheme';
 
@@ -31,6 +32,7 @@ export function StudentJoinForm({
   busy,
   onJoin,
 }: StudentJoinFormProps) {
+  const { t } = useTranslation('student');
   const [roomCode, setRoomCode] = useState(initialRoomCode);
   const [name, setName] = useState(initialName);
   const [teamId, setTeamId] = useState<TeamId | 'auto'>('auto');
@@ -39,14 +41,20 @@ export function StudentJoinForm({
   const nameId = useId();
   const ready = roomCode.trim().length >= 3 && name.trim().length >= 1;
 
+  const teamLabels: Record<'auto' | TeamId, string> = {
+    auto: t('join.teamAuto'),
+    blue: t('join.teamBlue'),
+    red: t('join.teamRed'),
+  };
+
   return (
     <main className="flex min-h-full flex-col justify-center bg-paper px-5 py-8">
       <div className="mx-auto w-full max-w-sm">
         <h1 className="text-center font-display text-3xl font-extrabold text-ink">
-          Brain Tug
+          {t('join.title')}
         </h1>
         <p className="mt-1 text-center text-sm font-semibold text-ink-muted">
-          Enter the code on the board to join your team.
+          {t('join.subtitle')}
         </p>
 
         <form
@@ -66,21 +74,19 @@ export function StudentJoinForm({
               htmlFor={codeId}
               className="text-[11px] font-extrabold uppercase tracking-[0.18em] text-ink-faint"
             >
-              Room code
+              {t('join.roomCode')}
             </label>
             <input
               id={codeId}
               value={roomCode}
               onChange={(event) => setRoomCode(event.target.value.toUpperCase())}
-              // The code alphabet is letters and digits, so `characters` gets the
-              // right phone keyboard without the autocorrect that `text` invites.
               inputMode="text"
               autoCapitalize="characters"
               autoComplete="off"
               autoCorrect="off"
               spellCheck={false}
               maxLength={12}
-              placeholder="ABC-123"
+              placeholder={t('join.roomCodePlaceholder')}
               className="bt-focus tabular mt-1.5 h-16 w-full rounded-card border-2 border-paper-line bg-paper-card text-center font-display text-3xl font-extrabold uppercase tracking-[0.15em] text-ink placeholder:text-ink-faint/50"
             />
           </div>
@@ -90,7 +96,7 @@ export function StudentJoinForm({
               htmlFor={nameId}
               className="text-[11px] font-extrabold uppercase tracking-[0.18em] text-ink-faint"
             >
-              Your name
+              {t('join.yourName')}
             </label>
             <input
               id={nameId}
@@ -98,20 +104,18 @@ export function StudentJoinForm({
               onChange={(event) => setName(event.target.value)}
               autoComplete="given-name"
               maxLength={20}
-              placeholder="e.g. Sam"
+              placeholder={t('join.namePlaceholder')}
               className="bt-focus mt-1.5 h-14 w-full rounded-card border-2 border-paper-line bg-paper-card px-4 font-display text-xl font-bold text-ink placeholder:text-ink-faint/50"
             />
           </div>
 
           <fieldset>
             <legend className="text-[11px] font-extrabold uppercase tracking-[0.18em] text-ink-faint">
-              Team
+              {t('join.team')}
             </legend>
             <div className="mt-1.5 grid grid-cols-3 gap-2">
               {(['auto', 'blue', 'red'] as const).map((option) => {
                 const selected = teamId === option;
-                const label =
-                  option === 'auto' ? 'Auto' : option === 'blue' ? 'Blue' : 'Red';
                 const selectedClass =
                   option === 'auto'
                     ? 'border-ink bg-ink text-white'
@@ -129,13 +133,13 @@ export function StudentJoinForm({
                         : 'border-paper-line bg-paper-card text-ink-muted',
                     ].join(' ')}
                   >
-                    {label}
+                    {teamLabels[option]}
                   </button>
                 );
               })}
             </div>
             <p className="mt-1.5 text-xs font-semibold text-ink-faint">
-              Auto puts you on the smaller team.
+              {t('join.teamAutoHint')}
             </p>
           </fieldset>
 
@@ -150,7 +154,7 @@ export function StudentJoinForm({
             disabled={!ready || busy}
             className="bt-focus h-16 touch-manipulation rounded-card bg-ink font-display text-xl font-extrabold text-white shadow-key transition active:translate-y-px disabled:opacity-30"
           >
-            {busy ? 'Joining\u2026' : 'Join the game'}
+            {busy ? t('join.joining') : t('join.joinButton')}
           </button>
         </form>
       </div>

@@ -1,3 +1,4 @@
+import type { GameLanguage } from './language.js';
 import { OPTION_IDS, type OptionId, type Question } from './question.js';
 
 /** Longest submission any question type accepts, as a cheap abuse guard. */
@@ -9,7 +10,25 @@ const MAX_SUBMISSION_LENGTH = 64;
  * `"  The   Nile!"` and `"the nile"` both reduce to `nile` once articles are
  * stripped by the caller's accepted list.
  */
-export function normaliseTextAnswer(raw: string): string {
+const ARABIC_DIACRITICS = /[\u064B-\u065F\u0670\u06D6-\u06ED]/g;
+
+/** Folds Arabic script variants children might reasonably type. */
+export function normaliseArabicTextAnswer(raw: string): string {
+  return raw
+    .replace(ARABIC_DIACRITICS, '')
+    .replace(/[\u0622\u0623\u0625]/g, '\u0627')
+    .replace(/\u0649/g, '\u064A')
+    .replace(/\u0629/g, '\u0647')
+    .replace(/[.,!?;:'"،؛؟]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+export function normaliseTextAnswer(raw: string, language: GameLanguage = 'en'): string {
+  if (language === 'ar') {
+    return normaliseArabicTextAnswer(raw);
+  }
+
   return raw
     .normalize('NFD')
     // Combining marks, so `café` matches `cafe`.
@@ -78,12 +97,15 @@ function checkTyped(question: Question & { type: 'type_answer' }, raw: string): 
     };
   }
 
-  const value = normaliseTextAnswer(raw);
+  const language = question.locale ?? 'en';
+  const value = normaliseTextAnswer(raw, language);
   if (value.length === 0) return { status: 'malformed' };
   return {
     status: 'checked',
     value,
-    correct: question.accepted.some((accepted) => normaliseTextAnswer(accepted) === value),
+    correct: question.accepted.some(
+      (accepted) => normaliseTextAnswer(accepted, language) === value,
+    ),
   };
 }
 
@@ -110,12 +132,15 @@ export function checkAnswer(question: Question, raw: string | number): AnswerChe
  * resolved, never while students can still answer.
  */
 export function revealAnswer(question: Question): string {
+  const language = question.locale ?? 'en';
+
   switch (question.type) {
     case 'multiple_choice': {
       const option = question.options.find((o) => o.id === question.correctOptionId);
       return option ? option.text : question.correctOptionId.toUpperCase();
     }
     case 'true_false':
+      if (language === 'ar') return question.correct ? 'صحيح' : 'خطأ';
       return question.correct ? 'True' : 'False';
     case 'type_answer':
       return question.accepted[0] ?? '';

@@ -1,0 +1,84 @@
+{
+  "create": {
+    "title": "مباراة جديدة",
+    "subtitle": "اضبط الإعدادات هنا، ثم اعرض رمز الغرفة على السبورة.",
+    "operation": "العملية",
+    "difficulty": "الصعوبة",
+    "questions": "الأسئلة",
+    "timePerQuestion": "الوقت لكل سؤال",
+    "teamNames": "أسماء الفرق",
+    "optional": "اختياري",
+    "blueTeam": "الفريق الأزرق",
+    "redTeam": "الفريق الأحمر",
+    "placeholders": {
+      "blueTeam": "نمور زرقاء",
+      "redTeam": "تنانين حمراء"
+    },
+    "submit": "إنشاء مباراة",
+    "creating": "جارٍ الإنشاء…"
+  },
+  "dashboard": {
+    "title": "المباراة جارية"
+  },
+  "roomCode": {
+    "joinAt": "ينضم الطلاب عبر {{host}}/play",
+    "copyLink": "نسخ رابط الانضمام",
+    "linkCopied": "تم نسخ الرابط",
+    "openArena": "فتح شاشة الصف",
+    "copiedAnnouncement": "تم نسخ رابط الانضمام."
+  },
+  "lobby": {
+    "players": "اللاعبون ({{count}})",
+    "waiting": "بانتظار الطلاب",
+    "uneven": "الفرق غير متوازنة بفارق {{gap}}",
+    "balanced": "الفرق متوازنة",
+    "nobodyYet": "لا أحد بعد",
+    "movePlayer": "نقل {{name}} إلى فريق {{team}}",
+    "removePlayer": "إزالة {{name}}",
+    "teamBlue": "الأزرق",
+    "teamRed": "الأحمر"
+  },
+  "controls": {
+    "title": "التحكم",
+    "startMatch": "بدء المباراة",
+    "needBothTeams": "يجب أن يكون في كل فريق لاعب واحد على الأقل.",
+    "countingIn": "العد التنازلي للصف…",
+    "pause": "إيقاف",
+    "resume": "متابعة",
+    "skipQuestion": "تخطي السؤال",
+    "endConfirm": "إنهاء المباراة الآن وعرض النتائج؟",
+    "endYes": "نعم، أنهِها",
+    "keepPlaying": "متابعة اللعب",
+    "endMatch": "إنهاء المباراة"
+  },
+  "tugOfWar": {
+    "distanceToWin": "المسافة للفوز",
+    "short": "قصير",
+    "shortHint": "نصف الحبل",
+    "standard": "عادي",
+    "standardHint": "معظم الحبل",
+    "full": "كامل",
+    "fullHint": "الحبل كاملاً"
+  },
+  "brainRace": {
+    "trackLength": "طول المسار",
+    "sprint": "سريع",
+    "standard": "عادي",
+    "marathon": "ماراثون",
+    "finishersToWin": "عدد المتأهّلين للفوز",
+    "perTeam": "لكل فريق",
+    "autoHint": "تلقائي: نصف أكبر فريق عند بدء السباق.",
+    "auto": "تلقائي",
+    "fewerFinishers": "متأهّلون أقل",
+    "moreFinishers": "متأهّلون أكثر",
+    "resetAuto": "إعادة للتلقائي",
+    "setManually": "تعيين يدوي"
+  },
+  "arenaJoin": {
+    "title": "شاشة الصف",
+    "subtitle": "أدخل رمز الغرفة الظاهر على لوحة المعلّم.",
+    "roomCode": "رمز الغرفة",
+    "placeholder": "ABC-123",
+    "submit": "فتح الشاشة"
+  }
+}

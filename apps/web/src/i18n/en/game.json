@@ -1,0 +1,160 @@
+{
+  "modes": {
+    "tug_of_war": {
+      "label": "Tug of War",
+      "blurb": "Two teams, one rope. Correct answers drag it towards your side.",
+      "countdownCue": "Take hold of the rope",
+      "targetReached": "Rope pulled across the line",
+      "wonBy": "pulled the rope all the way over",
+      "topContributor": "Top puller",
+      "contributionColumn": "Pulled",
+      "level": "Rope at the centre",
+      "rejectedTitle": "No pull",
+      "roundStillOpen": "Your teammates can still answer this one.",
+      "correctGain": "You pulled the rope {{metres}}m",
+      "finishLine": "Rope finished {{metres}}m from centre"
+    },
+    "brain_race": {
+      "label": "Brain Race",
+      "blurb": "Each student races their own lane. First finishers win for the team.",
+      "countdownCue": "Get to the start line",
+      "targetReached": "First across the finish line",
+      "wonBy": "crossed the finish line first",
+      "topContributor": "Top racer",
+      "contributionColumn": "Distance",
+      "level": "Lanes level",
+      "rejectedTitle": "No distance",
+      "roundStillOpen": "Others can still answer this question.",
+      "correctGain": "Your racer moved +{{metres}}m",
+      "finishLine": "Finished in {{metres}}m"
+    }
+  },
+  "status": {
+    "lobby": "In lobby",
+    "countdown": "Starting",
+    "active": "Live",
+    "paused": "Paused",
+    "finished": "Finished"
+  },
+  "fieldLabels": {
+    "game": "Game",
+    "subject": "Subject"
+  },
+  "countdown": {
+    "getReady": "Get ready",
+    "go": "Go!"
+  },
+  "arena": {
+    "header": {
+      "player": "player",
+      "players": "players",
+      "score": "score",
+      "scoreAria": "{{name}} score",
+      "correct": "correct",
+      "correctAria": "{{name}} correct answers",
+      "finishers": "finishers",
+      "finishersAria": "{{name}} finishers",
+      "waitingLobby": "Waiting in lobby",
+      "question": "Question {{current}} / {{total}}"
+    },
+    "controls": {
+      "room": "room",
+      "syncActive": "Classroom sync active",
+      "connecting": "Connecting",
+      "reconnecting": "Reconnecting",
+      "disconnected": "Disconnected",
+      "devices_one": "{{count}} device connected",
+      "devices_other": "{{count}} devices connected",
+      "startMatch": "Start match",
+      "pause": "Pause",
+      "resume": "Resume",
+      "skip": "Skip",
+      "end": "End",
+      "soundOn": "Sound on",
+      "soundOff": "Sound off",
+      "resumeMatch": "Resume match",
+      "pauseMatch": "Pause match",
+      "skipQuestion": "Skip question",
+      "endGame": "End game",
+      "audioOn": "Audio on",
+      "audioOff": "Audio off",
+      "displayOnly": "Display only"
+    },
+    "race": {
+      "finish": "Finish",
+      "leading": "Leading",
+      "finished": "Finished",
+      "overtake": "Overtake",
+      "finishers": "Finishers",
+      "correctAnswer_one": "{{count}} correct answer",
+      "correctAnswer_other": "{{count}} correct answers",
+      "sharedQuestion": "Shared question",
+      "waitingToStart": "Waiting to start",
+      "getReady": "Get ready",
+      "recentGains": "Recent gains",
+      "waitingFirstAnswer": "Waiting for the first correct answer.",
+      "nextQuestionComing": "Next question coming",
+      "answerProgress": "{{answered}} / {{seated}} answered",
+      "metresGain": "+{{metres}}m",
+      "streakHeadline": "🔥 {{count}} STREAK",
+      "streakCheer": "{{name}} is on fire!",
+      "streakLabel": "🔥 {{count}} streak",
+      "defaultPlayer": "Player",
+      "roundResolution": {
+        "all_attempted": "Everyone has answered",
+        "timeout": "Time's up",
+        "skipped": "Question skipped",
+        "both_locked": "Both teams locked in",
+        "victory": "Finish line reached"
+      }
+    },
+    "tug": {
+      "ropeCentre": "Rope at centre — all square",
+      "pulling": "{{name}} pulling!",
+      "scoreAdvantage": "score advantage +{{count}}",
+      "advantage": "{{metres}}m advantage",
+      "center": "center 0m",
+      "answerLocked": "Answer locked: {{value}}",
+      "answerInProgress": "Answer in progress",
+      "confirmed": "Confirmed",
+      "typing": "Typing…",
+      "awaitingAnswer": "Awaiting answer",
+      "mirroredKeypad": "Mirrored from team phones",
+      "leadAheadMetres": "<0>{{name}}</0> ahead by <1>{{metres}}m</1>"
+    },
+    "liveBoard": {
+      "title": "Live",
+      "questionOf": "Question {{current}} of {{total}}",
+      "questionCount": "{{total}} questions",
+      "devicesConnected": "{{connected}} of {{total}} devices connected",
+      "streak": "streak {{count}}",
+      "aheadByFinishers_one": "<0>{{name}}</0> ahead by <1>{{gap}} finisher</1>",
+      "aheadByFinishers_other": "<0>{{name}}</0> ahead by <1>{{gap}} finishers</1>",
+      "aheadByMetres": "<0>{{name}}</0> ahead by <1>{{metres}}m</1>",
+      "correctCount_one": "{{count}} correct answer",
+      "correctCount_other": "{{count}} correct answers"
+    }
+  },
+  "results": {
+    "questionsExhausted": "All questions played",
+    "endedByTeacher": "Match ended by the teacher",
+    "ledAfterQuestions": "led after every question",
+    "ledWhenEnded": "led when you ended the match",
+    "perfectDraw": "A perfect draw",
+    "teamWins": "{{name}} win!",
+    "matchResult": "Match result",
+    "bothTeamsLevel": "Both teams finished level.",
+    "theyWon": "They {{reason}}.",
+    "matchOver": "Match over",
+    "draw": "A draw",
+    "teamWinShort": "{{name}} win",
+    "questionsPlayed": "{{played}} of {{total}} questions played",
+    "topContributorCorrect": "({{count}} correct)",
+    "stats": {
+      "correct": "Correct",
+      "incorrect": "Incorrect",
+      "accuracy": "Accuracy",
+      "bestStreak": "Best streak"
+    }
+  }
+}

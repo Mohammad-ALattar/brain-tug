@@ -1,5 +1,6 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
-import { render, screen, cleanup } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { screen, cleanup } from '@testing-library/react';
+import { initTestI18n, renderWithI18n } from '../../test/i18n';
 import userEvent from '@testing-library/user-event';
 import { buildGameResult, ropeToMetres, type PublicQuestion, type QuestionId } from '@braintug/shared';
 import { T0 } from '@braintug/shared/testing';
@@ -16,6 +17,10 @@ import { TopGameHeader } from './shell/TopGameHeader';
 import { TugOfWarArena } from './modes/tugOfWar/TugOfWarArena';
 import { VictoryScreen } from './shell/VictoryScreen';
 
+beforeEach(async () => {
+  await initTestI18n('en');
+});
+
 afterEach(() => {
   cleanup();
   resetStore();
@@ -26,7 +31,7 @@ describe('QuestionCard', () => {
     const state = makeState();
     seedStore(state);
 
-    render(<QuestionCard teamId="blue" />);
+    renderWithI18n(<QuestionCard teamId="blue" />);
 
     expect(screen.getByText(/current problem/i)).toBeDefined();
     expect(screen.getByText(new RegExp(state.currentQuestion!.blue.prompt))).toBeDefined();
@@ -36,8 +41,8 @@ describe('QuestionCard', () => {
     const state = makeState();
     seedStore(state);
 
-    const { container: blue } = render(<QuestionCard teamId="blue" />);
-    const { container: red } = render(<QuestionCard teamId="red" />);
+    const { container: blue } = renderWithI18n(<QuestionCard teamId="blue" />);
+    const { container: red } = renderWithI18n(<QuestionCard teamId="red" />);
 
     expect(blue.textContent).toContain(state.currentQuestion!.blue.prompt);
     expect(red.textContent).toContain(state.currentQuestion!.red.prompt);
@@ -48,7 +53,7 @@ describe('QuestionCard', () => {
     const state = makeState();
     seedStore(state);
 
-    const { container } = render(<QuestionCard teamId="blue" />);
+    const { container } = renderWithI18n(<QuestionCard teamId="blue" />);
 
     // The projection has no answer field at all, so there is nothing to leak.
     expect(state.currentQuestion!.blue).not.toHaveProperty('answer');
@@ -75,7 +80,7 @@ describe('QuestionCard', () => {
       currentQuestion: { blue: question, red: question },
     });
 
-    const { container } = render(<TeamPanel teamId="blue" terminalNumber={1} />);
+    const { container } = renderWithI18n(<TeamPanel teamId="blue" terminalNumber={1} />);
 
     expect(screen.getByText(/which planet is known as the red planet/i)).toBeDefined();
     expect(screen.getByText('Mars')).toBeDefined();
@@ -89,7 +94,7 @@ describe('AnswerDisplay', () => {
     seedStore(makeState());
     useGameStore.getState().applyDraft('blue', '42');
 
-    const { container } = render(<AnswerDisplay teamId="blue" />);
+    const { container } = renderWithI18n(<AnswerDisplay teamId="blue" />);
 
     expect(screen.getByText(/typing/i)).toBeDefined();
     // Two digits typed, two dots shown, and the digits themselves absent.
@@ -101,7 +106,7 @@ describe('AnswerDisplay', () => {
     const state = makeState({ lockedTeams: ['blue'] });
     seedStore(state);
 
-    render(<AnswerDisplay teamId="blue" />);
+    renderWithI18n(<AnswerDisplay teamId="blue" />);
 
     const locked = state.round!.teams.blue.revealedAnswer;
     expect(locked).not.toBeNull();
@@ -111,7 +116,7 @@ describe('AnswerDisplay', () => {
 
   it('shows an empty slot before anyone types', () => {
     seedStore(makeState());
-    render(<AnswerDisplay teamId="red" />);
+    renderWithI18n(<AnswerDisplay teamId="red" />);
     expect(screen.getByText(/awaiting answer/i)).toBeDefined();
   });
 
@@ -119,7 +124,7 @@ describe('AnswerDisplay', () => {
     seedStore(makeState());
     useGameStore.getState().applyDraft('blue', '42');
 
-    const { container } = render(<AnswerDisplay teamId="blue" maskWhileTyping={false} />);
+    const { container } = renderWithI18n(<AnswerDisplay teamId="blue" maskWhileTyping={false} />);
 
     expect(container.textContent).toContain('42');
     expect(container.textContent).not.toContain('\u2022');
@@ -129,7 +134,7 @@ describe('AnswerDisplay', () => {
 describe('MirroredKeypad', () => {
   it('renders every key from the reference layout', () => {
     seedStore(makeState());
-    const { container } = render(<MirroredKeypad teamId="blue" />);
+    const { container } = renderWithI18n(<MirroredKeypad teamId="blue" />);
 
     for (const key of ['1', '5', '9', '0', 'C']) {
       expect(container.textContent).toContain(key);
@@ -138,7 +143,7 @@ describe('MirroredKeypad', () => {
 
   it('exposes no interactive controls at all', () => {
     seedStore(makeState());
-    const { container } = render(<MirroredKeypad teamId="blue" />);
+    const { container } = renderWithI18n(<MirroredKeypad teamId="blue" />);
 
     // The classroom display has no input role, so there is nothing to press.
     expect(container.querySelectorAll('button')).toHaveLength(0);
@@ -149,7 +154,7 @@ describe('MirroredKeypad', () => {
   it('dispatches nothing when a key is clicked', async () => {
     seedStore(makeState());
     const socketSpy = vi.fn();
-    const { container } = render(<MirroredKeypad teamId="blue" />);
+    const { container } = renderWithI18n(<MirroredKeypad teamId="blue" />);
 
     const keys = container.querySelectorAll('div.grid > div');
     expect(keys.length).toBeGreaterThan(0);
@@ -169,7 +174,7 @@ describe('MirroredKeypad', () => {
     seedStore(makeState());
     useGameStore.getState().applyDraft('blue', '17');
 
-    const { container } = render(<MirroredKeypad teamId="blue" />);
+    const { container } = renderWithI18n(<MirroredKeypad teamId="blue" />);
     const highlighted = container.querySelectorAll('.bg-blueteam-600');
 
     // Exactly the last key typed is highlighted.
@@ -181,7 +186,7 @@ describe('MirroredKeypad', () => {
 describe('TopGameHeader', () => {
   it('shows the shared question counter and both scores', () => {
     seedStore(makeState({ totalQuestions: 20 }));
-    render(<TopGameHeader />);
+    renderWithI18n(<TopGameHeader />);
 
     expect(screen.getByText(/question 1 \/ 20/i)).toBeDefined();
     expect(screen.getAllByText(/score/i).length).toBe(2);
@@ -189,7 +194,7 @@ describe('TopGameHeader', () => {
 
   it('reflects a score after a pull', () => {
     seedStore(makeState({ lockedTeams: ['blue'] }));
-    render(<TopGameHeader />);
+    renderWithI18n(<TopGameHeader />);
 
     // One correct answer for blue.
     expect(screen.getByText('1')).toBeDefined();
@@ -199,7 +204,7 @@ describe('TopGameHeader', () => {
     const state = makeState();
     seedStore({ ...state, status: 'lobby', currentQuestionIndex: -1 });
 
-    render(<TopGameHeader />);
+    renderWithI18n(<TopGameHeader />);
     expect(screen.getByText(/waiting in lobby/i)).toBeDefined();
   });
 });
@@ -209,13 +214,13 @@ describe('TugOfWarArena across rope positions', () => {
 
   it.each(positions)('renders at rope position %s', (ropePosition) => {
     seedStore(makeState({ ropePosition }));
-    const { container } = render(<TugOfWarArena />);
+    const { container } = renderWithI18n(<TugOfWarArena />);
     expect(container.firstChild).toBeTruthy();
   });
 
   it('positions the rope from the CSS custom property, never an inline transform', () => {
     seedStore(makeState({ ropePosition: 0.5 }));
-    const { container } = render(<TugOfWarArena />);
+    const { container } = renderWithI18n(<TugOfWarArena />);
 
     // The transform lives in `.bt-rope-track` and reads `--rope-pos`, which
     // `useArenaMotion` writes. An inline transform here would mean rope motion
@@ -228,7 +233,7 @@ describe('TugOfWarArena across rope positions', () => {
 
   it('renders a marker and both tension layers for the CSS to drive', () => {
     seedStore(makeState({ ropePosition: -0.5 }));
-    const { container } = render(<TugOfWarArena />);
+    const { container } = renderWithI18n(<TugOfWarArena />);
 
     expect(container.querySelector('.bt-rope-marker')).not.toBeNull();
     expect(container.querySelector('.bt-tension-blue')).not.toBeNull();
@@ -239,7 +244,7 @@ describe('TugOfWarArena across rope positions', () => {
 describe('PullingBanner', () => {
   it('reports the rope at centre when nobody leads', () => {
     seedStore(makeState({ ropePosition: 0 }));
-    render(<PullingBanner />);
+    renderWithI18n(<PullingBanner />);
     expect(screen.getByText(/all square/i)).toBeDefined();
   });
 
@@ -247,7 +252,7 @@ describe('PullingBanner', () => {
     const state = makeState({ ropePosition: 0.5 });
     seedStore(state);
 
-    render(<PullingBanner />);
+    renderWithI18n(<PullingBanner />);
 
     const metres = Math.abs(
       ropeToMetres(
@@ -264,7 +269,7 @@ describe('PullingBanner', () => {
   it('names blue when the rope is negative', () => {
     const state = makeState({ ropePosition: -0.3 });
     seedStore(state);
-    render(<PullingBanner />);
+    renderWithI18n(<PullingBanner />);
     expect(screen.getByText(new RegExp(`${state.teams.blue.name} pulling`, 'i'))).toBeDefined();
   });
 });
@@ -274,7 +279,7 @@ describe('RopePosition scale', () => {
     const state = makeState();
     seedStore(state);
 
-    render(<RopePosition halfMetres={state.modeState.kind === 'tug_of_war' ? state.modeState.arenaHalfMetres : 4} />);
+    renderWithI18n(<RopePosition halfMetres={state.modeState.kind === 'tug_of_war' ? state.modeState.arenaHalfMetres : 4} />);
     const half = state.modeState.kind === 'tug_of_war' ? state.modeState.arenaHalfMetres : 4;
 
     expect(screen.getByText(/center 0m/i)).toBeDefined();
@@ -287,7 +292,7 @@ describe('RopePosition scale', () => {
 describe('TeamStreak', () => {
   it('shows the unboosted tier at the start', () => {
     seedStore(makeState());
-    render(<TeamStreak teamId="blue" />);
+    renderWithI18n(<TeamStreak teamId="blue" />);
     expect(screen.getByText(/steady/i)).toBeDefined();
     expect(screen.getByText(/streak 0/i)).toBeDefined();
   });
@@ -299,7 +304,7 @@ describe('TeamStreak', () => {
       teams: { ...state.teams, blue: { ...state.teams.blue, streak: 5 } },
     });
 
-    render(<TeamStreak teamId="blue" />);
+    renderWithI18n(<TeamStreak teamId="blue" />);
     expect(screen.getByText(/full force/i)).toBeDefined();
   });
 });
@@ -311,7 +316,7 @@ describe('VictoryScreen', () => {
     seedStore(makeState({ mode: 'brain_race' }));
     useGameStore.setState({ result });
 
-    render(<VictoryScreen />);
+    renderWithI18n(<VictoryScreen />);
 
     expect(screen.getByText(/first across the finish line/i)).toBeDefined();
     expect(screen.getAllByText(/finishers/i).length).toBeGreaterThan(0);

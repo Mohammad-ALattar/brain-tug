@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { HostToken } from '@braintug/shared';
 import { Chip } from '../../components/Chip';
 import { request } from '../../realtime/socket';
@@ -11,14 +12,8 @@ export type TeacherControlsProps = {
 
 type HostCommand = 'start_game' | 'pause_game' | 'resume_game' | 'skip_question' | 'end_game';
 
-/**
- * The teacher's live control panel.
- *
- * Every button is a server command carrying the host token; nothing here mutates
- * local state optimistically, so what the teacher sees is always what the game
- * actually did. Failures surface in the store's error slot rather than silently.
- */
 export function TeacherControls({ hostToken }: TeacherControlsProps) {
+  const { t } = useTranslation(['host', 'game']);
   const status = useStatus();
   const players = usePlayers();
   const [confirmingEnd, setConfirmingEnd] = useState(false);
@@ -37,7 +32,7 @@ export function TeacherControls({ hostToken }: TeacherControlsProps) {
     <section className="bt-panel p-4">
       <div className="flex items-center justify-between">
         <h2 className="text-[11px] font-extrabold uppercase tracking-[0.18em] text-ink-faint">
-          Controls
+          {t('host:controls.title')}
         </h2>
         <StatusChip />
       </div>
@@ -46,11 +41,11 @@ export function TeacherControls({ hostToken }: TeacherControlsProps) {
         {status === 'lobby' ? (
           <>
             <Action tone="primary" disabled={!bothTeamsSeated} onClick={() => act('start_game')}>
-              Start match
+              {t('host:controls.startMatch')}
             </Action>
             {!bothTeamsSeated ? (
               <p className="text-center text-xs font-semibold text-ink-faint">
-                Both teams need at least one player.
+                {t('host:controls.needBothTeams')}
               </p>
             ) : null}
           </>
@@ -58,7 +53,7 @@ export function TeacherControls({ hostToken }: TeacherControlsProps) {
 
         {status === 'countdown' ? (
           <p className="py-3 text-center text-sm font-bold text-ink-muted">
-            Counting the class in&hellip;
+            {t('host:controls.countingIn')}
           </p>
         ) : null}
 
@@ -68,9 +63,9 @@ export function TeacherControls({ hostToken }: TeacherControlsProps) {
               tone="primary"
               onClick={() => act(status === 'paused' ? 'resume_game' : 'pause_game')}
             >
-              {status === 'paused' ? 'Resume' : 'Pause'}
+              {status === 'paused' ? t('host:controls.resume') : t('host:controls.pause')}
             </Action>
-            <Action onClick={() => act('skip_question')}>Skip question</Action>
+            <Action onClick={() => act('skip_question')}>{t('host:controls.skipQuestion')}</Action>
           </div>
         ) : null}
 
@@ -78,7 +73,7 @@ export function TeacherControls({ hostToken }: TeacherControlsProps) {
           confirmingEnd ? (
             <div className="rounded-card border-2 border-redteam-200 bg-redteam-50 p-2.5">
               <p className="text-center text-xs font-bold text-redteam-900">
-                End the match now and show the results?
+                {t('host:controls.endConfirm')}
               </p>
               <div className="mt-2 grid grid-cols-2 gap-2">
                 <Action
@@ -88,16 +83,16 @@ export function TeacherControls({ hostToken }: TeacherControlsProps) {
                     act('end_game');
                   }}
                 >
-                  Yes, end it
+                  {t('host:controls.endYes')}
                 </Action>
-                <Action onClick={() => setConfirmingEnd(false)}>Keep playing</Action>
+                <Action onClick={() => setConfirmingEnd(false)}>
+                  {t('host:controls.keepPlaying')}
+                </Action>
               </div>
             </div>
           ) : (
-            // Confirmed rather than immediate: ending is irreversible and this
-            // button sits next to Pause on a tablet.
             <Action tone="quiet" onClick={() => setConfirmingEnd(true)}>
-              End match
+              {t('host:controls.endMatch')}
             </Action>
           )
         ) : null}
@@ -107,18 +102,10 @@ export function TeacherControls({ hostToken }: TeacherControlsProps) {
 }
 
 function StatusChip() {
+  const { t } = useTranslation('game');
   const status = useStatus();
   const tone = status === 'active' ? 'good' : status === 'paused' ? 'warn' : 'neutral';
-  const label =
-    status === 'lobby'
-      ? 'In lobby'
-      : status === 'countdown'
-        ? 'Starting'
-        : status === 'active'
-          ? 'Live'
-          : status === 'paused'
-            ? 'Paused'
-            : 'Finished';
+  const label = t(`status.${status}`);
   return <Chip tone={tone}>{label}</Chip>;
 }
 

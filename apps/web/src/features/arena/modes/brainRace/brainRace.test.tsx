@@ -1,6 +1,8 @@
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import { act, render, screen, cleanup } from '@testing-library/react';
+import { act, screen, cleanup } from '@testing-library/react';
+
+import { initTestI18n, renderWithI18n } from '../../../../test/i18n';
 
 import type { GameStateView, PlayerId, PublicQuestion, QuestionId } from '@braintug/shared';
 
@@ -32,12 +34,13 @@ import { RaceTrack } from './RaceTrack';
 
 
 
+beforeEach(async () => {
+  await initTestI18n('en');
+});
+
 afterEach(() => {
-
   cleanup();
-
   resetStore();
-
 });
 
 
@@ -118,7 +121,7 @@ describe('BrainRaceStage', () => {
 
 
 
-    render(<BrainRaceStage />);
+    renderWithI18n(<BrainRaceStage />);
 
 
 
@@ -134,7 +137,7 @@ describe('BrainRaceStage', () => {
 
     seedRace();
 
-    const { container } = render(<BrainRaceStage />);
+    const { container } = renderWithI18n(<BrainRaceStage />);
 
 
 
@@ -174,7 +177,7 @@ describe('BrainRaceStage', () => {
 
     });
 
-    const { container } = render(<BrainRaceStage />);
+    const { container } = renderWithI18n(<BrainRaceStage />);
 
 
 
@@ -214,7 +217,7 @@ describe('RaceGainFlash', () => {
 
     const player = playerOn(state, 'blue', 0);
 
-    render(<RaceTrack />);
+    renderWithI18n(<RaceTrack />);
 
 
 
@@ -280,7 +283,7 @@ describe('RaceGainFlash', () => {
 
 
 
-    render(<RaceGainFlash />);
+    renderWithI18n(<RaceGainFlash />);
 
     expect(screen.queryByText('+50m')).toBeNull();
 
@@ -296,7 +299,7 @@ describe('RaceGainFlash', () => {
 
     const red = playerOn(state, 'red', 0);
 
-    render(<RaceTrack />);
+    renderWithI18n(<RaceTrack />);
 
 
 
@@ -400,7 +403,7 @@ describe('RaceQuestionPanel', () => {
 
 
 
-    const { container } = render(<RaceQuestionPanel />);
+    const { container } = renderWithI18n(<RaceQuestionPanel />);
 
     expect(screen.getByText(/which planet/i)).toBeDefined();
 
@@ -432,7 +435,7 @@ describe('RaceQuestionPanel', () => {
 
 
 
-    const { container } = render(<RaceQuestionPanel />);
+    const { container } = renderWithI18n(<RaceQuestionPanel />);
 
     expect(screen.getByText(/the sun is a star/i)).toBeDefined();
 
@@ -464,7 +467,7 @@ describe('RaceQuestionPanel', () => {
 
 
 
-    const { container } = render(<RaceQuestionPanel />);
+    const { container } = renderWithI18n(<RaceQuestionPanel />);
 
     expect(container.textContent).toMatch(/2 × 10\s*=\s*\?/);
 
@@ -492,7 +495,7 @@ describe('RaceQuestionPanel', () => {
 
 
 
-    const { container } = render(<RaceQuestionPanel />);
+    const { container } = renderWithI18n(<RaceQuestionPanel />);
 
     expect(screen.getByText(/plants use to make food/i)).toBeDefined();
 
@@ -550,7 +553,7 @@ describe('RaceQuestionPanel', () => {
 
 
 
-    render(<RaceQuestionPanel />);
+    renderWithI18n(<RaceQuestionPanel />);
 
     expect(screen.getByText('2 / 4 answered')).toBeDefined();
 
@@ -566,7 +569,7 @@ describe('RaceRoundNotice', () => {
 
     const state = seedRace();
 
-    render(<RaceRoundNotice />);
+    renderWithI18n(<RaceRoundNotice />);
 
 
 
@@ -622,7 +625,7 @@ describe('ActivityFeed', () => {
 
     const red = playerOn(state, 'red', 0);
 
-    render(<ActivityFeed />);
+    renderWithI18n(<ActivityFeed />);
 
 
 
@@ -672,7 +675,7 @@ describe('ActivityFeed', () => {
 
     const red = playerOn(state, 'red', 0);
 
-    render(<ActivityFeed />);
+    renderWithI18n(<ActivityFeed />);
 
 
 
@@ -738,7 +741,7 @@ describe('RaceStreakFlash', () => {
 
     const red = playerOn(state, 'red', 0);
 
-    render(<RaceTrack />);
+    renderWithI18n(<RaceTrack />);
 
 
 
@@ -776,7 +779,7 @@ describe('RaceStreakFlash', () => {
 
     seedRace();
 
-    render(<RaceTrack />);
+    renderWithI18n(<RaceTrack />);
 
 
 
@@ -828,7 +831,7 @@ describe('RaceStreakFlash', () => {
 
     const red = playerOn(state, 'red', 0);
 
-    render(<RaceTrack />);
+    renderWithI18n(<RaceTrack />);
 
 
 
@@ -892,7 +895,7 @@ describe('RaceStreakFlash', () => {
 
 
 
-    render(<RaceTrack />);
+    renderWithI18n(<RaceTrack />);
 
     expect(screen.queryByText(/🔥 4 streak/i)).toBeNull();
 
@@ -926,7 +929,7 @@ describe('RaceStreakFlash reconnect snapshot', () => {
 
 
 
-    render(<RaceTrack />);
+    renderWithI18n(<RaceTrack />);
 
     expect(screen.queryByText(/🔥 3 streak/i)).toBeNull();
 
@@ -944,7 +947,7 @@ describe('student incorrect feedback in Brain Race', () => {
 
     seedStore(makeState({ mode: 'brain_race' }));
 
-    render(
+    renderWithI18n(
 
       <AnswerFeedback
 
@@ -978,7 +981,7 @@ describe('student incorrect feedback in Brain Race', () => {
 
     seedStore(makeState({ mode: 'brain_race' }));
 
-    render(
+    renderWithI18n(
 
       <AnswerFeedback
 
@@ -1024,7 +1027,7 @@ describe('student incorrect feedback in Brain Race', () => {
 
 
 
-    render(<StudentController teamId="blue" playerName={me.name} onLeave={() => undefined} />);
+    renderWithI18n(<StudentController teamId="blue" playerName={me.name} onLeave={() => undefined} />);
 
 
 
@@ -1062,7 +1065,7 @@ describe('race presentation polish', () => {
 
 
 
-    render(<RaceTrack />);
+    renderWithI18n(<RaceTrack />);
 
     expect(screen.getByText('Leading')).toBeDefined();
 
@@ -1078,7 +1081,7 @@ describe('race presentation polish', () => {
 
     const red = playerOn(state, 'red', 0);
 
-    render(<RaceTrack />);
+    renderWithI18n(<RaceTrack />);
 
 
 
@@ -1128,7 +1131,7 @@ describe('TopGameHeader in Brain Race', () => {
 
     seedStore(makeState({ mode: 'brain_race' }));
 
-    render(<TopGameHeader />);
+    renderWithI18n(<TopGameHeader />);
 
 
 
@@ -1168,7 +1171,7 @@ describe('StudentRaceStrip', () => {
 
 
 
-    render(<StudentRaceStrip teamId="blue" playerName={me.name} />);
+    renderWithI18n(<StudentRaceStrip teamId="blue" playerName={me.name} />);
 
 
 

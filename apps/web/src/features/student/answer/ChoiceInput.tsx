@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { AnswerOption, TeamId } from '@braintug/shared';
 import { TEAM_THEME } from '../../../design/teamTheme';
 
@@ -15,17 +16,18 @@ export const ChoiceInput = memo(function ChoiceInput({
   disabled,
   onChoose,
 }: ChoiceInputProps) {
+  const { t } = useTranslation('student');
   const theme = TEAM_THEME[teamId];
 
   return (
-    <div className="grid grid-cols-1 gap-2.5" role="group" aria-label="Answer choices">
+    <div className="grid grid-cols-1 gap-2.5" role="group" aria-label={t('input.choicesAria')}>
       {options.map((option) => (
         <button
           key={option.id}
           type="button"
           disabled={disabled}
           onClick={() => onChoose(option.id)}
-          className={`bt-focus flex min-h-16 touch-manipulation items-center gap-3 rounded-card border-2 px-4 py-3 text-left shadow-key transition active:translate-y-px disabled:opacity-40 ${theme.border} bg-paper-card`}
+          className={`bt-focus flex min-h-16 touch-manipulation items-center gap-3 rounded-card border-2 px-4 py-3 text-start shadow-key transition active:translate-y-px disabled:opacity-40 ${theme.border} bg-paper-card`}
         >
           <span
             className={`grid h-10 w-10 shrink-0 place-items-center rounded-full font-display text-lg font-extrabold ${theme.solid} text-white`}

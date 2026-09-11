@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { act, cleanup, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { initTestI18n, renderWithI18n } from '../../test/i18n';
 import type { HostToken, RoomCode } from '@braintug/shared';
 import { buildGameResult } from '@braintug/shared';
 import { T0 } from '@braintug/shared/testing';
@@ -23,9 +24,10 @@ const requestMock = request as unknown as Mock;
 
 const HOST_TOKEN = 'ht_test_token_value' as HostToken;
 
-beforeEach(() => {
+beforeEach(async () => {
   requestMock.mockReset();
   requestMock.mockResolvedValue(null);
+  await initTestI18n('en');
 });
 
 afterEach(() => {
@@ -36,11 +38,12 @@ afterEach(() => {
 describe('CreateGameForm', () => {
   it('submits sensible defaults without the teacher touching anything', async () => {
     const onCreate = vi.fn();
-    render(<CreateGameForm error={null} busy={false} onCreate={onCreate} />);
+    renderWithI18n(<CreateGameForm error={null} busy={false} onCreate={onCreate} />);
 
     await userEvent.click(screen.getByRole('button', { name: /create match/i }));
 
     expect(onCreate).toHaveBeenCalledWith({
+      language: 'en',
       mode: 'tug_of_war',
       subject: 'math',
       operation: 'mixed',
@@ -55,7 +58,7 @@ describe('CreateGameForm', () => {
 
   it('sends Brain Race settings when that mode is chosen', async () => {
     const onCreate = vi.fn();
-    render(<CreateGameForm error={null} busy={false} onCreate={onCreate} />);
+    renderWithI18n(<CreateGameForm error={null} busy={false} onCreate={onCreate} />);
 
     await userEvent.click(screen.getByRole('radio', { name: /brain race/i }));
     await userEvent.click(screen.getByRole('radio', { name: /sprint/i }));
@@ -74,7 +77,7 @@ describe('CreateGameForm', () => {
 
   it('carries every chosen setting through to the payload', async () => {
     const onCreate = vi.fn();
-    render(<CreateGameForm error={null} busy={false} onCreate={onCreate} />);
+    renderWithI18n(<CreateGameForm error={null} busy={false} onCreate={onCreate} />);
 
     await userEvent.click(screen.getByRole('radio', { name: /division/i }));
     await userEvent.click(screen.getByRole('radio', { name: /hard/i }));
@@ -85,6 +88,7 @@ describe('CreateGameForm', () => {
     await userEvent.click(screen.getByRole('button', { name: /create match/i }));
 
     expect(onCreate).toHaveBeenCalledWith({
+      language: 'en',
       mode: 'tug_of_war',
       subject: 'math',
       operation: 'division',
@@ -99,7 +103,7 @@ describe('CreateGameForm', () => {
 
   it('cannot be stepped past the range the server accepts', async () => {
     const onCreate = vi.fn();
-    render(<CreateGameForm error={null} busy={false} onCreate={onCreate} />);
+    renderWithI18n(<CreateGameForm error={null} busy={false} onCreate={onCreate} />);
 
     const fewer = screen.getByRole('button', { name: /fewer questions/i });
     for (let i = 0; i < 10; i += 1) await userEvent.click(fewer);
@@ -110,7 +114,9 @@ describe('CreateGameForm', () => {
   });
 
   it('shows a creation failure as an alert', () => {
-    render(<CreateGameForm error="The server is unreachable." busy={false} onCreate={vi.fn()} />);
+    renderWithI18n(
+      <CreateGameForm error="The server is unreachable." busy={false} onCreate={vi.fn()} />,
+    );
 
     expect(screen.getByRole('alert').textContent).toContain('unreachable');
   });
@@ -118,13 +124,13 @@ describe('CreateGameForm', () => {
 
 describe('RoomCodeDisplay', () => {
   it('shows the code grouped for reading aloud', () => {
-    render(<RoomCodeDisplay roomCode={'ACD349' as RoomCode} hostToken={HOST_TOKEN} />);
+    renderWithI18n(<RoomCodeDisplay roomCode={'ACD349' as RoomCode} hostToken={HOST_TOKEN} />);
 
     expect(screen.getByText('ACD-349')).toBeDefined();
   });
 
   it('keeps the host token out of the student join link', () => {
-    const { container } = render(
+    const { container } = renderWithI18n(
       <RoomCodeDisplay roomCode={'ACD349' as RoomCode} hostToken={HOST_TOKEN} />,
     );
 
@@ -139,7 +145,7 @@ describe('RoomCodeDisplay', () => {
 describe('LobbyRoster', () => {
   it('lists both teams with their counts', () => {
     seedStore(makeState({ playersPerTeam: 2, stayInLobby: true }));
-    render(<LobbyRoster hostToken={HOST_TOKEN} />);
+    renderWithI18n(<LobbyRoster hostToken={HOST_TOKEN} />);
 
     expect(screen.getByText(/players \(4\)/i)).toBeDefined();
     expect(screen.getByText(/teams are balanced/i)).toBeDefined();
@@ -150,7 +156,7 @@ describe('LobbyRoster', () => {
     // Drop both red players to make the split 2-0.
     seedStore({ ...state, players: state.players.filter((p) => p.teamId === 'blue') });
 
-    render(<LobbyRoster hostToken={HOST_TOKEN} />);
+    renderWithI18n(<LobbyRoster hostToken={HOST_TOKEN} />);
 
     expect(screen.getByText(/uneven by 2/i)).toBeDefined();
   });
@@ -160,7 +166,7 @@ describe('LobbyRoster', () => {
     seedStore(state);
     const blue = state.players.find((p) => p.teamId === 'blue')!;
 
-    render(<LobbyRoster hostToken={HOST_TOKEN} />);
+    renderWithI18n(<LobbyRoster hostToken={HOST_TOKEN} />);
     await userEvent.click(screen.getByRole('button', { name: `Move ${blue.name} to red team` }));
 
     expect(requestMock).toHaveBeenCalledWith('move_player', {
@@ -175,7 +181,7 @@ describe('LobbyRoster', () => {
     seedStore(state);
     const blue = state.players.find((p) => p.teamId === 'blue')!;
 
-    render(<LobbyRoster hostToken={HOST_TOKEN} />);
+    renderWithI18n(<LobbyRoster hostToken={HOST_TOKEN} />);
     await userEvent.click(screen.getByRole('button', { name: `Remove ${blue.name}` }));
 
     expect(requestMock).toHaveBeenCalledWith('remove_player', {
@@ -189,7 +195,7 @@ describe('LobbyRoster', () => {
     seedStore(state);
     const blue = state.players.find((p) => p.teamId === 'blue')!;
 
-    render(<LobbyRoster hostToken={HOST_TOKEN} />);
+    renderWithI18n(<LobbyRoster hostToken={HOST_TOKEN} />);
 
     expect(screen.queryByRole('button', { name: `Move ${blue.name} to red team` })).toBeNull();
     expect(screen.getByRole('button', { name: `Remove ${blue.name}` })).toBeDefined();
@@ -201,7 +207,7 @@ describe('TeacherControls', () => {
     const state = makeState({ playersPerTeam: 1, stayInLobby: true });
     seedStore({ ...state, players: state.players.filter((p) => p.teamId === 'blue') });
 
-    render(<TeacherControls hostToken={HOST_TOKEN} />);
+    renderWithI18n(<TeacherControls hostToken={HOST_TOKEN} />);
 
     expect(screen.getByRole('button', { name: /start match/i })).toHaveProperty('disabled', true);
     expect(screen.getByText(/both teams need at least one player/i)).toBeDefined();
@@ -210,7 +216,7 @@ describe('TeacherControls', () => {
   it('starts the match through the server once both teams are seated', async () => {
     seedStore(makeState({ playersPerTeam: 1, stayInLobby: true }));
 
-    render(<TeacherControls hostToken={HOST_TOKEN} />);
+    renderWithI18n(<TeacherControls hostToken={HOST_TOKEN} />);
     await userEvent.click(screen.getByRole('button', { name: /start match/i }));
 
     expect(requestMock).toHaveBeenCalledWith('start_game', { hostToken: HOST_TOKEN });
@@ -220,7 +226,7 @@ describe('TeacherControls', () => {
     const state = makeState({ playersPerTeam: 1 });
     seedStore(state);
 
-    render(<TeacherControls hostToken={HOST_TOKEN} />);
+    renderWithI18n(<TeacherControls hostToken={HOST_TOKEN} />);
     await userEvent.click(screen.getByRole('button', { name: /^pause$/i }));
     expect(requestMock).toHaveBeenCalledWith('pause_game', { hostToken: HOST_TOKEN });
 
@@ -234,7 +240,7 @@ describe('TeacherControls', () => {
   it('requires a confirmation before ending the match', async () => {
     seedStore(makeState({ playersPerTeam: 1 }));
 
-    render(<TeacherControls hostToken={HOST_TOKEN} />);
+    renderWithI18n(<TeacherControls hostToken={HOST_TOKEN} />);
     await userEvent.click(screen.getByRole('button', { name: /end match/i }));
 
     // The first press only asks; nothing has been sent yet.
@@ -247,7 +253,7 @@ describe('TeacherControls', () => {
   it('lets the teacher back out of ending the match', async () => {
     seedStore(makeState({ playersPerTeam: 1 }));
 
-    render(<TeacherControls hostToken={HOST_TOKEN} />);
+    renderWithI18n(<TeacherControls hostToken={HOST_TOKEN} />);
     await userEvent.click(screen.getByRole('button', { name: /end match/i }));
     await userEvent.click(screen.getByRole('button', { name: /keep playing/i }));
 
@@ -267,7 +273,7 @@ describe('GameResults', () => {
     seedStore(makeState());
     const result = finishedResult();
 
-    render(<GameResults result={result} onNewMatch={vi.fn()} />);
+    renderWithI18n(<GameResults result={result} onNewMatch={vi.fn()} />);
 
     expect(screen.getByText(new RegExp(`${result.teams.blue.name} win`, 'i'))).toBeDefined();
     expect(screen.getByText(/led after every question/i)).toBeDefined();
@@ -277,7 +283,7 @@ describe('GameResults', () => {
     seedStore(makeState());
     const result = finishedResult();
 
-    render(<GameResults result={result} onNewMatch={vi.fn()} />);
+    renderWithI18n(<GameResults result={result} onNewMatch={vi.fn()} />);
 
     const rows = screen.getAllByRole('row').slice(1);
     const puller = result.players.find((p) => p.playerId === result.topPlayerId)!;
@@ -300,7 +306,7 @@ describe('GameResults', () => {
     const session = makeSession({ mode: 'brain_race', lockedTeams: ['blue'] });
     const result = buildGameResult({ ...session, winner: 'blue' }, 'questions_exhausted', T0 + 60_000);
 
-    render(<GameResults result={result} onNewMatch={vi.fn()} />);
+    renderWithI18n(<GameResults result={result} onNewMatch={vi.fn()} />);
 
     expect(screen.getByText(/top racer/i)).toBeDefined();
     expect(screen.getByText(/^distance$/i)).toBeDefined();
@@ -323,7 +329,7 @@ describe('HostLiveBoard', () => {
       },
     });
 
-    render(<HostLiveBoard />);
+    renderWithI18n(<HostLiveBoard />);
 
     expect(screen.getByText(/lanes level/i)).toBeDefined();
     expect(screen.queryByText(/rope at the centre/i)).toBeNull();

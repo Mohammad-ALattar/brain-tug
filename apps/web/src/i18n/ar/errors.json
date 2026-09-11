@@ -1,0 +1,18 @@
+{
+  "rejection": {
+    "game_not_active": "لم تبدأ اللعبة بعد.",
+    "game_paused": "أوقف المعلّم اللعبة.",
+    "round_not_active": "انتهى هذا السؤال.",
+    "stale_question": "كان ذلك آخر سؤال. السؤال التالي قادم.",
+    "team_already_locked": "أجاب زميلك بالفعل.",
+    "player_already_answered": "أجبت على هذا السؤال بالفعل.",
+    "time_expired": "انتهى وقت هذا السؤال.",
+    "malformed_answer": "لم تُقبل هذه الإجابة.",
+    "not_a_player": "لم تعد في هذه اللعبة."
+  },
+  "socket": {
+    "noConnection": "لا يوجد اتصال بالخادم.",
+    "gameInProgress": "بدأ هذا السباق بالفعل. انتظر المباراة التالية.",
+    "roomNotFound": "رمز الغرفة غير موجود."
+  }
+}

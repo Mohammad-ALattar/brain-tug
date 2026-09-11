@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { TEAM_THEME } from '../../../../design/teamTheme';
 
@@ -37,7 +38,7 @@ import { formatRaceGainPresentation } from './raceFeedback';
  */
 
 export function RaceGainFlash() {
-
+  const { t } = useTranslation('game');
   const flash = useLastProgress();
 
   const race = useRaceModeState();
@@ -80,11 +81,9 @@ export function RaceGainFlash() {
 
   const player = players.find((entry) => entry.id === flash.playerId);
 
-  const presentation = formatRaceGainPresentation({
-
+  const presentation = formatRaceGainPresentation(t, {
     flash,
-
-    playerName: player?.name ?? 'Player',
+    playerName: player?.name ?? t('arena.race.defaultPlayer'),
 
     teamName: flash.teamId === 'blue' ? blueName : redName,
 

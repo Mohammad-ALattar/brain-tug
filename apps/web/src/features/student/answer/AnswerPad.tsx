@@ -47,6 +47,7 @@ export const AnswerPad = memo(function AnswerPad({
 
   switch (resolveAnswerType(question)) {
     case 'multiple_choice':
+      if (question.type !== 'multiple_choice') return null;
       return (
         <ChoiceInput
           options={question.options}

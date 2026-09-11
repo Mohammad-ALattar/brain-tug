@@ -1,4 +1,5 @@
 import type { QuestionId } from '../domain/ids.js';
+import type { GameLanguage } from './language.js';
 import type { Subject } from './subject.js';
 
 export const DIFFICULTIES = ['easy', 'medium', 'hard'] as const;
@@ -27,6 +28,10 @@ type QuestionBase = {
   id: QuestionId;
   subject: Subject;
   difficulty: Difficulty;
+  /** Stable authored id for repeat-avoidance. Not sent to clients. */
+  bankKey?: string;
+  /** Session language this question was dealt in. Drives answer normalisation. */
+  locale?: GameLanguage;
   /** Rendered exactly as the class should read it, with no answer hint. */
   prompt: string;
   /**

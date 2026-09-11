@@ -1,7 +1,8 @@
+import { useTranslation } from 'react-i18next';
 import type { TeamId } from '@braintug/shared';
 import { TEAM_THEME } from '../../design/teamTheme';
 import { Chip } from '../../components/Chip';
-import { MODE_COPY } from '../arena/modeCopy';
+import { useModeCopy } from '../../i18n/useModeCopy';
 import { useMe, useResult, useTeamName, useWinner } from '../../store/selectors';
 
 export type StudentResultsProps = {
@@ -19,11 +20,13 @@ export type StudentResultsProps = {
  * see from their seat is what they personally added.
  */
 export function StudentResults({ teamId, playerName, onLeave }: StudentResultsProps) {
+  const { t } = useTranslation('student');
   const result = useResult();
   const winner = useWinner();
   const me = useMe();
   const myTeamName = useTeamName(teamId);
   const theme = TEAM_THEME[teamId];
+  const modeCopy = useModeCopy(result?.mode ?? 'tug_of_war');
 
   const mine = result?.players.find((p) => p.playerId === me?.playerId) ?? null;
   const won = winner === teamId;
@@ -33,10 +36,10 @@ export function StudentResults({ teamId, playerName, onLeave }: StudentResultsPr
     <div className="flex min-h-full flex-col bg-paper">
       <header className={`${theme.solid} px-4 pb-5 pt-[max(1.5rem,env(safe-area-inset-top))]`}>
         <p className="text-center text-xs font-extrabold uppercase tracking-[0.2em] text-white/70">
-          Final result
+          {t('results.finalResult')}
         </p>
         <p className="mt-1 text-center font-display text-3xl font-extrabold text-white">
-          {draw ? "It's a draw" : won ? 'Your team won!' : 'Your team lost'}
+          {draw ? t('results.draw') : won ? t('results.won') : t('results.lost')}
         </p>
         <p className="mt-1 text-center text-sm font-bold text-white/80">{myTeamName}</p>
       </header>
@@ -47,16 +50,16 @@ export function StudentResults({ teamId, playerName, onLeave }: StudentResultsPr
             <section className="bt-panel px-5 py-4">
               <div className="flex items-center justify-between">
                 <p className="font-display text-lg font-extrabold text-ink">{playerName}</p>
-                    {result.topPlayerId && result.topPlayerId === me?.playerId ? (
-                      <Chip tone="good">{MODE_COPY[result.mode].topContributor}</Chip>
-                    ) : null}
+                {result.topPlayerId && result.topPlayerId === me?.playerId ? (
+                  <Chip tone="good">{modeCopy.topContributor}</Chip>
+                ) : null}
               </div>
 
               <dl className="mt-3 grid grid-cols-3 gap-2 text-center">
-                <Stat label="Correct" value={String(mine?.correctCount ?? 0)} />
-                <Stat label="Missed" value={String(mine?.incorrectCount ?? 0)} />
+                <Stat label={t('results.correct')} value={String(mine?.correctCount ?? 0)} />
+                <Stat label={t('results.missed')} value={String(mine?.incorrectCount ?? 0)} />
                 <Stat
-                  label="Accuracy"
+                  label={t('results.accuracy')}
                   value={mine ? `${Math.round(mine.accuracy * 100)}%` : '0%'}
                 />
               </dl>
@@ -64,7 +67,7 @@ export function StudentResults({ teamId, playerName, onLeave }: StudentResultsPr
 
             <section className="bt-card px-5 py-4">
               <h2 className="text-[11px] font-extrabold uppercase tracking-[0.18em] text-ink-faint">
-                Team scores
+                {t('results.teamScores')}
               </h2>
               <div className="mt-2 space-y-1.5">
                 {(['blue', 'red'] as const).map((id) => (
@@ -82,21 +85,16 @@ export function StudentResults({ teamId, playerName, onLeave }: StudentResultsPr
           </>
         ) : (
           <p className="text-center text-sm font-semibold text-ink-muted">
-            Waiting for the final scores&hellip;
+            {t('results.waitingScores')}
           </p>
         )}
 
-        {/*
-          The teacher's next match gets a new room code, so without this the
-          student is stranded on a screen with nothing to press. Pushed to the
-          bottom and styled quietly: it is the exit, not the point of the page.
-        */}
         <button
           type="button"
           onClick={onLeave}
           className="bt-focus mt-auto h-14 shrink-0 touch-manipulation rounded-card border-2 border-paper-line bg-paper-card font-display text-base font-extrabold text-ink transition active:translate-y-px"
         >
-          Join another game
+          {t('results.joinAnother')}
         </button>
       </main>
     </div>

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type {
   CreateGameAck,
   CreateGamePayload,
@@ -37,6 +38,7 @@ type Session = { roomCode: RoomCode; hostToken: HostToken };
  * of this.
  */
 export function Component() {
+  const { t } = useTranslation(['host', 'common']);
   useGameSocket();
 
   const connection = useConnection();
@@ -137,8 +139,10 @@ export function Component() {
   return (
     <main className="mx-auto w-full max-w-2xl px-5 py-6">
       <header className="flex items-center justify-between gap-3">
-        <h1 className="font-display text-2xl font-extrabold text-ink">Match in progress</h1>
-        {connection !== 'connected' ? <Chip tone="warn">Reconnecting</Chip> : null}
+        <h1 className="font-display text-2xl font-extrabold text-ink">{t('host:dashboard.title')}</h1>
+        {connection !== 'connected' ? (
+          <Chip tone="warn">{t('common:connection.reconnecting')}</Chip>
+        ) : null}
       </header>
 
       <div className="mt-4 flex flex-col gap-4">

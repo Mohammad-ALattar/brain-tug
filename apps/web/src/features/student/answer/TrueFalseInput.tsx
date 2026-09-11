@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { TeamId } from '@braintug/shared';
 import { TEAM_THEME } from '../../../design/teamTheme';
 
@@ -13,14 +14,15 @@ export const TrueFalseInput = memo(function TrueFalseInput({
   disabled,
   onChoose,
 }: TrueFalseInputProps) {
+  const { t } = useTranslation('student');
   const theme = TEAM_THEME[teamId];
 
   return (
-    <div className="grid grid-cols-2 gap-3" role="group" aria-label="True or false">
+    <div className="grid grid-cols-2 gap-3" role="group" aria-label={t('input.trueFalseAria')}>
       {(
         [
-          { value: 'true', label: 'True' },
-          { value: 'false', label: 'False' },
+          { value: 'true', label: t('input.true') },
+          { value: 'false', label: t('input.false') },
         ] as const
       ).map((choice) => (
         <button

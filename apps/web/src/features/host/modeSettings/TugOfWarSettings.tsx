@@ -1,7 +1,9 @@
+import { useTranslation } from 'react-i18next';
+
 const LENGTHS = [
-  { value: 0.5, label: 'Short', hint: 'Half the rope' },
-  { value: 0.75, label: 'Standard', hint: 'Most of the rope' },
-  { value: 1, label: 'Full', hint: 'The whole rope' },
+  { value: 0.5, labelKey: 'short', hintKey: 'shortHint' },
+  { value: 0.75, labelKey: 'standard', hintKey: 'standardHint' },
+  { value: 1, labelKey: 'full', hintKey: 'fullHint' },
 ] as const;
 
 export type TugOfWarSettingsProps = {
@@ -10,12 +12,18 @@ export type TugOfWarSettingsProps = {
 };
 
 export function TugOfWarSettings({ winThreshold, onChange }: TugOfWarSettingsProps) {
+  const { t } = useTranslation('host');
+
   return (
     <fieldset>
       <legend className="text-[11px] font-extrabold uppercase tracking-[0.18em] text-ink-faint">
-        Distance to win
+        {t('tugOfWar.distanceToWin')}
       </legend>
-      <div role="radiogroup" aria-label="Distance to win" className="mt-2 flex flex-wrap gap-2">
+      <div
+        role="radiogroup"
+        aria-label={t('tugOfWar.distanceToWin')}
+        className="mt-2 flex flex-wrap gap-2"
+      >
         {LENGTHS.map((option) => {
           const selected = option.value === winThreshold;
           return (
@@ -32,11 +40,11 @@ export function TugOfWarSettings({ winThreshold, onChange }: TugOfWarSettingsPro
                   : 'border-paper-line bg-paper-card text-ink-muted hover:border-ink/30',
               ].join(' ')}
             >
-              {option.label}
+              {t(`tugOfWar.${option.labelKey}`)}
               <span
                 className={`block text-[10px] font-semibold ${selected ? 'text-white/70' : 'text-ink-faint'}`}
               >
-                {option.hint}
+                {t(`tugOfWar.${option.hintKey}`)}
               </span>
             </button>
           );

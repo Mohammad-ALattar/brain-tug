@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { TeamId } from '@braintug/shared';
 import { TEAM_THEME } from '../../../../design/teamTheme';
 import { useTeamDraft, useTeamLocked } from '../../../../store/selectors';
@@ -9,20 +10,12 @@ export type MirroredKeypadProps = {
 
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', '<'] as const;
 
-/**
- * The keypad on the classroom display.
- *
- * Deliberately not interactive and deliberately a separate component from the
- * student's `NumericKeypad`: the TV has no input role at all, so there are no
- * buttons here to click, no handlers to wire and nothing to accidentally hook up
- * later. It exists to show the class which key their teammate just pressed.
- */
 export const MirroredKeypad = memo(function MirroredKeypad({ teamId }: MirroredKeypadProps) {
+  const { t } = useTranslation('game');
   const draft = useTeamDraft(teamId);
   const locked = useTeamLocked(teamId);
   const theme = TEAM_THEME[teamId];
 
-  // Highlight the most recently mirrored digit so the class can follow along.
   const lastKey = locked ? null : (draft.at(-1) ?? null);
 
   return (
@@ -48,7 +41,7 @@ export const MirroredKeypad = memo(function MirroredKeypad({ teamId }: MirroredK
         })}
       </div>
       <p className="mt-2 text-center text-[10px] font-bold uppercase tracking-wider text-ink-faint">
-        Mirrored from team phones
+        {t('arena.tug.mirroredKeypad')}
       </p>
     </div>
   );

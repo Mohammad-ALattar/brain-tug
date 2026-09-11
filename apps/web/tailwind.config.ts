@@ -75,8 +75,8 @@ export default {
         warn: '#ad5a14',
       },
       fontFamily: {
-        display: ['"Baloo 2"', '"Nunito"', 'system-ui', 'sans-serif'],
-        sans: ['"Nunito"', 'system-ui', '-apple-system', 'Segoe UI', 'sans-serif'],
+        display: ['"Baloo 2"', '"Noto Sans Arabic"', '"Nunito"', 'system-ui', 'sans-serif'],
+        sans: ['"Nunito"', '"Noto Sans Arabic"', 'system-ui', '-apple-system', 'Segoe UI', 'sans-serif'],
         mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'monospace'],
       },
       borderRadius: {

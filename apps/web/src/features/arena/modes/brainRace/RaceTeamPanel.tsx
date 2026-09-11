@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import type { TeamId } from '@braintug/shared';
 
@@ -13,6 +14,7 @@ export type RaceTeamPanelProps = {
 };
 
 export const RaceTeamPanel = memo(function RaceTeamPanel({ teamId }: RaceTeamPanelProps) {
+  const { t } = useTranslation('game');
   const theme = TEAM_THEME[teamId];
   const name = useTeamName(teamId);
   const finishers = useBrainRaceFinishers(teamId);
@@ -28,14 +30,14 @@ export const RaceTeamPanel = memo(function RaceTeamPanel({ teamId }: RaceTeamPan
 
       <div className={`rounded-card border ${theme.border} ${theme.tint} px-4 py-3`}>
         <p className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-ink-faint">
-          Finishers
+          {t('arena.race.finishers')}
         </p>
         <p className={`tabular font-display text-4xl font-extrabold leading-none ${theme.text}`}>
           {finishers.finished}
           <span className="text-2xl text-ink-muted"> / {finishers.required}</span>
         </p>
         <p className="tabular mt-1 text-xs font-bold text-ink-muted">
-          {correctCount} correct {correctCount === 1 ? 'answer' : 'answers'}
+          {t('arena.race.correctAnswer', { count: correctCount })}
         </p>
       </div>
     </aside>

@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { TeamId } from '@braintug/shared';
 import { TEAM_THEME } from '../../design/teamTheme';
 
@@ -21,6 +22,7 @@ export const AnswerInput = memo(function AnswerInput({
   value,
   disabled = false,
 }: AnswerInputProps) {
+  const { t } = useTranslation('student');
   const theme = TEAM_THEME[teamId];
 
   return (
@@ -33,7 +35,7 @@ export const AnswerInput = memo(function AnswerInput({
       // The value changes as the student types, so it is announced politely
       // rather than assertively to avoid interrupting a screen reader per key.
       aria-live="polite"
-      aria-label="Your answer"
+      aria-label={t('keypad.yourAnswer')}
       role="status"
     >
       {value ? (
@@ -41,12 +43,12 @@ export const AnswerInput = memo(function AnswerInput({
           {value}
         </span>
       ) : (
-        <span className="font-display text-xl font-bold text-ink-faint">Tap the numbers</span>
+        <span className="font-display text-xl font-bold text-ink-faint">{t('keypad.tapNumbers')}</span>
       )}
       {!disabled && value ? (
         <span
           aria-hidden
-          className={`ml-1 h-9 w-[3px] animate-pulse rounded-full ${theme.solid}`}
+          className={`ms-1 h-9 w-[3px] animate-pulse rounded-full ${theme.solid}`}
         />
       ) : null}
     </div>

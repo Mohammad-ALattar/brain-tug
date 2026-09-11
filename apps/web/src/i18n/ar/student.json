@@ -1,0 +1,82 @@
+{
+  "join": {
+    "title": "شد العقول",
+    "subtitle": "أدخل الرمز الظاهر على الشاشة للانضمام إلى فريقك.",
+    "roomCode": "رمز الغرفة",
+    "roomCodePlaceholder": "ABC-123",
+    "yourName": "اسمك",
+    "namePlaceholder": "مثال: سام",
+    "team": "الفريق",
+    "teamAuto": "تلقائي",
+    "teamBlue": "أزرق",
+    "teamRed": "أحمر",
+    "teamAutoHint": "الوضع التلقائي يضعك في الفريق الأصغر.",
+    "joining": "جارٍ الانضمام…",
+    "joinButton": "انضم إلى اللعبة"
+  },
+  "status": {
+    "teamCorrect": "إجابات الفريق",
+    "reconnecting": "جارٍ إعادة الاتصال",
+    "offline": "غير متصل"
+  },
+  "question": {
+    "questionOf": "سؤال {{current}} من {{total}}",
+    "yourProblem": "سؤالك",
+    "waiting": "بانتظار السؤال…"
+  },
+  "wait": {
+    "youreIn": "انضممت!",
+    "lobbyBody": "أنت في {{teamName}}. بانتظار المعلّم لبدء اللعبة.",
+    "getReady": "استعد",
+    "countdownBody": "السؤال الأول سيظهر قريباً."
+  },
+  "lockout": {
+    "paused": "متوقف",
+    "pausedBody": "أوقف المعلّم اللعبة. التوقيت متوقف.",
+    "nextQuestion": "السؤال التالي قريباً",
+    "holdTight": "انتظر قليلاً.",
+    "teammateGotIt": "زميلك أجاب",
+    "teamLockedBody": "أكّد فريقك الإجابة بالفعل.",
+    "answerSent": "تم إرسال الإجابة",
+    "answerSentBody": "محاولة واحدة لكل سؤال. بانتظار التالي.",
+    "doneForQuestion": "انتهيت من هذا السؤال",
+    "waiting": "بانتظار"
+  },
+  "feedback": {
+    "correct": "صحيح!",
+    "incorrect": "خطأ",
+    "incorrectGeneric": "إجابتك غير صحيحة",
+    "streakReset": "انتهت السلسلة",
+    "notThisTime": "ليست هذه المرة",
+    "tugStreak": "• {{count}} متتالية"
+  },
+  "keypad": {
+    "ariaLabel": "لوحة الإجابة",
+    "clear": "مسح",
+    "backspace": "حذف",
+    "yourAnswer": "إجابتك",
+    "tapNumbers": "اضغط الأرقام",
+    "lockItIn": "تأكيد الإجابة"
+  },
+  "input": {
+    "choicesAria": "خيارات الإجابة",
+    "trueFalseAria": "صح أو خطأ",
+    "true": "صح",
+    "false": "خطأ"
+  },
+  "timer": {
+    "ariaLabel": "الوقت المتبقي"
+  },
+  "results": {
+    "finalResult": "النتيجة النهائية",
+    "draw": "تعادل",
+    "won": "فاز فريقك!",
+    "lost": "خسر فريقك",
+    "correct": "صحيح",
+    "missed": "خطأ",
+    "accuracy": "الدقة",
+    "teamScores": "نقاط الفرق",
+    "waitingScores": "بانتظار النتائج النهائية…",
+    "joinAnother": "انضم إلى لعبة أخرى"
+  }
+}

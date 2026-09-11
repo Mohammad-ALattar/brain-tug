@@ -1,5 +1,6 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, render, screen } from '@testing-library/react';
+import { initTestI18n, renderWithI18n } from '../test/i18n';
 import type { TeamId } from '@braintug/shared';
 import { makeState, playerOn, resetStore, seedStore } from '../test/fixtures';
 import { StudentJoinForm } from './student/StudentJoinForm';
@@ -16,6 +17,10 @@ import { NumericKeypad } from './student/NumericKeypad';
  * while restyling and none of them show up in a visual review, so each one is
  * asserted rather than left to a one-off audit.
  */
+
+beforeEach(async () => {
+  await initTestI18n('en');
+});
 
 afterEach(() => {
   cleanup();
@@ -37,7 +42,7 @@ describe('landmarks', () => {
   });
 
   it('gives the teacher setup screen a main region under a first-level heading', () => {
-    render(<CreateGameForm onCreate={vi.fn()} busy={false} error={null} />);
+    renderWithI18n(<CreateGameForm onCreate={vi.fn()} busy={false} error={null} />);
     expect(screen.getByRole('main')).toBeTruthy();
     expect(screen.getByRole('heading', { level: 1, name: /new match/i })).toBeTruthy();
   });

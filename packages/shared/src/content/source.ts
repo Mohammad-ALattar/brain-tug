@@ -1,5 +1,7 @@
 import { defaultIdFactory, type IdFactory } from '../domain/ids.js';
 import type { QuestionBank } from './banks/types.js';
+import type { GameLanguage } from './language.js';
+import { localizeBankEntry, questionDedupKey } from './localize.js';
 import { generateMathQuestion } from './math/generator.js';
 import type { OperationChoice } from './math/operations.js';
 import type { Difficulty, Question } from './question.js';
@@ -26,6 +28,7 @@ const MAX_ATTEMPTS = 24;
 export type MathSourceOptions = {
   operation: OperationChoice;
   difficulty: Difficulty;
+  language?: GameLanguage;
   rng?: Rng;
   ids?: IdFactory;
 };
@@ -41,11 +44,12 @@ export function createMathSource(options: MathSourceOptions): QuestionSource {
         const question = generateMathQuestion({
           operation: options.operation,
           difficulty: options.difficulty,
+          language: options.language,
           rng,
           ids,
         });
         fallback ??= question;
-        if (!avoid.has(question.prompt)) return question;
+        if (!avoid.has(questionDedupKey(question))) return question;
       }
       // Exhausted the space, e.g. easy addition with a long history. Reusing a
       // prompt is better than stalling the round.
@@ -57,6 +61,7 @@ export function createMathSource(options: MathSourceOptions): QuestionSource {
 export type BankSourceOptions = {
   bank: QuestionBank;
   difficulty: Difficulty;
+  language: GameLanguage;
   rng?: Rng;
   ids?: IdFactory;
 };
@@ -81,10 +86,15 @@ export function createBankSource(options: BankSourceOptions): QuestionSource {
 
   return {
     next(avoid) {
-      const unseen = pool.filter((entry) => !avoid.has(entry.prompt));
+      const unseen = pool.filter((entry) => !avoid.has(entry.bankKey));
       const candidates = unseen.length > 0 ? unseen : pool;
-      const entry = candidates[randomInt(rng, 0, candidates.length - 1)]!;
-      return { ...entry, id: ids.questionId(), subject: bank.subject } as Question;
+      const picked = candidates[randomInt(rng, 0, candidates.length - 1)]!;
+      return localizeBankEntry(
+        picked,
+        options.language,
+        ids.questionId(),
+        bank.subject,
+      );
     },
   };
 }
@@ -93,6 +103,7 @@ export function createBankSource(options: BankSourceOptions): QuestionSource {
 export type ContentConfig = {
   subject: Subject;
   difficulty: Difficulty;
+  language: GameLanguage;
   /** Only meaningful for math, which is generated rather than authored. */
   operation?: OperationChoice;
 };
@@ -116,6 +127,7 @@ export function createQuestionSource(
     return createMathSource({
       operation: config.operation ?? 'mixed',
       difficulty: config.difficulty,
+      language: config.language,
       rng: deps.rng,
       ids: deps.ids,
     });
@@ -129,6 +141,7 @@ export function createQuestionSource(
   return createBankSource({
     bank,
     difficulty: config.difficulty,
+    language: config.language,
     rng: deps.rng,
     ids: deps.ids,
   });

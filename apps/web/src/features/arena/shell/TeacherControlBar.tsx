@@ -1,4 +1,5 @@
 import { formatRoomCode, type HostToken } from '@braintug/shared';
+import { useTranslation } from 'react-i18next';
 import { useConnection, usePlayers, useRoomCode, useStatus } from '../../../store/selectors';
 import { request } from '../../../realtime/socket';
 
@@ -13,11 +14,11 @@ export type TeacherControlBarProps = {
   onToggleAudio: () => void;
 };
 
-const CONNECTION_LABEL: Record<string, string> = {
-  connected: 'Classroom sync active',
-  connecting: 'Connecting',
-  reconnecting: 'Reconnecting',
-  disconnected: 'Disconnected',
+const CONNECTION_KEY: Record<string, string> = {
+  connected: 'arena.controls.syncActive',
+  connecting: 'arena.controls.connecting',
+  reconnecting: 'arena.controls.reconnecting',
+  disconnected: 'arena.controls.disconnected',
 };
 
 /** The bottom strip from the reference: room code, sync status and controls. */
@@ -26,6 +27,7 @@ export function TeacherControlBar({
   audioEnabled,
   onToggleAudio,
 }: TeacherControlBarProps) {
+  const { t } = useTranslation('game');
   const roomCode = useRoomCode();
   const status = useStatus();
   const connection = useConnection();
@@ -41,12 +43,15 @@ export function TeacherControlBar({
 
   const canControl = hostToken !== null;
   const live = status === 'active' || status === 'paused';
+  const connectionKey = CONNECTION_KEY[connection] ?? connection;
 
   return (
     <footer className="bt-panel flex h-[72px] items-center gap-3 px-4">
       <div className="flex items-center gap-2.5">
         <div className="rounded-card bg-ink px-3 py-2">
-          <p className="text-[9px] font-bold uppercase tracking-wider text-white/60">room</p>
+          <p className="text-[9px] font-bold uppercase tracking-wider text-white/60">
+            {t('arena.controls.room')}
+          </p>
           <p className="tabular font-display text-lg font-extrabold leading-none text-white">
             {roomCode ? formatRoomCode(roomCode) : '------'}
           </p>
@@ -58,18 +63,18 @@ export function TeacherControlBar({
                 connection === 'connected' ? 'bg-emerald-500' : 'bg-amber-500'
               }`}
             />
-            {CONNECTION_LABEL[connection] ?? connection}
+            {t(connectionKey)}
           </p>
           <p className="text-[11px] font-semibold text-ink-muted">
-            {connected} {connected === 1 ? 'device' : 'devices'} connected
+            {t('arena.controls.devices', { count: connected })}
           </p>
         </div>
       </div>
 
-      <div className="ml-auto flex items-center gap-2">
+      <div className="ms-auto flex items-center gap-2">
         {canControl && status === 'lobby' && (
           <ControlButton onClick={() => act('start_game')} tone="primary">
-            Start match
+            {t('arena.controls.startMatch')}
           </ControlButton>
         )}
 
@@ -78,25 +83,27 @@ export function TeacherControlBar({
             <ControlButton
               onClick={() => act(status === 'paused' ? 'resume_game' : 'pause_game')}
             >
-              {status === 'paused' ? 'Resume match' : 'Pause match'}
+              {status === 'paused' ? t('arena.controls.resumeMatch') : t('arena.controls.pauseMatch')}
             </ControlButton>
-            <ControlButton onClick={() => act('skip_question')}>Skip question</ControlButton>
+            <ControlButton onClick={() => act('skip_question')}>
+              {t('arena.controls.skipQuestion')}
+            </ControlButton>
           </>
         )}
 
         <ControlButton onClick={onToggleAudio}>
-          Audio {audioEnabled ? 'on' : 'off'}
+          {audioEnabled ? t('arena.controls.audioOn') : t('arena.controls.audioOff')}
         </ControlButton>
 
         {canControl && status !== 'finished' && (
           <ControlButton onClick={() => act('end_game')} tone="danger">
-            End game
+            {t('arena.controls.endGame')}
           </ControlButton>
         )}
 
         {!canControl && (
           <p className="rounded-chip border border-paper-line bg-paper-sunk px-3 py-2 text-[11px] font-bold uppercase tracking-wide text-ink-faint">
-            Display only
+            {t('arena.controls.displayOnly')}
           </p>
         )}
       </div>

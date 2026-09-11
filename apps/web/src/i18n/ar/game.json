@@ -1,0 +1,160 @@
+{
+  "modes": {
+    "tug_of_war": {
+      "label": "شد الحبل",
+      "blurb": "فريقان وحبل واحد. الإجابات الصحيحة تسحب الحبل نحو فريقك.",
+      "countdownCue": "امسكوا الحبل",
+      "targetReached": "الحبل تجاوز الخط",
+      "wonBy": "سحبوا الحبل بالكامل",
+      "topContributor": "أقوى ساحب",
+      "contributionColumn": "المسافة المسحوبة",
+      "level": "الحبل في المنتصف",
+      "rejectedTitle": "لا سحب",
+      "roundStillOpen": "يمكن لفريقك الإجابة على هذا السؤال.",
+      "correctGain": "سحبت الحبل {{metres}}م",
+      "finishLine": "الحبل انتهى على بعد {{metres}}م من المنتصف"
+    },
+    "brain_race": {
+      "label": "سباق العقول",
+      "blurb": "كل طالب يسابق في مساره. أول من يصل يفوز لفريقه.",
+      "countdownCue": "انطلقوا إلى خط البداية",
+      "targetReached": "أول من يعبر خط النهاية",
+      "wonBy": "عبر خط النهاية أولاً",
+      "topContributor": "أفضل متسابق",
+      "contributionColumn": "المسافة",
+      "level": "المسارات متعادلة",
+      "rejectedTitle": "لا مسافة",
+      "roundStillOpen": "يمكن للآخرين الإجابة على هذا السؤال.",
+      "correctGain": "تقدّم متسابقك +{{metres}}م",
+      "finishLine": "انتهى في {{metres}}م"
+    }
+  },
+  "status": {
+    "lobby": "في الانتظار",
+    "countdown": "يبدأ الآن",
+    "active": "مباشر",
+    "paused": "متوقف",
+    "finished": "انتهت"
+  },
+  "fieldLabels": {
+    "game": "اللعبة",
+    "subject": "المادة"
+  },
+  "countdown": {
+    "getReady": "استعدوا",
+    "go": "انطلق!"
+  },
+  "arena": {
+    "header": {
+      "player": "لاعب",
+      "players": "لاعبون",
+      "score": "النقاط",
+      "scoreAria": "نقاط {{name}}",
+      "correct": "صحيح",
+      "correctAria": "إجابات صحيحة لـ {{name}}",
+      "finishers": "متأهّلون",
+      "finishersAria": "متأهّلو {{name}}",
+      "waitingLobby": "بانتظار البدء",
+      "question": "سؤال {{current}} / {{total}}"
+    },
+    "controls": {
+      "room": "الغرفة",
+      "syncActive": "مزامنة الصف نشطة",
+      "connecting": "جارٍ الاتصال",
+      "reconnecting": "جارٍ إعادة الاتصال",
+      "disconnected": "غير متصل",
+      "devices_one": "جهاز واحد متصل",
+      "devices_other": "{{count}} أجهزة متصلة",
+      "startMatch": "بدء المباراة",
+      "pause": "إيقاف",
+      "resume": "متابعة",
+      "skip": "تخطي",
+      "end": "إنهاء",
+      "soundOn": "تشغيل الصوت",
+      "soundOff": "إيقاف الصوت",
+      "resumeMatch": "متابعة المباراة",
+      "pauseMatch": "إيقاف المباراة",
+      "skipQuestion": "تخطي السؤال",
+      "endGame": "إنهاء اللعبة",
+      "audioOn": "تشغيل الصوت",
+      "audioOff": "إيقاف الصوت",
+      "displayOnly": "عرض فقط"
+    },
+    "race": {
+      "finish": "النهاية",
+      "leading": "متصدّر",
+      "finished": "انتهى",
+      "overtake": "تجاوز",
+      "finishers": "المتأهّلون",
+      "correctAnswer_one": "إجابة صحيحة واحدة",
+      "correctAnswer_other": "{{count}} إجابات صحيحة",
+      "sharedQuestion": "سؤال مشترك",
+      "waitingToStart": "بانتظار البدء",
+      "getReady": "استعدوا",
+      "recentGains": "آخر التقدّم",
+      "waitingFirstAnswer": "بانتظار أول إجابة صحيحة.",
+      "nextQuestionComing": "السؤال التالي قريباً",
+      "answerProgress": "{{answered}} / {{seated}} أجابوا",
+      "metresGain": "+{{metres}}م",
+      "streakHeadline": "🔥 سلسلة {{count}}",
+      "streakCheer": "{{name}} في أفضل حالاته!",
+      "streakLabel": "🔥 سلسلة {{count}}",
+      "defaultPlayer": "لاعب",
+      "roundResolution": {
+        "all_attempted": "أجاب الجميع",
+        "timeout": "انتهى الوقت",
+        "skipped": "تم تخطي السؤال",
+        "both_locked": "أكّد الفريقان إجاباتهم",
+        "victory": "وصل أحد إلى خط النهاية"
+      }
+    },
+    "tug": {
+      "ropeCentre": "الحبل في المنتصف — تعادل",
+      "pulling": "{{name}} يسحب!",
+      "scoreAdvantage": "تفوّق بالنقاط +{{count}}",
+      "advantage": "تفوّق {{metres}}م",
+      "center": "المنتصف 0م",
+      "answerLocked": "إجابة مؤكدة: {{value}}",
+      "answerInProgress": "الإجابة قيد الكتابة",
+      "confirmed": "مؤكدة",
+      "typing": "يكتب…",
+      "awaitingAnswer": "بانتظار الإجابة",
+      "mirroredKeypad": "معكوس من هواتف الفريق",
+      "leadAheadMetres": "<0>{{name}}</0> متقدّم بـ <1>{{metres}}م</1>"
+    },
+    "liveBoard": {
+      "title": "مباشر",
+      "questionOf": "سؤال {{current}} من {{total}}",
+      "questionCount": "{{total}} أسئلة",
+      "devicesConnected": "{{connected}} من {{total}} أجهزة متصلة",
+      "streak": "سلسلة {{count}}",
+      "aheadByFinishers_one": "<0>{{name}}</0> متقدّم بـ <1>{{gap}} متأهّل</1>",
+      "aheadByFinishers_other": "<0>{{name}}</0> متقدّم بـ <1>{{gap}} متأهّلين</1>",
+      "aheadByMetres": "<0>{{name}}</0> متقدّم بـ <1>{{metres}}م</1>",
+      "correctCount_one": "إجابة صحيحة واحدة",
+      "correctCount_other": "{{count}} إجابات صحيحة"
+    }
+  },
+  "results": {
+    "questionsExhausted": "انتهت كل الأسئلة",
+    "endedByTeacher": "أنهى المعلّم المباراة",
+    "ledAfterQuestions": "تصدّر بعد كل الأسئلة",
+    "ledWhenEnded": "تصدّر عند إنهاء المباراة",
+    "perfectDraw": "تعادل تام",
+    "teamWins": "فوز {{name}}!",
+    "matchResult": "نتيجة المباراة",
+    "bothTeamsLevel": "انتهى الفريقان متعادلين.",
+    "theyWon": "{{reason}}",
+    "matchOver": "انتهت المباراة",
+    "draw": "تعادل",
+    "teamWinShort": "فوز {{name}}",
+    "questionsPlayed": "{{played}} من {{total}} أسئلة",
+    "topContributorCorrect": "({{count}} صحيحة)",
+    "stats": {
+      "correct": "صحيح",
+      "incorrect": "خطأ",
+      "accuracy": "الدقة",
+      "bestStreak": "أفضل سلسلة"
+    }
+  }
+}

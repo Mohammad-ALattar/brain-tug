@@ -1,4 +1,5 @@
 import { defaultIdFactory, type IdFactory } from '../../domain/ids.js';
+import type { GameLanguage } from '../language.js';
 import type { Difficulty, TypeAnswerQuestion } from '../question.js';
 import { defaultRng, pick, randomInt, type Rng } from '../random.js';
 import { BOUNDS } from './difficulty.js';
@@ -80,7 +81,10 @@ export function buildMathProblem(options: MathProblemOptions): MathProblem {
   return { operation, difficulty: options.difficulty, left, right, answer };
 }
 
-export type MathQuestionOptions = MathProblemOptions & { ids?: IdFactory };
+export type MathQuestionOptions = MathProblemOptions & {
+  ids?: IdFactory;
+  language?: GameLanguage;
+};
 
 /**
  * Wraps a problem as a typed-answer question on a numeric keypad, which is what
@@ -95,6 +99,7 @@ export function generateMathQuestion(options: MathQuestionOptions): TypeAnswerQu
     id: ids.questionId(),
     subject: 'math',
     difficulty: problem.difficulty,
+    locale: options.language ?? 'en',
     type: 'type_answer',
     inputMode: 'number',
     prompt: formatPrompt(problem.operation, problem.left, problem.right),

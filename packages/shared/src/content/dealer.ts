@@ -1,4 +1,5 @@
 import { TEAM_IDS, type TeamId } from '../domain/team.js';
+import { questionDedupKey } from './localize.js';
 import type { Question } from './question.js';
 import type { QuestionSource } from './source.js';
 
@@ -35,8 +36,8 @@ export function createQuestionDealer(
   const historySize = options.historySize ?? DEFAULT_HISTORY;
   const recent: string[] = [];
 
-  const remember = (prompt: string): void => {
-    recent.push(prompt);
+  const remember = (question: Question): void => {
+    recent.push(questionDedupKey(question));
     while (recent.length > historySize) recent.shift();
   };
 
@@ -44,7 +45,7 @@ export function createQuestionDealer(
     deal(assignment) {
       if (assignment === 'shared') {
         const question = source.next(new Set(recent));
-        remember(question.prompt);
+        remember(question);
         // Both lanes hold the same object, which is what makes a submission
         // from either team match the same question id.
         return { blue: question, red: question };
@@ -54,9 +55,9 @@ export function createQuestionDealer(
       const dealt = {} as Record<TeamId, Question>;
       for (const teamId of TEAM_IDS) {
         const question = source.next(avoid);
-        // Block the sibling team from drawing the same prompt this round.
-        avoid.add(question.prompt);
-        remember(question.prompt);
+        // Block the sibling team from drawing the same question this round.
+        avoid.add(questionDedupKey(question));
+        remember(question);
         dealt[teamId] = question;
       }
       return dealt;

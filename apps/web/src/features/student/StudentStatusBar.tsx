@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { TeamId } from '@braintug/shared';
 import { formatRoomCode, streakTier } from '@braintug/shared';
 import { TEAM_THEME } from '../../design/teamTheme';
@@ -23,6 +24,7 @@ export const StudentStatusBar = memo(function StudentStatusBar({
   teamId,
   playerName,
 }: StudentStatusBarProps) {
+  const { t } = useTranslation('student');
   const theme = TEAM_THEME[teamId];
   const opponent: TeamId = teamId === 'blue' ? 'red' : 'blue';
   const mode = useGameMode();
@@ -51,7 +53,7 @@ export const StudentStatusBar = memo(function StudentStatusBar({
           </p>
         </div>
 
-        <div className="shrink-0 text-right">
+        <div className="shrink-0 text-end">
           <div className="tabular font-display text-2xl font-extrabold text-white">
             {myScore}
             <span className="px-1 text-base font-bold text-white/60">-</span>
@@ -59,7 +61,7 @@ export const StudentStatusBar = memo(function StudentStatusBar({
           </div>
           {isRace ? (
             <p className="text-[9px] font-extrabold uppercase tracking-[0.16em] text-white/70">
-              team correct
+              {t('status.teamCorrect')}
             </p>
           ) : null}
         </div>
@@ -72,7 +74,9 @@ export const StudentStatusBar = memo(function StudentStatusBar({
           </Chip>
         ) : null}
         {connection !== 'connected' ? (
-          <Chip tone="warn">{connection === 'reconnecting' ? 'Reconnecting' : 'Offline'}</Chip>
+          <Chip tone="warn">
+            {connection === 'reconnecting' ? t('status.reconnecting') : t('status.offline')}
+          </Chip>
         ) : null}
       </div>
     </header>

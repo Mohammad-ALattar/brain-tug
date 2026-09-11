@@ -1,0 +1,18 @@
+{
+  "rejection": {
+    "game_not_active": "The game has not started yet.",
+    "game_paused": "Your teacher paused the game.",
+    "round_not_active": "This question has closed.",
+    "stale_question": "That was the last question. Here comes the next one.",
+    "team_already_locked": "A teammate already got this one.",
+    "player_already_answered": "You have already answered this question.",
+    "time_expired": "Time ran out on that question.",
+    "malformed_answer": "That answer was not accepted.",
+    "not_a_player": "You are not in this game any more."
+  },
+  "socket": {
+    "noConnection": "No connection to the server.",
+    "gameInProgress": "This race has already started. Wait for the next match.",
+    "roomNotFound": "That room code does not exist."
+  }
+}

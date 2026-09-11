@@ -77,6 +77,7 @@ export type TestGame = {
 };
 
 export type SetupOptions = {
+  language?: GameSession['config']['language'];
   mode?: GameModeId;
   subject?: GameSession['config']['content']['subject'];
   playersPerTeam?: number;
@@ -106,6 +107,7 @@ export function setupGame(options: SetupOptions = {}): TestGame {
   const perTeam = options.playersPerTeam ?? 1;
 
   let session = createGame({
+    language: options.language,
     mode: options.mode ?? 'tug_of_war',
     subject: options.subject ?? 'math',
     operation: 'multiplication',

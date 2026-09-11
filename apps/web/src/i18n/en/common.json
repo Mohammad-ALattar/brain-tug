@@ -1,0 +1,61 @@
+{
+  "appName": "Brain Tug",
+  "language": {
+    "label": "Language",
+    "en": "English",
+    "ar": "العربية"
+  },
+  "landing": {
+    "title": "Brain <1>Tug</1>",
+    "subtitle": "Pick how you are joining this match.",
+    "teacher": {
+      "title": "Teacher",
+      "blurb": "Create a match, balance the teams and run the game."
+    },
+    "classroom": {
+      "title": "Classroom display",
+      "blurb": "The 16:9 arena for the projector or TV."
+    },
+    "student": {
+      "title": "Student",
+      "blurb": "Join with a room code and answer on your phone."
+    }
+  },
+  "routeError": {
+    "title": "Something went wrong",
+    "unexpected": "Unexpected error",
+    "back": "Back to start"
+  },
+  "connection": {
+    "reconnecting": "Reconnecting"
+  },
+  "subjects": {
+    "math": "Math",
+    "science": "Science",
+    "english": "English",
+    "history": "History",
+    "geography": "Geography",
+    "coding": "Coding",
+    "general": "General Knowledge"
+  },
+  "operations": {
+    "addition": "Addition",
+    "subtraction": "Subtraction",
+    "multiplication": "Multiplication",
+    "division": "Division",
+    "mixed": "Mixed"
+  },
+  "difficulties": {
+    "easy": "Easy",
+    "medium": "Medium",
+    "hard": "Hard"
+  },
+  "units": {
+    "questions": "questions",
+    "seconds": "seconds",
+    "finishers": "finishers",
+    "fewer": "Fewer {{unit}}",
+    "more": "More {{unit}}"
+  },
+  "offline": "offline"
+}

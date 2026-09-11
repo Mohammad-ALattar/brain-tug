@@ -1,3 +1,4 @@
+import { DEFAULT_LANGUAGE, type GameLanguage } from '../content/language.js';
 import type { ContentConfig } from '../content/source.js';
 import { SUBJECT_LABEL, type Subject } from '../content/subject.js';
 import { OPERATION_LABEL, type OperationChoice } from '../content/math/operations.js';
@@ -5,7 +6,7 @@ import type { Difficulty } from '../content/question.js';
 import type { GameConfig } from '../domain/game.js';
 import { defaultIdFactory, type IdFactory } from '../domain/ids.js';
 import type { GameSession } from '../domain/session.js';
-import { DEFAULT_TEAM_NAMES, createTeam, type TeamId } from '../domain/team.js';
+import { createTeam, defaultTeamNames, type TeamId } from '../domain/team.js';
 import { GAME_MODE } from '../modes/registry.js';
 import { GAME_MODES, type GameModeId } from '../modes/types.js';
 import {
@@ -23,6 +24,7 @@ import {
 } from '../rules/rules.js';
 
 export type CreateGameOptions = {
+  language?: GameLanguage;
   mode?: GameModeId;
   subject?: Subject;
   operation?: OperationChoice;
@@ -50,10 +52,11 @@ function clampInt(value: number, min: number, max: number, fallback: number): nu
 function buildContent(options: CreateGameOptions): ContentConfig {
   const subject = options.subject ?? 'math';
   const difficulty = options.difficulty ?? 'easy';
+  const language = options.language ?? 'en';
   if (subject === 'math') {
-    return { subject, difficulty, operation: options.operation ?? 'mixed' };
+    return { subject, difficulty, language, operation: options.operation ?? 'mixed' };
   }
-  return { subject, difficulty };
+  return { subject, difficulty, language };
 }
 
 function buildRoundLabel(mode: GameModeId, content: ContentConfig): string {
@@ -71,14 +74,17 @@ export function buildConfig(options: CreateGameOptions): GameConfig {
   }
 
   const content = buildContent(options);
+  const language = options.language ?? DEFAULT_LANGUAGE;
+  const defaults = defaultTeamNames(language);
   const teamNames: Record<TeamId, string> = {
-    blue: options.teamNames?.blue?.trim() || DEFAULT_TEAM_NAMES.blue,
-    red: options.teamNames?.red?.trim() || DEFAULT_TEAM_NAMES.red,
+    blue: options.teamNames?.blue?.trim() || defaults.blue,
+    red: options.teamNames?.red?.trim() || defaults.red,
   };
 
   return {
     mode,
     content,
+    language,
     totalQuestions: clampInt(
       options.totalQuestions ?? DEFAULT_TOTAL_QUESTIONS,
       MIN_TOTAL_QUESTIONS,

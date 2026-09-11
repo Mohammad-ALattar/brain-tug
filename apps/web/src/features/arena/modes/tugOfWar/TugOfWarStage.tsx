@@ -15,7 +15,7 @@ export function TugOfWarStage() {
   useTugOfWarMotion(rootRef);
 
   return (
-    <div ref={rootRef} className="flex min-h-0 flex-1 gap-3">
+    <div ref={rootRef} className="game-stage flex min-h-0 flex-1 gap-3" dir="ltr">
       <TeamPanel teamId="blue" terminalNumber={1} />
       <TugOfWarArena />
       <TeamPanel teamId="red" terminalNumber={2} />

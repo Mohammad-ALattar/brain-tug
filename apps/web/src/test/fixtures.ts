@@ -18,6 +18,7 @@ import {
 import { useGameStore } from '../store/gameStore';
 
 export type FixtureOptions = {
+  language?: GameSession['config']['language'];
   mode?: GameSession['config']['mode'];
   subject?: GameSession['config']['content']['subject'];
   playersPerTeam?: number;
@@ -38,6 +39,7 @@ export type FixtureOptions = {
  */
 export function makeSession(options: FixtureOptions = {}): GameSession {
   const { session } = setupGame({
+    language: options.language,
     mode: options.mode ?? 'tug_of_war',
     subject: options.subject ?? 'math',
     playersPerTeam: options.playersPerTeam ?? 2,
