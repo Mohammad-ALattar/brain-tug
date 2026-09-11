@@ -20,7 +20,7 @@ import { StudentRaceStrip } from './StudentRaceStrip';
 import { StudentStatusBar } from './StudentStatusBar';
 import { StudentTimerBar } from './StudentTimerBar';
 import { StudentResults } from './StudentResults';
-import { AnswerPad } from './answer/AnswerPad';
+import { AnswerPad, isAnswerableQuestion } from './answer/AnswerPad';
 
 export type StudentControllerProps = {
   teamId: TeamId;
@@ -47,7 +47,13 @@ export function StudentController({ teamId, playerName, onLeave }: StudentContro
     setSpent(false);
   }, [questionId]);
 
-  const canType = status === 'active' && !!questionId && !attempted && !teamLocked && !spent;
+  const canType =
+    status === 'active' &&
+    isAnswerableQuestion(question) &&
+    !!questionId &&
+    !attempted &&
+    !teamLocked &&
+    !spent;
 
   const submit = useCallback(
     async (value: string) => {

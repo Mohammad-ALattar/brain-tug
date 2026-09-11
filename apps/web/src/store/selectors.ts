@@ -62,13 +62,13 @@ export const useRules = () => useGameStore((s) => s.state?.rules ?? null);
 
 /** The prompt shown in a team's question card. */
 export const useTeamPrompt = (teamId: TeamId) =>
-  useGameStore((s) => s.state?.currentQuestion?.[teamId].prompt ?? null);
+  useGameStore((s) => s.state?.currentQuestion?.[teamId]?.prompt ?? null);
 
 export const useTeamQuestion = (teamId: TeamId): PublicQuestion | null =>
   useGameStore((s) => s.state?.currentQuestion?.[teamId] ?? null);
 
 export const useTeamQuestionId = (teamId: TeamId) =>
-  useGameStore((s) => s.state?.currentQuestion?.[teamId].id ?? null);
+  useGameStore((s) => s.state?.currentQuestion?.[teamId]?.id ?? null);
 
 export const useTeamLocked = (teamId: TeamId) =>
   useGameStore((s) => s.state?.round?.teams[teamId].locked ?? false);

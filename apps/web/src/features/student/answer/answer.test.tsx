@@ -115,6 +115,18 @@ describe('TrueFalseInput', () => {
 });
 
 describe('TypeAnswerInput', () => {
+  it('falls back to the numeric keypad when the question type is missing', () => {
+    withQuestion({
+      id: 'legacy1' as QuestionId,
+      subject: 'math',
+      difficulty: 'easy',
+      prompt: '5 - 2',
+    } as PublicQuestion);
+
+    expect(screen.getByRole('group', { name: /answer keypad/i })).toBeDefined();
+    expect(screen.getByText(/tap the numbers/i)).toBeDefined();
+  });
+
   it('submits a trimmed text answer', async () => {
     withQuestion({
       id: 'ta1' as QuestionId,

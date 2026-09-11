@@ -42,7 +42,8 @@ export const TypeAnswerInput = memo(function TypeAnswerInput({
         if (key === 'C') return '';
         if (key === '<') return current.slice(0, -1);
         if (current.length >= MAX_DIGITS) return current;
-        if (key === '0' && current.length === 0) return current;
+        // Allow a lone `0` (e.g. 5 − 5) but block multi-digit leading zeroes like `07`.
+        if (current === '0') return current;
         return current + key;
       });
     },

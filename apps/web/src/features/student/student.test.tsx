@@ -66,12 +66,24 @@ describe('answer assembly', () => {
     expect(screen.getByLabelText('Your answer').textContent).toContain('Tap the numbers');
   });
 
+  it('accepts zero as the whole answer', () => {
+    renderAsBluePlayer();
+
+    pressKey('0');
+    expect(screen.getByLabelText('Your answer').textContent).toContain('0');
+    expect(screen.getByRole('button', { name: /lock it in/i })).toHaveProperty('disabled', false);
+  });
+
   it('refuses a leading zero, so 07 can never be submitted', () => {
     renderAsBluePlayer();
 
     pressKey('0');
-    expect(screen.getByLabelText('Your answer').textContent).toContain('Tap the numbers');
+    expect(screen.getByLabelText('Your answer').textContent).toContain('0');
 
+    pressKey('7');
+    expect(screen.getByLabelText('Your answer').textContent).toContain('0');
+
+    pressKey('Clear');
     pressKey('7');
     pressKey('0');
     expect(screen.getByLabelText('Your answer').textContent).toContain('70');
