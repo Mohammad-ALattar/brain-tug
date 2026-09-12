@@ -68,7 +68,7 @@ On the **server host**:
 | Setting | Value                     |
 | ------- | ------------------------- |
 | Root    | repository root (`/`), not `apps/server` |
-| Build   | `npm ci && npm run build:server` |
+| Build   | `npm run build:server`    |
 | Start   | `npm run start:server`    |
 | Health  | `GET /health`             |
 
@@ -77,6 +77,10 @@ dashboard override cannot keep calling the old `@mtow/server` workspace name.
 If a deploy still fails with `No workspaces found: --workspace=@mtow/server`,
 open Railway **Settings → Build** and clear any custom build command left over
 from before the rename to Brain Tug (`@braintug/server`).
+
+Do not chain `npm ci` into the Railway build command. Nixpacks installs
+dependencies first; running `npm ci` again tries to delete `node_modules` and
+often fails with `EBUSY` on `apps/web/node_modules/.vite`.
 
 Note the asymmetry with Vercel: Railway's root directory stays at the
 **repository root**, not `apps/server`, because `npm ci` needs the lockfile and
