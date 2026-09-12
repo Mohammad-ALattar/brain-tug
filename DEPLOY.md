@@ -67,9 +67,16 @@ On the **server host**:
 
 | Setting | Value                     |
 | ------- | ------------------------- |
+| Root    | repository root (`/`), not `apps/server` |
 | Build   | `npm ci && npm run build:server` |
 | Start   | `npm run start:server`    |
 | Health  | `GET /health`             |
+
+A `railway.toml` at the repo root pins the build and start commands so a stale
+dashboard override cannot keep calling the old `@mtow/server` workspace name.
+If a deploy still fails with `No workspaces found: --workspace=@mtow/server`,
+open Railway **Settings → Build** and clear any custom build command left over
+from before the rename to Brain Tug (`@braintug/server`).
 
 Note the asymmetry with Vercel: Railway's root directory stays at the
 **repository root**, not `apps/server`, because `npm ci` needs the lockfile and

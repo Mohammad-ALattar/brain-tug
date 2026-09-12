@@ -1,0 +1,11 @@
+# Railway reads this file from the repository root. Keep the service root
+# directory set to "/" (not apps/server) so npm workspaces resolve correctly.
+#
+# The workspace was renamed from @mtow/* to @braintug/* — do not use the old
+# @mtow/server name in custom build commands.
+
+[build]
+buildCommand = "npm ci && npm run build:server"
+
+[deploy]
+startCommand = "npm run start:server"
