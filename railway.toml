@@ -1,13 +1,13 @@
 # Railway reads this file from the repository root. Keep the service root
 # directory set to "/" (not apps/server) so npm workspaces resolve correctly.
 #
-# The workspace was renamed from @mtow/* to @braintug/* — do not use the old
-# @mtow/server name in custom build commands.
+# Server workspace: @braintug/server (apps/server/package.json).
+# Do not use the removed @mtow/server name in build or start commands.
 
-# Nixpacks already runs `npm install` before this step. A second `npm ci` here
-# tries to wipe node_modules and can fail with EBUSY on apps/web/node_modules/.vite.
+# Nixpacks/Railpack already runs `npm install` before this step. A second `npm ci`
+# here tries to wipe node_modules and can fail with EBUSY on apps/web/node_modules/.vite.
 [build]
-buildCommand = "npm run build:server"
+buildCommand = "npm run build --workspace=@braintug/server"
 # Repo-root anchored patterns (leading /). The server build reads the root
 # lockfile, shared package, and tsconfig — not only apps/server. Without these,
 # pushes that touch railway.toml or packages/shared get SKIPPED.
@@ -18,11 +18,14 @@ watchPatterns = [
   "/package-lock.json",
   "/.npmrc",
   "/railway.toml",
+  "/railway.json",
+  "/railpack.json",
+  "/Procfile",
   "/tsconfig.json",
   "/tsconfig.base.json",
 ]
 
 [deploy]
-# Also set this in the Railway UI — an empty start field makes Railpack auto-detect,
-# which can still target the old @mtow/server workspace from the service name.
+# Direct node start — never `npm run start --workspace=…`, which Railpack can
+# mis-resolve from a stale Railway service name.
 startCommand = "node apps/server/dist/index.js"

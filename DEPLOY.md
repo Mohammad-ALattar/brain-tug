@@ -68,24 +68,26 @@ On the **server host**:
 | Setting | Value                     |
 | ------- | ------------------------- |
 | Root    | repository root (`/`), not `apps/server` |
-| Build   | `npm run build:server`    |
+| Build   | `npm run build --workspace=@braintug/server` |
 | Start   | `node apps/server/dist/index.js` |
 | Health  | `GET /health`             |
-| Config  | `/railway.toml` (set under **Settings → Config-as-code** if needed) |
+| Config  | `/railway.toml` or `/railway.json` (under **Settings → Config-as-code**) |
 
-A `railway.toml` at the repo root pins the build and start commands. If deploy
-logs still show `No workspaces found: --workspace=@mtow/server`, Railway is
-ignoring that file and using a stale dashboard override from before the rename
-to Brain Tug. Fix it in the UI:
+`railway.toml`, `railway.json`, and `railpack.json` at the repo root pin the
+build and start commands for workspace `@braintug/server`. If deploy logs still
+show `No workspaces found: --workspace=@mtow/server`, Railway is using a stale
+dashboard override or auto-detecting from the old service name `@mtow/server`.
+Fix it in the UI:
 
 1. **Settings → Source → Root Directory** → `/` (repo root, not `apps/server`)
-2. **Settings → Config-as-code → Railway Config File** → `/railway.toml`
+2. **Settings → Config-as-code → Railway Config File** → `/railway.json`
 3. **Settings → Deploy → Custom Start Command** → `node apps/server/dist/index.js`
-4. **Settings → Build → Custom Build Command** → `npm run build:server`
-5. **Settings → Build → Watch Paths** → clear them (leave blank; `railway.toml` owns this)
+4. **Settings → Build → Custom Build Command** → `npm run build --workspace=@braintug/server`
+5. **Settings → Build → Watch Paths** → clear them (config-as-code owns this)
 
-The start command must not reference `@mtow/server`. The compiled server is
-started with `node apps/server/dist/index.js`.
+The start command must not reference `@mtow/server` (removed). The server
+workspace is `@braintug/server`; production starts the compiled entry with
+`node apps/server/dist/index.js`.
 
 Do not chain `npm ci` into the Railway build command. Nixpacks installs
 dependencies first; running `npm ci` again tries to delete `node_modules` and
@@ -120,7 +122,7 @@ RAILPACK_NO_SPA=1
 site (Caddy) instead of running the Node game server.
 
 **Do not leave the Railway start command empty.** An empty field makes Railpack
-auto-detect, which can still target the old `@mtow/server` workspace name from
+auto-detect, which can still target the removed `@mtow/server` workspace from
 when the service was first created. Set it explicitly to:
 
 ```

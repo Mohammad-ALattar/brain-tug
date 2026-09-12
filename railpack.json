@@ -1,0 +1,11 @@
+{
+  "$schema": "https://schema.railpack.com",
+  "steps": {
+    "build": {
+      "commands": ["npm run build --workspace=@braintug/server"]
+    }
+  },
+  "deploy": {
+    "startCommand": "node apps/server/dist/index.js"
+  }
+}
