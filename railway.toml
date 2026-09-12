@@ -8,6 +8,19 @@
 # tries to wipe node_modules and can fail with EBUSY on apps/web/node_modules/.vite.
 [build]
 buildCommand = "npm run build:server"
+# Repo-root anchored patterns (leading /). The server build reads the root
+# lockfile, shared package, and tsconfig — not only apps/server. Without these,
+# pushes that touch railway.toml or packages/shared get SKIPPED.
+watchPatterns = [
+  "/apps/server/**",
+  "/packages/shared/**",
+  "/package.json",
+  "/package-lock.json",
+  "/.npmrc",
+  "/railway.toml",
+  "/tsconfig.json",
+  "/tsconfig.base.json",
+]
 
 [deploy]
 startCommand = "npm run start:server"

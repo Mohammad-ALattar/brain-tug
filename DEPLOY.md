@@ -82,6 +82,13 @@ Do not chain `npm ci` into the Railway build command. Nixpacks installs
 dependencies first; running `npm ci` again tries to delete `node_modules` and
 often fails with `EBUSY` on `apps/web/node_modules/.vite`.
 
+If Railway shows **SKIPPED — No changes to watched files**, the service has
+narrow watch paths (often `apps/server/**` only). `railway.toml` sets
+`watchPatterns` for everything the server build actually uses, including
+`packages/shared`, the root lockfile, and `railway.toml` itself. Clear any
+conflicting watch paths in the Railway dashboard, or redeploy manually once from
+the latest commit.
+
 Note the asymmetry with Vercel: Railway's root directory stays at the
 **repository root**, not `apps/server`, because `npm ci` needs the lockfile and
 the workspace definitions that only exist there. The root `build:server` and
