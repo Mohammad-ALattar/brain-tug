@@ -23,4 +23,6 @@ watchPatterns = [
 ]
 
 [deploy]
-startCommand = "npm run start:server"
+# Run the compiled entry directly — avoids npm workspace resolution and ignores
+# any stale dashboard override such as `npm run start --workspace=@mtow/server`.
+startCommand = "node apps/server/dist/index.js"

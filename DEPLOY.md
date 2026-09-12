@@ -69,14 +69,23 @@ On the **server host**:
 | ------- | ------------------------- |
 | Root    | repository root (`/`), not `apps/server` |
 | Build   | `npm run build:server`    |
-| Start   | `npm run start:server`    |
+| Start   | `node apps/server/dist/index.js` |
 | Health  | `GET /health`             |
+| Config  | `/railway.toml` (set under **Settings → Config-as-code** if needed) |
 
-A `railway.toml` at the repo root pins the build and start commands so a stale
-dashboard override cannot keep calling the old `@mtow/server` workspace name.
-If a deploy still fails with `No workspaces found: --workspace=@mtow/server`,
-open Railway **Settings → Build** and clear any custom build command left over
-from before the rename to Brain Tug (`@braintug/server`).
+A `railway.toml` at the repo root pins the build and start commands. If deploy
+logs still show `No workspaces found: --workspace=@mtow/server`, Railway is
+ignoring that file and using a stale dashboard override from before the rename
+to Brain Tug. Fix it in the UI:
+
+1. **Settings → Source → Root Directory** → `/` (repo root, not `apps/server`)
+2. **Settings → Config-as-code → Railway Config File** → `/railway.toml`
+3. **Settings → Deploy → Custom Start Command** → clear it (leave blank)
+4. **Settings → Build → Custom Build Command** → clear it (leave blank)
+5. **Settings → Build → Watch Paths** → clear them (leave blank; `railway.toml` owns this)
+
+The start command must not reference `@mtow/server`. The compiled server is
+started with `node apps/server/dist/index.js`.
 
 Do not chain `npm ci` into the Railway build command. Nixpacks installs
 dependencies first; running `npm ci` again tries to delete `node_modules` and
