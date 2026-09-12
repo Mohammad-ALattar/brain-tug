@@ -5,7 +5,7 @@
 ```bash
 npm ci
 npm run build
-CLIENT_DIST=apps/web/dist NODE_ENV=production PORT=8080 npm start
+CLIENT_DIST=apps/web/dist NODE_ENV=production PORT=8080 npm run start:single-origin
 ```
 
 One Node process now serves the client and the websocket on the same port.
@@ -80,8 +80,8 @@ to Brain Tug. Fix it in the UI:
 
 1. **Settings → Source → Root Directory** → `/` (repo root, not `apps/server`)
 2. **Settings → Config-as-code → Railway Config File** → `/railway.toml`
-3. **Settings → Deploy → Custom Start Command** → clear it (leave blank)
-4. **Settings → Build → Custom Build Command** → clear it (leave blank)
+3. **Settings → Deploy → Custom Start Command** → `node apps/server/dist/index.js`
+4. **Settings → Build → Custom Build Command** → `npm run build:server`
 5. **Settings → Build → Watch Paths** → clear them (leave blank; `railway.toml` owns this)
 
 The start command must not reference `@mtow/server`. The compiled server is
@@ -113,6 +113,18 @@ Environment on the server host:
 NODE_ENV=production
 CORS_ORIGIN=https://your-app.vercel.app
 LOG_LEVEL=info
+RAILPACK_NO_SPA=1
+```
+
+`RAILPACK_NO_SPA=1` stops Railpack from treating the Vite client as a static
+site (Caddy) instead of running the Node game server.
+
+**Do not leave the Railway start command empty.** An empty field makes Railpack
+auto-detect, which can still target the old `@mtow/server` workspace name from
+when the service was first created. Set it explicitly to:
+
+```
+node apps/server/dist/index.js
 ```
 
 `PORT` is normally injected by the platform; the server reads it. Do not set

@@ -23,6 +23,6 @@ watchPatterns = [
 ]
 
 [deploy]
-# Run the compiled entry directly — avoids npm workspace resolution and ignores
-# any stale dashboard override such as `npm run start --workspace=@mtow/server`.
+# Also set this in the Railway UI — an empty start field makes Railpack auto-detect,
+# which can still target the old @mtow/server workspace from the service name.
 startCommand = "node apps/server/dist/index.js"
